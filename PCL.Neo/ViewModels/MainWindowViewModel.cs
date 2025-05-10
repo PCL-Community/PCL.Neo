@@ -25,6 +25,9 @@ namespace PCL.Neo.ViewModels
         private ViewModelBase? _currentViewModel;
         [ObservableProperty]
         private ViewModelBase? _currentSubViewModel;
+        
+        [ObservableProperty]
+        private bool _canGoBack;
 
         // 为了设计时的 DataContext
         public MainWindowViewModel()
@@ -41,19 +44,29 @@ namespace PCL.Neo.ViewModels
             this.NavigationService.CurrentViewModelChanged += x =>
             {
                 CurrentViewModel = x;
+                CanGoBack = NavigationService.CanGoBack;
                 switch (x)
                 {
                     case HomeViewModel:
                         IsNavBtn1Checked = true;
+                        IsNavBtn2Checked = false;
+                        IsNavBtn3Checked = false;
+                        IsNavBtn4Checked = false;
+                        IsNavBtn5Checked = false;
                         break;
                     case DownloadViewModel:
+                        IsNavBtn1Checked = false;
                         IsNavBtn2Checked = true;
+                        IsNavBtn3Checked = false;
+                        IsNavBtn4Checked = false;
+                        IsNavBtn5Checked = false;
                         break;
                 }
             };
             this.NavigationService.CurrentSubViewModelChanged += x =>
             {
                 CurrentSubViewModel = x;
+                CanGoBack = NavigationService.CanGoBack;
             };
             this.NavigationService.Goto<HomeViewModel>();
         }
@@ -68,6 +81,16 @@ namespace PCL.Neo.ViewModels
         public void NavigateToDownload()
         {
             this.NavigationService.Goto<DownloadViewModel>();
+        }
+        
+        [RelayCommand]
+        public void GoBack()
+        {
+            if (NavigationService.CanGoBack)
+            {
+                NavigationService.GoBack();
+                CanGoBack = NavigationService.CanGoBack;
+            }
         }
 
         public void Close()

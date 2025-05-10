@@ -1,9 +1,30 @@
 using Microsoft.Extensions.DependencyInjection;
 using PCL.Neo.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace PCL.Neo.Services;
+
+public enum NavigationType
+{
+    Forward,
+    Backward
+}
+
+public class NavigationEventArgs : EventArgs
+{
+    public ViewModelBase? OldViewModel { get; }
+    public ViewModelBase? NewViewModel { get; }
+    public NavigationType NavigationType { get; }
+
+    public NavigationEventArgs(ViewModelBase? oldViewModel, ViewModelBase? newViewModel, NavigationType navigationType)
+    {
+        OldViewModel = oldViewModel;
+        NewViewModel = newViewModel;
+        NavigationType = navigationType;
+    }
+}
 
 public class NavigationService
 {
@@ -11,6 +32,12 @@ public class NavigationService
 
     public event Action<ViewModelBase?>? CurrentViewModelChanged;
     public event Action<ViewModelBase?>? CurrentSubViewModelChanged;
+    public event Action<NavigationEventArgs>? Navigating;
+
+    // 导航历史记录
+    private readonly Stack<(Type ViewModelType, Type? SubViewModelType)> _navigationHistory = new();
+    // 最大历史记录数量
+    private const int MaxHistoryCount = 30;
 
     private ViewModelBase? _currentViewModel;
     public ViewModelBase? CurrentViewModel
@@ -20,6 +47,8 @@ public class NavigationService
         {
             if (value == _currentViewModel)
                 return;
+                
+            var oldViewModel = _currentViewModel;
             _currentViewModel = value;
             CurrentViewModelChanged?.Invoke(value);
         }
@@ -33,10 +62,14 @@ public class NavigationService
         {
             if (value == _currentSubViewModel)
                 return;
+            
+            var oldSubViewModel = _currentSubViewModel;
             _currentSubViewModel = value;
             CurrentSubViewModelChanged?.Invoke(value);
         }
     }
+
+    public bool CanGoBack => _navigationHistory.Count > 0;
 
     public NavigationService(IServiceProvider serviceProvider)
     {
@@ -45,6 +78,36 @@ public class NavigationService
 
     public virtual T Goto<T>() where T : ViewModelBase
     {
+        var oldViewModel = CurrentViewModel;
+        var oldSubViewModel = CurrentSubViewModel;
+        
+        // 保存当前状态到历史记录
+        if (CurrentViewModel != null)
+        {
+            _navigationHistory.Push((CurrentViewModel.GetType(), CurrentSubViewModel?.GetType()));
+            
+            // 限制历史记录数量
+            if (_navigationHistory.Count > MaxHistoryCount)
+            {
+                var tempStack = new Stack<(Type, Type?)>();
+                var count = 0;
+                
+                while (_navigationHistory.Count > 0 && count < MaxHistoryCount)
+                {
+                    tempStack.Push(_navigationHistory.Pop());
+                    count++;
+                }
+                
+                _navigationHistory.Clear();
+                while (tempStack.Count > 0)
+                {
+                    _navigationHistory.Push(tempStack.Pop());
+                }
+            }
+        }
+
+        T targetVm;
+        
         if (typeof(T).GetCustomAttribute<DefaultSubViewModelAttribute>() is { } dsvm)
         {
             var vm = CurrentViewModel as T;
@@ -55,10 +118,9 @@ public class NavigationService
             }
             if (CurrentSubViewModel?.GetType() != dsvm.SubViewModel)
                 CurrentSubViewModel = ServiceProvider.GetRequiredService(dsvm.SubViewModel) as ViewModelBase;
-            return vm;
+            targetVm = vm;
         }
-
-        if (typeof(T).GetCustomAttribute<SubViewModelOfAttribute>() is { } svmo)
+        else if (typeof(T).GetCustomAttribute<SubViewModelOfAttribute>() is { } svmo)
         {
             var subVm = CurrentSubViewModel as T;
             if (CurrentViewModel?.GetType() != svmo.ParentViewModel)
@@ -68,16 +130,66 @@ public class NavigationService
                 subVm = ServiceProvider.GetRequiredService<T>();
                 CurrentSubViewModel = subVm;
             }
-            return subVm;
+            targetVm = subVm;
         }
-
-        var targetVm = CurrentViewModel?.GetType() != typeof(T) || CurrentSubViewModel?.GetType() != typeof(T)
-            ? ServiceProvider.GetRequiredService<T>()
-            : (T)CurrentViewModel;
-        if (CurrentViewModel?.GetType() != typeof(T))
-            CurrentViewModel = targetVm;
-        if (CurrentSubViewModel?.GetType() != typeof(T))
-            CurrentSubViewModel = targetVm;
+        else
+        {
+            targetVm = CurrentViewModel?.GetType() != typeof(T) || CurrentSubViewModel?.GetType() != typeof(T)
+                ? ServiceProvider.GetRequiredService<T>()
+                : (T)CurrentViewModel;
+            if (CurrentViewModel?.GetType() != typeof(T))
+                CurrentViewModel = targetVm;
+            if (CurrentSubViewModel?.GetType() != typeof(T))
+                CurrentSubViewModel = targetVm;
+        }
+        
+        // 触发导航事件
+        Navigating?.Invoke(new NavigationEventArgs(oldViewModel, CurrentViewModel, NavigationType.Forward));
+        
         return targetVm;
+    }
+    
+    /// <summary>
+    /// 返回上一个导航状态
+    /// </summary>
+    /// <returns>是否成功返回</returns>
+    public bool GoBack()
+    {
+        if (!CanGoBack)
+            return false;
+            
+        var oldViewModel = CurrentViewModel;
+        var oldSubViewModel = CurrentSubViewModel;
+        
+        var (viewModelType, subViewModelType) = _navigationHistory.Pop();
+        
+        // 恢复主视图
+        if (viewModelType != null)
+        {
+            CurrentViewModel = ServiceProvider.GetRequiredService(viewModelType) as ViewModelBase;
+        }
+        
+        // 恢复子视图
+        if (subViewModelType != null)
+        {
+            CurrentSubViewModel = ServiceProvider.GetRequiredService(subViewModelType) as ViewModelBase;
+        }
+        else
+        {
+            CurrentSubViewModel = null;
+        }
+        
+        // 触发导航事件
+        Navigating?.Invoke(new NavigationEventArgs(oldViewModel, CurrentViewModel, NavigationType.Backward));
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// 清空导航历史
+    /// </summary>
+    public void ClearHistory()
+    {
+        _navigationHistory.Clear();
     }
 }

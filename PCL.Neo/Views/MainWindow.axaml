@@ -148,60 +148,75 @@
                         Height="48"
                         Name="NavBackgroundBorder"
                         ZIndex="2">
-                        <StackPanel
-                            Height="27"
-                            HorizontalAlignment="Center"
-                            Name="PanTitleSelect"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                            <pc:MyRadioButton
-                                Command="{Binding NavigateToHome}"
-                                IsChecked="{Binding IsNavBtn1Checked}"
-                                Logo="{StaticResource BtnTitleSelect0}"
-                                LogoScale="0.95"
-                                Margin="5,0"
-                                Name="BtnTitleSelect0"
-                                Padding="2,0"
-                                Tag="0"
-                                Text="{DynamicResource LangTitleHome}" />
-                            <pc:MyRadioButton
-                                Command="{Binding NavigateToDownload}"
-                                IsChecked="{Binding IsNavBtn2Checked}"
-                                Logo="{DynamicResource BtnTitleSelect1}"
-                                LogoScale="0.9"
-                                Margin="5,0"
-                                Name="BtnTitleSelect1"
-                                Padding="2,0"
-                                Tag="1"
-                                Text="{DynamicResource LangTitleDownload}" />
-                            <pc:MyRadioButton
-                                IsChecked="{Binding IsNavBtn3Checked}"
-                                Logo="{StaticResource BtnTitleSelect2}"
-                                LogoScale="1.05"
-                                Margin="5,0"
-                                Name="BtnTitleSelect2"
-                                Padding="2,0"
-                                Tag="2"
-                                Text="{DynamicResource LangTitleLink}" />
-                            <pc:MyRadioButton
-                                IsChecked="{Binding IsNavBtn4Checked}"
-                                Logo="{DynamicResource BtnTitleSelect3}"
-                                LogoScale="1.1"
-                                Margin="5,0"
-                                Name="BtnTitleSelect3"
-                                Padding="2,0"
-                                Tag="3"
-                                Text="{DynamicResource LangTitleSetup}" />
-                            <pc:MyRadioButton
-                                IsChecked="{Binding IsNavBtn5Checked}"
-                                Logo="{StaticResource BtnTitleSelect4}"
-                                LogoScale="0.93"
-                                Margin="5,0"
-                                Name="BtnTitleSelect4"
-                                Padding="2,0"
-                                Tag="4"
-                                Text="{DynamicResource LangTitleOther}" />
-                        </StackPanel>
+                        <Grid>
+                            <StackPanel
+                                Height="27"
+                                HorizontalAlignment="Center"
+                                Name="PanTitleSelect"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                                <pc:MyRadioButton
+                                    Command="{Binding NavigateToHome}"
+                                    IsChecked="{Binding IsNavBtn1Checked}"
+                                    Logo="{StaticResource BtnTitleSelect0}"
+                                    LogoScale="0.95"
+                                    Margin="5,0"
+                                    Name="BtnTitleSelect0"
+                                    Padding="2,0"
+                                    Tag="0"
+                                    Text="{DynamicResource LangTitleHome}" />
+                                <pc:MyRadioButton
+                                    Command="{Binding NavigateToDownload}"
+                                    IsChecked="{Binding IsNavBtn2Checked}"
+                                    Logo="{DynamicResource BtnTitleSelect1}"
+                                    LogoScale="0.9"
+                                    Margin="5,0"
+                                    Name="BtnTitleSelect1"
+                                    Padding="2,0"
+                                    Tag="1"
+                                    Text="{DynamicResource LangTitleDownload}" />
+                                <pc:MyRadioButton
+                                    IsChecked="{Binding IsNavBtn3Checked}"
+                                    Logo="{StaticResource BtnTitleSelect2}"
+                                    LogoScale="1.05"
+                                    Margin="5,0"
+                                    Name="BtnTitleSelect2"
+                                    Padding="2,0"
+                                    Tag="2"
+                                    Text="{DynamicResource LangTitleLink}" />
+                                <pc:MyRadioButton
+                                    IsChecked="{Binding IsNavBtn4Checked}"
+                                    Logo="{DynamicResource BtnTitleSelect3}"
+                                    LogoScale="1.1"
+                                    Margin="5,0"
+                                    Name="BtnTitleSelect3"
+                                    Padding="2,0"
+                                    Tag="3"
+                                    Text="{DynamicResource LangTitleSetup}" />
+                                <pc:MyRadioButton
+                                    IsChecked="{Binding IsNavBtn5Checked}"
+                                    Logo="{StaticResource BtnTitleSelect4}"
+                                    LogoScale="0.93"
+                                    Margin="5,0"
+                                    Name="BtnTitleSelect4"
+                                    Padding="2,0"
+                                    Tag="4"
+                                    Text="{DynamicResource LangTitleOther}" />
+                            </StackPanel>
+                            
+                            <pc:MyIconButton 
+                                Command="{Binding GoBackCommand}"
+                                Height="27"
+                                HorizontalAlignment="Left"
+                                IsEnabled="{Binding CanGoBack}"
+                                Margin="15,0,0,0"
+                                Name="BtnNavBack"
+                                ToolTip.Tip="{DynamicResource LangNavigateBack}"
+                                VerticalAlignment="Center"
+                                Width="27">
+                                <PathIcon Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+                            </pc:MyIconButton>
+                        </Grid>
                     </Border>
 
                     <Grid

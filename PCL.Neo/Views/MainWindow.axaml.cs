@@ -11,6 +11,8 @@ using PCL.Neo.Animations;
 using PCL.Neo.Animations.Easings;
 using PCL.Neo.Controls;
 using PCL.Neo.Helpers;
+using PCL.Neo.Services;
+using PCL.Neo.ViewModels;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -22,6 +24,10 @@ namespace PCL.Neo.Views;
 
 public partial class MainWindow : Window
 {
+    private readonly CompositionVisual? _leftNavigationControlVisual;
+    private readonly CompositionVisual? _rightNavigationControlVisual;
+    private readonly Compositor? _compositor;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -82,8 +88,140 @@ public partial class MainWindow : Window
             };
         };
 
-         GridRoot.Opacity = 0; // 在此处初始化透明度，不然将闪现
+        // 获取导航控件的CompositionVisual，用于动画
+        _leftNavigationControlVisual = ElementComposition.GetElementVisual(LeftNavigationControl);
+        _rightNavigationControlVisual = ElementComposition.GetElementVisual(RightNavigationControl);
+        
+        if (_leftNavigationControlVisual != null) 
+        {
+            _compositor = _leftNavigationControlVisual.Compositor;
+            
+            // 订阅导航事件
+            this.Loaded += (_, _) => 
+            {
+                if (DataContext is MainWindowViewModel viewModel)
+                {
+                    viewModel.NavigationService.Navigating += OnNavigating;
+                }
+            };
+            
+            this.Unloaded += (_, _) => 
+            {
+                if (DataContext is MainWindowViewModel viewModel)
+                {
+                    viewModel.NavigationService.Navigating -= OnNavigating;
+                }
+            };
+        }
+
+        GridRoot.Opacity = 0; // 在此处初始化透明度，不然将闪现
         this.Loaded += (_, _) => AnimationIn();
+    }
+    
+    private void OnNavigating(NavigationEventArgs e)
+    {
+        if (_compositor == null || _leftNavigationControlVisual == null || _rightNavigationControlVisual == null)
+            return;
+        
+        // 导航动画效果
+        if (e.NavigationType == NavigationType.Forward)
+        {
+            // 前进动画
+            PlayForwardNavigationAnimation();
+        }
+        else
+        {
+            // 后退动画
+            PlayBackwardNavigationAnimation();
+        }
+    }
+    
+    private void PlayForwardNavigationAnimation()
+    {
+        if (_compositor == null || _leftNavigationControlVisual == null || _rightNavigationControlVisual == null)
+            return;
+            
+        // 左侧面板动画 - 从左滑入
+        var leftOffsetAnimation = _compositor.CreateVector3KeyFrameAnimation();
+        leftOffsetAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        leftOffsetAnimation.InsertKeyFrame(0f, new Vector3(-50f, 0f, 0f), new CubicEaseOut());
+        leftOffsetAnimation.InsertKeyFrame(1f, new Vector3(0f, 0f, 0f), new CubicEaseOut());
+        leftOffsetAnimation.Target = "Offset";
+        
+        var leftOpacityAnimation = _compositor.CreateScalarKeyFrameAnimation();
+        leftOpacityAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        leftOpacityAnimation.InsertKeyFrame(0f, 0f, new CubicEaseOut());
+        leftOpacityAnimation.InsertKeyFrame(1f, 1f, new CubicEaseOut());
+        leftOpacityAnimation.Target = "Opacity";
+        
+        // 右侧面板动画 - 从右滑入
+        var rightOffsetAnimation = _compositor.CreateVector3KeyFrameAnimation();
+        rightOffsetAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        rightOffsetAnimation.InsertKeyFrame(0f, new Vector3(50f, 0f, 0f), new CubicEaseOut());
+        rightOffsetAnimation.InsertKeyFrame(1f, new Vector3(0f, 0f, 0f), new CubicEaseOut());
+        rightOffsetAnimation.Target = "Offset";
+        
+        var rightOpacityAnimation = _compositor.CreateScalarKeyFrameAnimation();
+        rightOpacityAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        rightOpacityAnimation.InsertKeyFrame(0f, 0f, new CubicEaseOut());
+        rightOpacityAnimation.InsertKeyFrame(1f, 1f, new CubicEaseOut());
+        rightOpacityAnimation.Target = "Opacity";
+        
+        // 应用动画
+        var leftAnimationGroup = _compositor.CreateAnimationGroup();
+        leftAnimationGroup.Add(leftOffsetAnimation);
+        leftAnimationGroup.Add(leftOpacityAnimation);
+        
+        var rightAnimationGroup = _compositor.CreateAnimationGroup();
+        rightAnimationGroup.Add(rightOffsetAnimation);
+        rightAnimationGroup.Add(rightOpacityAnimation);
+        
+        _leftNavigationControlVisual.StartAnimationGroup(leftAnimationGroup);
+        _rightNavigationControlVisual.StartAnimationGroup(rightAnimationGroup);
+    }
+    
+    private void PlayBackwardNavigationAnimation()
+    {
+        if (_compositor == null || _leftNavigationControlVisual == null || _rightNavigationControlVisual == null)
+            return;
+            
+        // 左侧面板动画 - 从右滑入
+        var leftOffsetAnimation = _compositor.CreateVector3KeyFrameAnimation();
+        leftOffsetAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        leftOffsetAnimation.InsertKeyFrame(0f, new Vector3(50f, 0f, 0f), new CubicEaseOut());
+        leftOffsetAnimation.InsertKeyFrame(1f, new Vector3(0f, 0f, 0f), new CubicEaseOut());
+        leftOffsetAnimation.Target = "Offset";
+        
+        var leftOpacityAnimation = _compositor.CreateScalarKeyFrameAnimation();
+        leftOpacityAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        leftOpacityAnimation.InsertKeyFrame(0f, 0f, new CubicEaseOut());
+        leftOpacityAnimation.InsertKeyFrame(1f, 1f, new CubicEaseOut());
+        leftOpacityAnimation.Target = "Opacity";
+        
+        // 右侧面板动画 - 从左滑入
+        var rightOffsetAnimation = _compositor.CreateVector3KeyFrameAnimation();
+        rightOffsetAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        rightOffsetAnimation.InsertKeyFrame(0f, new Vector3(-50f, 0f, 0f), new CubicEaseOut());
+        rightOffsetAnimation.InsertKeyFrame(1f, new Vector3(0f, 0f, 0f), new CubicEaseOut());
+        rightOffsetAnimation.Target = "Offset";
+        
+        var rightOpacityAnimation = _compositor.CreateScalarKeyFrameAnimation();
+        rightOpacityAnimation.Duration = TimeSpan.FromMilliseconds(300);
+        rightOpacityAnimation.InsertKeyFrame(0f, 0f, new CubicEaseOut());
+        rightOpacityAnimation.InsertKeyFrame(1f, 1f, new CubicEaseOut());
+        rightOpacityAnimation.Target = "Opacity";
+        
+        // 应用动画
+        var leftAnimationGroup = _compositor.CreateAnimationGroup();
+        leftAnimationGroup.Add(leftOffsetAnimation);
+        leftAnimationGroup.Add(leftOpacityAnimation);
+        
+        var rightAnimationGroup = _compositor.CreateAnimationGroup();
+        rightAnimationGroup.Add(rightOffsetAnimation);
+        rightAnimationGroup.Add(rightOpacityAnimation);
+        
+        _leftNavigationControlVisual.StartAnimationGroup(leftAnimationGroup);
+        _rightNavigationControlVisual.StartAnimationGroup(rightAnimationGroup);
     }
 
     private void SetupSide(string name, StandardCursorType cursor, WindowEdge edge)

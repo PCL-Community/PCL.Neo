@@ -1,0 +1,14 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:s="clr-namespace:System;assembly=mscorlib"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  FormMain  -->
+    <s:String x:Key="LangTitleDownload">Download</s:String>
+    <s:String x:Key="LangTitleHome">Home</s:String>
+    <s:String x:Key="LangTitleSetup">Settings</s:String>
+    <s:String x:Key="LangTitleLink">Multiplayer</s:String>
+    <s:String x:Key="LangTitleOther">More</s:String>
+    <s:String x:Key="LangNavigateBack">Back</s:String>
+
+</ResourceDictionary> 

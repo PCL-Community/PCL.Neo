@@ -9,5 +9,6 @@
     <s:String x:Key="LangTitleSetup">设置</s:String>
     <s:String x:Key="LangTitleLink">联机</s:String>
     <s:String x:Key="LangTitleOther">更多</s:String>
+    <s:String x:Key="LangNavigateBack">返回</s:String>
 
 </ResourceDictionary>
