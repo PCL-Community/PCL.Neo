@@ -272,12 +272,12 @@ public partial class HomeSubViewModel : ViewModelBase
                 MaxMemoryMB = _gameSettingsViewModel.MemoryAllocation,
                 MinMemoryMB = Math.Max(512, _gameSettingsViewModel.MemoryAllocation / 4), // 最小内存设为最大内存的1/4，但不低于512MB
                 Username = SelectedUser.Username,
-                UUID = string.IsNullOrEmpty(SelectedUser.UUID) ? Guid.NewGuid().ToString() : SelectedUser.UUID,
+                UUID = SelectedUser.Uuid,
                 AccessToken = string.IsNullOrEmpty(accessToken) ? Guid.NewGuid().ToString() : accessToken,
                 WindowWidth = _gameSettingsViewModel.GameWidth,
                 WindowHeight = _gameSettingsViewModel.GameHeight,
                 FullScreen = _gameSettingsViewModel.IsFullScreen,
-                IsOfflineMode = SelectedUser.Type == PCL.Neo.Models.User.UserType.Offline,
+                IsOfflineMode = SelectedUser.StorageType == PCL.Neo.Core.Service.Accounts.Storage.UserTypeConstants.Offline,
 
                 // 添加额外的JVM参数
                 ExtraJvmArgs = string.IsNullOrEmpty(_gameSettingsViewModel.JvmArguments)

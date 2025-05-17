@@ -34,6 +34,14 @@ public class RedirectServer : IObservable<RedirectAuthCode>
 
         return new Unsubscriber<RedirectAuthCode>(_observers, observer);
     }
+    
+    /// <summary>
+    /// 开始监听重定向请求
+    /// </summary>
+    public void StartListening()
+    {
+        Start();
+    }
 
     private void Start()
     {

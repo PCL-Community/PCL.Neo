@@ -66,7 +66,8 @@ namespace PCL.Neo.Tests.Core.Service.Accounts.Storage
                 Uuid = Guid.NewGuid().ToString(),
                 UserName = "YggdrasilUser789",
                 McAccessToken = "yggdrasil_access_token",
-                ClientToken = "yggdrasil_client_token", // If you added ClientToken
+                ClientToken = "yggdrasil_client_token",
+                ServerUrl = "https://authserver.example.com",
                 Skins = [],
                 Capes =
                 [
@@ -83,6 +84,7 @@ namespace PCL.Neo.Tests.Core.Service.Accounts.Storage
             {
                 Uuid = Guid.NewGuid().ToString(), // Often generated locally for offline
                 UserName = "OfflinePlayer",
+                AccessToken = Guid.NewGuid().ToString(),
                 Skins = [],
                 Capes = []
             };
@@ -96,7 +98,7 @@ namespace PCL.Neo.Tests.Core.Service.Accounts.Storage
 
             foreach (var acc in loadedAccounts)
             {
-                Console.WriteLine($"\nLoaded Account: {acc.UserName} (UUID: {acc.Uuid}, Type: {acc.UserType})");
+                Console.WriteLine($"\nLoaded Account: {acc.UserName} (UUID: {acc.Uuid}, Type: {acc.StorageType})");
                 switch (acc)
                 {
                     case MsaAccount msa:
