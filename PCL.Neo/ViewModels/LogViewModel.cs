@@ -148,12 +148,10 @@ public partial class LogViewModel : ViewModelBase
     private async Task ExportLogsToFileAsync(string filePath)
     {
         try
-        try
         {
             // 尝试使用GameLauncher的导出功能
             await GameLauncher.ExportGameLogsAsync(filePath);
         }
-        catch
         catch
         {
             // 如果失败，则使用当前视图模型中的日志条目导出
