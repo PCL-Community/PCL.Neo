@@ -138,7 +138,7 @@ public partial class LogViewModel : ViewModelBase
         try
         {
             // 尝试使用GameLauncher的导出功能
-            _gameLauncher.ExportGameLogsAsync(filePath);
+            await GameLauncher.ExportGameLogsAsync(filePath);
         }
         catch
         {
