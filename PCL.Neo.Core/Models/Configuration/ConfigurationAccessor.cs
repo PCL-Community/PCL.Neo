@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Threading.Tasks;
+
 namespace PCL.Neo.Core.Models.Configuration;
 
 /// <summary>
@@ -24,7 +27,12 @@ public class ConfigurationAccessor<T> where T : class, new()
     /// <returns>配置对象</returns>
     public async Task<T> GetConfigAsync()
     {
-        return _currentConfig ??= await _manager.GetOrCreateConfiguration<T>();
+        if (_currentConfig == null)
+        {
+            _currentConfig = await _manager.GetOrCreateConfiguration<T>();
+        }
+        
+        return _currentConfig;
     }
     
     /// <summary>
@@ -40,13 +48,13 @@ public class ConfigurationAccessor<T> where T : class, new()
         
         return await _manager.UpdateConfiguration(_currentConfig, null);
     }
-
+    
     /// <summary>
     /// 更新配置
     /// </summary>
     /// <param name="updateAction">更新操作</param>
     /// <returns>是否成功</returns>
-    public async Task<bool> UpdateAsync(Action<T> updateAction)
+    public async Task<bool> UpdateAsync(System.Action<T> updateAction)
     {
         var config = await GetConfigAsync();
         updateAction(config);

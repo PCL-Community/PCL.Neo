@@ -10,7 +10,7 @@ public static class GlobalSettings
     /// <summary>
     /// 应用程序配置文件路径
     /// </summary>
-    public static string AppSettingsFile => "appSettings.json";
+    public static string AppSettingsFile => "AppSettings.json";
 
     /// <summary>
     /// OAuth2配置文件路径
@@ -24,6 +24,6 @@ public static class GlobalSettings
     /// <returns>完整路径</returns>
     public static string GetConfigFilePath(string fileName)
     {
-        return Path.Combine(AppContext.BaseDirectory, "configs", fileName);
+        return Path.Combine(AppContext.BaseDirectory, "Configs", fileName);
     }
 } 

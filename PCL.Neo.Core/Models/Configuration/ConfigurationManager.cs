@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace PCL.Neo.Core.Models.Configuration;
 
@@ -22,17 +26,17 @@ public class ConfigurationManager : IConfigurationManager
     public TResult? GetConfiguration<TResult>() where TResult : class, new()
     {
         try
-        {
-            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+    {
+        var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
 
-            if (attribute == null)
-            {
+        if (attribute == null)
+        {
                 return null;
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
             string configPath = GetConfigPath<TResult>(attribute.FilePath);
-
+            
             // 确保配置目录存在
             string? directory = Path.GetDirectoryName(configPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -67,24 +71,24 @@ public class ConfigurationManager : IConfigurationManager
         where TResult : class, new()
     {
         try
+    {
+        var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+        if (attribute == null)
         {
-            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
-            if (attribute == null)
-            {
                 return false;
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
             string configPath = GetConfigPath<TResult>(attribute.FilePath);
-
+            
             // 确保配置目录存在
             string? directory = Path.GetDirectoryName(configPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
-            }
+        }
 
-            var jsonContent = JsonSerializer.Serialize(config, options ?? DefaultOptions);
+        var jsonContent = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             await File.WriteAllTextAsync(configPath, jsonContent);
             return true;
         }
@@ -99,17 +103,17 @@ public class ConfigurationManager : IConfigurationManager
         where TResult : class, new()
     {
         try
-        {
-            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+    {
+        var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
 
-            if (attribute == null)
-            {
+        if (attribute == null)
+        {
                 return false;
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
             string configPath = GetConfigPath<TResult>(attribute.FilePath);
-
+            
             // 确保配置目录存在
             string? directory = Path.GetDirectoryName(configPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -135,16 +139,20 @@ public class ConfigurationManager : IConfigurationManager
     /// <returns>最终使用的配置路径</returns>
     private string GetConfigPath<T>(string attributePath)
     {
-        return typeof(T).Name switch
+        // 特殊处理已知的配置类型
+        if (typeof(T).Name == "AppSettings")
         {
-            // 特殊处理已知的配置类型
-            "AppSettings" => GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile),
-            "OAuth2Configurations" => GlobalSettings.GetConfigFilePath(GlobalSettings.OAuth2ConfigurationFile),
-            _ => attributePath.Contains(Path.DirectorySeparatorChar) ||
-                 attributePath.Contains(Path.AltDirectorySeparatorChar)
-                ? attributePath // 已经是完整路径
-                : GlobalSettings.GetConfigFilePath(attributePath)
-        };
+            return GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile);
+        }
+        else if (typeof(T).Name == "OAuth2Configurations")
+        {
+            return GlobalSettings.GetConfigFilePath(GlobalSettings.OAuth2ConfigurationFile);
+        }
+        
+        // 默认使用特性中的路径
+        return attributePath.Contains(Path.DirectorySeparatorChar) || attributePath.Contains(Path.AltDirectorySeparatorChar)
+            ? attributePath // 已经是完整路径
+            : GlobalSettings.GetConfigFilePath(attributePath); // 只是文件名，需要添加路径
     }
 
     /// <summary>
@@ -213,9 +221,9 @@ public class ConfigurationManager : IConfigurationManager
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
-            }
+        }
 
-            var content = JsonSerializer.Serialize(config, options ?? DefaultOptions);
+        var content = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             await File.WriteAllTextAsync(filePath, content);
             return true;
         }
@@ -281,8 +289,8 @@ public class ConfigurationManager : IConfigurationManager
             
             string configPath = GetConfigPath<T>(attribute.FilePath);
             string backupPath = $"{configPath}.{DateTime.Now:yyyyMMdd_HHmmss}.bak";
-
-            var content = await File.ReadAllTextAsync(configPath);
+            
+            var content = File.ReadAllText(configPath);
             await File.WriteAllTextAsync(backupPath, content);
             
             return true;

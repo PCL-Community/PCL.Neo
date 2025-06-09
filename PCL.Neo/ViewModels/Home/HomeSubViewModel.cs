@@ -368,7 +368,7 @@ public partial class HomeSubViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(filePath))
             {
-                await GameLauncher.ExportGameLogsAsync(filePath);
+                await _gameLauncher.ExportGameLogsAsync(filePath);
                 StatusMessage = "日志导出成功";
             }
         }
