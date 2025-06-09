@@ -93,7 +93,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         public bool IsOfflineMode { get; set; } = true;
     }
 
-    public class GameLauncher
+    public class GameLauncher(GameService gameService)
     {
         private readonly GameService _gameService;
         private McLogFIleLogger _gameLogger;
@@ -204,22 +204,17 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 Type = child.Type,
                 ReleaseTime = child.ReleaseTime,
                 Time = child.Time,
-                JsonData = child.JsonData
+                JsonData = child.JsonData,
+                // 从父版本继承属性
+                MinecraftArguments = child.MinecraftArguments ?? parent.MinecraftArguments,
+                Arguments = child.Arguments ?? parent.Arguments,
+                MainClass = child.MainClass ?? parent.MainClass,
+                AssetIndex = child.AssetIndex ?? parent.AssetIndex,
+                Assets = child.Assets ?? parent.Assets,
+                JavaVersion = child.JavaVersion ?? parent.JavaVersion,
+                // 合并下载信息
+                Downloads = child.Downloads ?? parent.Downloads
             };
-
-
-            // 从父版本继承属性
-            merged.MinecraftArguments = child.MinecraftArguments ?? parent.MinecraftArguments;
-            merged.Arguments = child.Arguments ?? parent.Arguments;
-            merged.MainClass = child.MainClass ?? parent.MainClass;
-            merged.AssetIndex = child.AssetIndex ?? parent.AssetIndex;
-            merged.Assets = child.Assets ?? parent.Assets;
-            merged.JavaVersion = child.JavaVersion ?? parent.JavaVersion;
-
-
-            // 合并下载信息
-            merged.Downloads = child.Downloads ?? parent.Downloads;
-
 
             // 合并库文件（子版本优先）
             var libraries = new List<Library>();
@@ -234,16 +229,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 foreach (var lib in child.Libraries)
                 {
                     // 检查是否已存在
-                    bool exists = false;
-                    foreach (var existingLib in libraries)
-                    {
-                        if (existingLib.Name == lib.Name)
-                        {
-                            exists = true;
-                            break;
-                        }
-                    }
-
+                    bool exists = libraries.Any(existingLib => existingLib.Name == lib.Name);
 
                     // 不存在则添加
                     if (!exists)
@@ -262,34 +248,30 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// </summary>
         private string BuildLaunchCommand(LaunchOptions options, VersionInfo versionInfo)
         {
-            var args = new List<string>();
-
-
-            // JVM参数
-            args.Add($"-Xmx{options.MaxMemoryMB}M");
-            args.Add($"-Xms{options.MinMemoryMB}M");
-
-
-            // 标准JVM参数
-            args.Add("-XX:+UseG1GC");
-            args.Add("-XX:+ParallelRefProcEnabled");
-            args.Add("-XX:MaxGCPauseMillis=200");
-            args.Add("-XX:+UnlockExperimentalVMOptions");
-            args.Add("-XX:+DisableExplicitGC");
-            args.Add("-XX:+AlwaysPreTouch");
-            args.Add("-XX:G1NewSizePercent=30");
-            args.Add("-XX:G1MaxNewSizePercent=40");
-            args.Add("-XX:G1HeapRegionSize=8M");
-            args.Add("-XX:G1ReservePercent=20");
-            args.Add("-XX:G1HeapWastePercent=5");
-            args.Add("-XX:G1MixedGCCountTarget=4");
-            args.Add("-XX:InitiatingHeapOccupancyPercent=15");
-            args.Add("-XX:G1MixedGCLiveThresholdPercent=90");
-            args.Add("-XX:G1RSetUpdatingPauseTimePercent=5");
-            args.Add("-XX:SurvivorRatio=32");
-            args.Add("-XX:+PerfDisableSharedMem");
-            args.Add("-XX:MaxTenuringThreshold=1");
-
+            var args = new List<string>
+            {
+                // JVM参数
+                $"-Xmx{options.MaxMemoryMB}M",
+                $"-Xms{options.MinMemoryMB}M", // 标准JVM参数
+                "-XX:+UseG1GC",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:MaxGCPauseMillis=200",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+DisableExplicitGC",
+                "-XX:+AlwaysPreTouch",
+                "-XX:G1NewSizePercent=30",
+                "-XX:G1MaxNewSizePercent=40",
+                "-XX:G1HeapRegionSize=8M",
+                "-XX:G1ReservePercent=20",
+                "-XX:G1HeapWastePercent=5",
+                "-XX:G1MixedGCCountTarget=4",
+                "-XX:InitiatingHeapOccupancyPercent=15",
+                "-XX:G1MixedGCLiveThresholdPercent=90",
+                "-XX:G1RSetUpdatingPauseTimePercent=5",
+                "-XX:SurvivorRatio=32",
+                "-XX:+PerfDisableSharedMem",
+                "-XX:MaxTenuringThreshold=1"
+            };
 
             // 设置natives路径
             string nativesDir = Path.Combine(options.MinecraftRootDirectory, "versions", options.VersionId, "natives");
