@@ -64,17 +64,15 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data
         Quilt = 6
     }
 
-    // TODO)) 最好把GameEntity里的合并到这里来
+    // TODO: 最好把GameEntity里的合并到这里来
     public class VersionInfo
     {
-        [JsonPropertyName("id")]
-        public string Id { get; set; } = string.Empty;
+        [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
 
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("type")]
-        public string Type { get; set; } = string.Empty;
+        [JsonPropertyName("type")] public string Type { get; init; } = string.Empty;
 
         [JsonPropertyName("releaseTime")]
         public string ReleaseTime { get; set; } = string.Empty;

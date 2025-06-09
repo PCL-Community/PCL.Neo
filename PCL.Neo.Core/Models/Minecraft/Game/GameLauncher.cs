@@ -93,14 +93,9 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         public bool IsOfflineMode { get; set; } = true;
     }
 
-    public class GameLauncher
+    public class GameLauncher(GameService gameService)
     {
-        private readonly GameService _gameService;
-
-        public GameLauncher(GameService gameService)
-        {
-            _gameService = gameService;
-        }
+        private readonly GameService _gameService = gameService;
 
         /// <summary>
         /// 启动游戏
@@ -179,7 +174,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 合并版本信息（处理继承关系）
         /// </summary>
-        private VersionInfo MergeVersionInfo(VersionInfo child, VersionInfo parent)
+        private static VersionInfo MergeVersionInfo(VersionInfo child, VersionInfo parent)
         {
             // 创建一个新的合并版本，保留子版本的ID和名称
             var merged = new VersionInfo
@@ -189,19 +184,17 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 Type = child.Type,
                 ReleaseTime = child.ReleaseTime,
                 Time = child.Time,
-                JsonData = child.JsonData
+                JsonData = child.JsonData,
+                // 从父版本继承属性
+                MinecraftArguments = child.MinecraftArguments ?? parent.MinecraftArguments,
+                Arguments = child.Arguments ?? parent.Arguments,
+                MainClass = child.MainClass ?? parent.MainClass,
+                AssetIndex = child.AssetIndex ?? parent.AssetIndex,
+                Assets = child.Assets ?? parent.Assets,
+                JavaVersion = child.JavaVersion ?? parent.JavaVersion,
+                // 合并下载信息
+                Downloads = child.Downloads ?? parent.Downloads
             };
-
-            // 从父版本继承属性
-            merged.MinecraftArguments = child.MinecraftArguments ?? parent.MinecraftArguments;
-            merged.Arguments = child.Arguments ?? parent.Arguments;
-            merged.MainClass = child.MainClass ?? parent.MainClass;
-            merged.AssetIndex = child.AssetIndex ?? parent.AssetIndex;
-            merged.Assets = child.Assets ?? parent.Assets;
-            merged.JavaVersion = child.JavaVersion ?? parent.JavaVersion;
-
-            // 合并下载信息
-            merged.Downloads = child.Downloads ?? parent.Downloads;
 
             // 合并库文件（子版本优先）
             var libraries = new List<Library>();
@@ -214,15 +207,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 foreach (var lib in child.Libraries)
                 {
                     // 检查是否已存在
-                    bool exists = false;
-                    foreach (var existingLib in libraries)
-                    {
-                        if (existingLib.Name == lib.Name)
-                        {
-                            exists = true;
-                            break;
-                        }
-                    }
+                    bool exists = libraries.Any(existingLib => existingLib.Name == lib.Name);
 
                     // 不存在则添加
                     if (!exists)
@@ -239,31 +224,30 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// </summary>
         private string BuildLaunchCommand(LaunchOptions options, VersionInfo versionInfo)
         {
-            var args = new List<string>();
-
-            // JVM参数
-            args.Add($"-Xmx{options.MaxMemoryMB}M");
-            args.Add($"-Xms{options.MinMemoryMB}M");
-
-            // 标准JVM参数
-            args.Add("-XX:+UseG1GC");
-            args.Add("-XX:+ParallelRefProcEnabled");
-            args.Add("-XX:MaxGCPauseMillis=200");
-            args.Add("-XX:+UnlockExperimentalVMOptions");
-            args.Add("-XX:+DisableExplicitGC");
-            args.Add("-XX:+AlwaysPreTouch");
-            args.Add("-XX:G1NewSizePercent=30");
-            args.Add("-XX:G1MaxNewSizePercent=40");
-            args.Add("-XX:G1HeapRegionSize=8M");
-            args.Add("-XX:G1ReservePercent=20");
-            args.Add("-XX:G1HeapWastePercent=5");
-            args.Add("-XX:G1MixedGCCountTarget=4");
-            args.Add("-XX:InitiatingHeapOccupancyPercent=15");
-            args.Add("-XX:G1MixedGCLiveThresholdPercent=90");
-            args.Add("-XX:G1RSetUpdatingPauseTimePercent=5");
-            args.Add("-XX:SurvivorRatio=32");
-            args.Add("-XX:+PerfDisableSharedMem");
-            args.Add("-XX:MaxTenuringThreshold=1");
+            var args = new List<string>
+            {
+                // JVM参数
+                $"-Xmx{options.MaxMemoryMB}M",
+                $"-Xms{options.MinMemoryMB}M", // 标准JVM参数
+                "-XX:+UseG1GC",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:MaxGCPauseMillis=200",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+DisableExplicitGC",
+                "-XX:+AlwaysPreTouch",
+                "-XX:G1NewSizePercent=30",
+                "-XX:G1MaxNewSizePercent=40",
+                "-XX:G1HeapRegionSize=8M",
+                "-XX:G1ReservePercent=20",
+                "-XX:G1HeapWastePercent=5",
+                "-XX:G1MixedGCCountTarget=4",
+                "-XX:InitiatingHeapOccupancyPercent=15",
+                "-XX:G1MixedGCLiveThresholdPercent=90",
+                "-XX:G1RSetUpdatingPauseTimePercent=5",
+                "-XX:SurvivorRatio=32",
+                "-XX:+PerfDisableSharedMem",
+                "-XX:MaxTenuringThreshold=1"
+            };
 
             // 设置natives路径
             string nativesDir = Path.Combine(options.MinecraftDirectory, "versions", options.VersionId, "natives");
@@ -293,7 +277,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
             string clientType = options.IsOfflineMode ? "legacy" : "mojang";
 
             // 添加额外的JVM参数
-            if (options.ExtraJvmArgs != null && options.ExtraJvmArgs.Count > 0)
+            if (options.ExtraJvmArgs is { Count: > 0 })
             {
                 args.AddRange(options.ExtraJvmArgs);
             }
@@ -381,7 +365,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
             }
 
             // 添加额外的游戏参数
-            if (options.ExtraGameArgs != null && options.ExtraGameArgs.Count > 0)
+            if (options.ExtraGameArgs is { Count: > 0 })
             {
                 args.AddRange(options.ExtraGameArgs);
             }
@@ -404,17 +388,13 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 为路径加上引号（如果包含空格）
         /// </summary>
-        private string QuotePath(string path)
+        private static string QuotePath(string path)
         {
             // 统一路径分隔符为当前系统的分隔符
             path = path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
             // 如果路径包含空格，则加上引号
-            if (path.Contains(" "))
-            {
-                return $"\"{path}\"";
-            }
-            return path;
+            return path.Contains(" ") ? $"\"{path}\"" : path;
         }
 
         /// <summary>
@@ -427,45 +407,41 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
 
             string logFile = Path.Combine(logDir, $"game_{DateTime.Now:yyyyMMdd_HHmmss}.log");
 
-            using (var writer = new StreamWriter(logFile, false, Encoding.UTF8))
+            await using var writer = new StreamWriter(logFile, false, Encoding.UTF8);
+            await writer.WriteLineAsync($"PCL.Neo Game Log - {DateTime.Now}");
+            await writer.WriteLineAsync("---------------------------------------------");
+
+            try
             {
-                writer.WriteLine($"PCL.Neo Game Log - {DateTime.Now}");
-                writer.WriteLine("---------------------------------------------");
+                while (await process.StandardOutput.ReadLineAsync() is { } line)
+                {
+                    await writer.WriteLineAsync($"[STDOUT] {line}");
+                    await writer.FlushAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await writer.WriteLineAsync($"[ERROR] Error reading standard output: {ex.Message}");
+            }
 
-                try
+            try
+            {
+                while (await process.StandardError.ReadLineAsync() is { } line)
                 {
-                    string? line;
-                    while ((line = await process.StandardOutput.ReadLineAsync()) != null)
-                    {
-                        await writer.WriteLineAsync($"[STDOUT] {line}");
-                        await writer.FlushAsync();
-                    }
+                    await writer.WriteLineAsync($"[STDERR] {line}");
+                    await writer.FlushAsync();
                 }
-                catch (Exception ex)
-                {
-                    await writer.WriteLineAsync($"[ERROR] Error reading standard output: {ex.Message}");
-                }
-
-                try
-                {
-                    string? line;
-                    while ((line = await process.StandardError.ReadLineAsync()) != null)
-                    {
-                        await writer.WriteLineAsync($"[STDERR] {line}");
-                        await writer.FlushAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await writer.WriteLineAsync($"[ERROR] Error reading standard error: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                await writer.WriteLineAsync($"[ERROR] Error reading standard error: {ex.Message}");
             }
         }
 
         /// <summary>
         /// 导出游戏日志
         /// </summary>
-        public async Task ExportGameLogsAsync(string filePath)
+        public static async Task ExportGameLogsAsync(string filePath)
         {
             var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PCL.Neo", "logs");
             if (!Directory.Exists(logDir) || !Directory.GetFiles(logDir).Any())
@@ -477,7 +453,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
 
             // 获取最新的日志文件
             var logFile = Directory.GetFiles(logDir, "game_*.log")
-                .OrderByDescending(f => File.GetCreationTime(f))
+                .OrderByDescending(File.GetCreationTime)
                 .FirstOrDefault();
 
             if (string.IsNullOrEmpty(logFile))

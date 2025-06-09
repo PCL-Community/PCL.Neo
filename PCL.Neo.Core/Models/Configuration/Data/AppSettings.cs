@@ -5,7 +5,7 @@ namespace PCL.Neo.Core.Models.Configuration.Data;
 /// <summary>
 /// 应用程序全局设置
 /// </summary>
-[ConfigurationInfo("AppSettings.json")]
+[ConfigurationInfo("appSettings.json")]
 public record AppSettings
 {
     /// <summary>
@@ -22,9 +22,9 @@ public record AppSettings
     /// 下载线程数
     /// </summary>
     public int DownloadThreads { get; set; } = 4;
-    
+
     /// <summary>
     /// 记住的Java路径
     /// </summary>
-    public List<string> JavaPaths { get; set; } = new();
+    public List<string> JavaPaths { get; set; } = [];
 } 
