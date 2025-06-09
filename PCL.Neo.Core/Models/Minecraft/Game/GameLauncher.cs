@@ -194,7 +194,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 合并版本信息（处理继承关系）
         /// </summary>
-        private VersionInfo MergeVersionInfo(VersionInfo child, VersionInfo parent)
+        private static VersionInfo MergeVersionInfo(VersionInfo child, VersionInfo parent)
         {
             // 创建一个新的合并版本，保留子版本的ID和名称
             var merged = new VersionInfo
@@ -321,7 +321,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
             string clientType = options.IsOfflineMode ? "legacy" : "mojang";
 
             // 添加额外的JVM参数
-            if (options.ExtraJvmArgs != null && options.ExtraJvmArgs.Count > 0)
+            if (options.ExtraJvmArgs is { Count: > 0 })
             {
                 args.AddRange(options.ExtraJvmArgs);
             }

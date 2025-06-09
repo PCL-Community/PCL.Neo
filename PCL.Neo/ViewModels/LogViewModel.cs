@@ -28,41 +28,41 @@ public partial class LogViewModel : ViewModelBase
     private readonly PCL.Neo.Core.Models.Minecraft.Game.GameLauncher _gameLauncher;
     private readonly StorageService _storageService;
     private ObservableCollection<LogEntry> _logEntriesCollection = new ObservableCollection<LogEntry>();
-    
+
     [ObservableProperty]
     private ReadOnlyObservableCollection<LogEntry> _logEntries;
-    
+
     [ObservableProperty]
     private string _filterText = string.Empty;
-    
+
     [ObservableProperty]
     private bool _showErrorOnly = false;
-    
+
     [ObservableProperty]
     private bool _isAutoScroll = true;
-    
+
     [ObservableProperty]
     private string _statusMessage = string.Empty;
-    
+
     public LogViewModel(PCL.Neo.Core.Models.Minecraft.Game.GameLauncher gameLauncher, StorageService storageService)
     {
         _gameLauncher = gameLauncher;
         _storageService = storageService;
-        
+
         // 初始化一个空的日志集合
         _logEntries = new ReadOnlyObservableCollection<LogEntry>(_logEntriesCollection);
-        
+
         // 尝试加载最近的日志文件
         LoadLatestLogFile();
     }
-    
+
     private void LoadLatestLogFile()
     {
         try
         {
-            string logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+            string logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                                         "PCL.Neo", "logs");
-            
+
             if (Directory.Exists(logDir))
             {
                 var logFiles = Directory.GetFiles(logDir, "game_*.log");
@@ -70,14 +70,14 @@ public partial class LogViewModel : ViewModelBase
                 {
                     // 找到最新的日志文件
                     string latestLog = logFiles.OrderByDescending(f => File.GetCreationTime(f)).First();
-                    
+
                     // 读取日志文件内容
                     var lines = File.ReadAllLines(latestLog);
                     foreach (var line in lines)
                     {
                         bool isError = line.Contains("[STDERR]") || line.Contains("[ERROR]");
                         string message = line;
-                        
+
                         _logEntriesCollection.Add(new LogEntry
                         {
                             Timestamp = DateTime.Now,
@@ -85,7 +85,7 @@ public partial class LogViewModel : ViewModelBase
                             IsError = isError
                         });
                     }
-                    
+
                     StatusMessage = $"已加载{lines.Length}条日志记录";
                 }
                 else
@@ -103,14 +103,14 @@ public partial class LogViewModel : ViewModelBase
             StatusMessage = $"加载日志失败: {ex.Message}";
         }
     }
-    
+
     [RelayCommand]
     private void ClearLogs()
     {
         _logEntriesCollection.Clear();
         StatusMessage = "日志已清除";
     }
-    
+
     [RelayCommand]
     private async Task ExportLogs()
     {
@@ -120,7 +120,7 @@ public partial class LogViewModel : ViewModelBase
                 "导出游戏日志",
                 $"PCL.Neo游戏日志_{DateTime.Now:yyyyMMdd_HHmmss}",
                 ".log");
-                
+
             if (!string.IsNullOrEmpty(filePath))
             {
                 await ExportLogsToFileAsync(filePath);
@@ -132,24 +132,28 @@ public partial class LogViewModel : ViewModelBase
             StatusMessage = $"导出日志失败: {ex.Message}";
         }
     }
-    
+
     private async Task ExportLogsToFileAsync(string filePath)
     {
         try
+        try
         {
             // 尝试使用GameLauncher的导出功能
-            _gameLauncher.ExportGameLogsAsync(filePath);
+            await GameLauncher.ExportGameLogsAsync(filePath);
         }
+        catch
         catch
         {
             // 如果失败，则使用当前视图模型中的日志条目导出
             var logs = new StringBuilder();
+
 
             // 添加标题和时间
             logs.AppendLine("==================== PCL.Neo 游戏日志 ====================");
             logs.AppendLine($"导出时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             logs.AppendLine("=======================================================");
             logs.AppendLine();
+
 
             // 添加日志条目
             foreach (var entry in LogEntries)
@@ -161,10 +165,11 @@ public partial class LogViewModel : ViewModelBase
                 }
             }
 
+
             await File.WriteAllTextAsync(filePath, logs.ToString());
         }
     }
-    
+
     private bool ShouldIncludeLogEntry(LogEntry entry)
     {
         // 如果启用了"仅显示错误"过滤并且条目不是错误
@@ -172,16 +177,16 @@ public partial class LogViewModel : ViewModelBase
         {
             return false;
         }
-        
+
         // 如果设置了过滤文本并且条目消息不包含过滤文本
         if (!string.IsNullOrEmpty(FilterText) && !entry.Message.Contains(FilterText, StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
-        
+
         return true;
     }
-    
+
     public bool IsFilteredLogEntry(LogEntry entry)
     {
         return ShouldIncludeLogEntry(entry);
@@ -207,4 +212,4 @@ public class BoolToColorConverter : IValueConverter
     {
         throw new NotImplementedException();
     }
-} 
+}
