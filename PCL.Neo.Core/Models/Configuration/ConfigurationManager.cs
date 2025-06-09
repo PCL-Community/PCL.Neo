@@ -31,6 +31,8 @@ public class ConfigurationManager : IConfigurationManager
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
+            string configPath = GetConfigPath<TResult>(attribute.FilePath);
+
             var configPath = GetConfigPath<TResult>(attribute.FilePath);
 
             // 确保配置目录存在
@@ -75,6 +77,8 @@ public class ConfigurationManager : IConfigurationManager
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
+            string configPath = GetConfigPath<TResult>(attribute.FilePath);
+
             var configPath = GetConfigPath<TResult>(attribute.FilePath);
 
             // 确保配置目录存在
@@ -108,6 +112,8 @@ public class ConfigurationManager : IConfigurationManager
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
+            string configPath = GetConfigPath<TResult>(attribute.FilePath);
+
             var configPath = GetConfigPath<TResult>(attribute.FilePath);
 
             // 确保配置目录存在
@@ -135,8 +141,7 @@ public class ConfigurationManager : IConfigurationManager
     /// <returns>最终使用的配置路径</returns>
     private string GetConfigPath<T>(string attributePath)
     {
-        // 特殊处理已知的配置类型
-        if (typeof(T).Name == "AppSettings")
+        return typeof(T).Name switch
         {
             return GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile);
         }

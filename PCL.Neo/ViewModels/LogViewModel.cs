@@ -25,6 +25,8 @@ public partial class LogViewModel : ViewModelBase
 {
     private readonly GameLauncher _gameLauncher;
     private readonly StorageService _storageService;
+    private ObservableCollection<LogEntry> _logEntriesCollection = new ObservableCollection<LogEntry>();
+
     private ObservableCollection<LogEntry> _logEntriesCollection = new();
 
     [ObservableProperty]
@@ -34,6 +36,8 @@ public partial class LogViewModel : ViewModelBase
     private string _filterText = string.Empty;
 
     [ObservableProperty]
+    private bool _showErrorOnly = false;
+
     private bool _showErrorOnly;
 
     [ObservableProperty]
@@ -41,6 +45,8 @@ public partial class LogViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _statusMessage = string.Empty;
+
+    public LogViewModel(PCL.Neo.Core.Models.Minecraft.Game.GameLauncher gameLauncher, StorageService storageService)
 
     public LogViewModel(GameLauncher gameLauncher, StorageService storageService)
     {
@@ -58,6 +64,9 @@ public partial class LogViewModel : ViewModelBase
     {
         try
         {
+            string logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                        "PCL.Neo", "logs");
+
             var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "PCL.Neo", "logs");
 
@@ -67,12 +76,17 @@ public partial class LogViewModel : ViewModelBase
                 if (logFiles.Length > 0)
                 {
                     // 找到最新的日志文件
+                    string latestLog = logFiles.OrderByDescending(f => File.GetCreationTime(f)).First();
+
                     var latestLog = logFiles.OrderByDescending(f => File.GetCreationTime(f)).First();
 
                     // 读取日志文件内容
                     var lines = File.ReadAllLines(latestLog);
                     foreach (var line in lines)
                     {
+                        bool isError = line.Contains("[STDERR]") || line.Contains("[ERROR]");
+                        string message = line;
+
                         var isError = line.Contains("[STDERR]") || line.Contains("[ERROR]");
                         var message = line;
 
@@ -134,20 +148,24 @@ public partial class LogViewModel : ViewModelBase
     private async Task ExportLogsToFileAsync(string filePath)
     {
         try
+        try
         {
             // 尝试使用GameLauncher的导出功能
-            _gameLauncher.ExportGameLogsAsync(filePath);
+            await GameLauncher.ExportGameLogsAsync(filePath);
         }
+        catch
         catch
         {
             // 如果失败，则使用当前视图模型中的日志条目导出
             var logs = new StringBuilder();
+
 
             // 添加标题和时间
             logs.AppendLine("==================== PCL.Neo 游戏日志 ====================");
             logs.AppendLine($"导出时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             logs.AppendLine("=======================================================");
             logs.AppendLine();
+
 
             // 添加日志条目
             foreach (var entry in LogEntries)
@@ -158,6 +176,7 @@ public partial class LogViewModel : ViewModelBase
                     logs.AppendLine($"{entry.Timestamp:yyyy-MM-dd HH:mm:ss} {prefix} {entry.Message}");
                 }
             }
+
 
             await File.WriteAllTextAsync(filePath, logs.ToString());
         }

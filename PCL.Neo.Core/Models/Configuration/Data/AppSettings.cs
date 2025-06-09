@@ -3,7 +3,7 @@ namespace PCL.Neo.Core.Models.Configuration.Data;
 /// <summary>
 /// 应用程序全局设置
 /// </summary>
-[ConfigurationInfo("AppSettings.json")]
+[ConfigurationInfo("appSettings.json")]
 public record AppSettings
 {
     /// <summary>
