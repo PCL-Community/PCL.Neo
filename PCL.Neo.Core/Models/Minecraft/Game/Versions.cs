@@ -71,17 +71,12 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 var response = await Shared.HttpClient.GetStringAsync(VersionManifestUrl);
                 var manifest = JsonSerializer.Deserialize<VersionManifest>(response);
 
-                if (manifest == null || manifest.Versions == null)
+                if (manifest?.Versions == null)
                 {
-                    return new List<VersionInfo>();
+                    return [];
                 }
 
-                var result = new List<VersionInfo>();
-
-                foreach (var version in manifest.Versions)
-                {
-                    // 创建版本信息
-                    var versionInfo = new VersionInfo
+                return manifest.Versions.Select(version => new VersionInfo
                     {
                         Id = version.Id,
                         Name = version.Id, // 使用ID作为名称
@@ -89,24 +84,14 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                         ReleaseTime = version.ReleaseTime,
                         Time = version.Time,
                         // 下载信息
-                        Downloads = new DownloadsInfo
-                        {
-                            Client = new DownloadEntry
-                            {
-                                Url = version.Url,
-                            }
-                        }
-                    };
-
-                    result.Add(versionInfo);
-                }
-
-                return result;
+                        Downloads = new DownloadsInfo { Client = new DownloadEntry { Url = version.Url, } }
+                    })
+                    .ToList();
             }
             catch (Exception)
             {
                 // 出现异常时返回空列表
-                return new List<VersionInfo>();
+                return [];
             }
         }
 

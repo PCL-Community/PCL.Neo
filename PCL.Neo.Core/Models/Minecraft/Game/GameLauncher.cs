@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
+using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Utils;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils.Logger;
 
@@ -150,7 +149,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
             }
 
             // 构建启动命令
-            var commandArgs = BuildLaunchCommand(options, versionInfo, mcDir, gameDir);
+            var commandArgs = BuildLaunchCommand(options, versionInfo);
 
             // 创建进程
             var process = new Process
@@ -245,7 +244,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 构建游戏启动命令
         /// </summary>
-        private string BuildLaunchCommand(LaunchOptions options, VersionInfo versionInfo, string mcDir, string gameDir)
+        private string BuildLaunchCommand(LaunchOptions options, VersionInfo versionInfo)
         {
             var args = new List<string>();
 
@@ -274,7 +273,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
             args.Add("-XX:MaxTenuringThreshold=1");
 
             // 设置natives路径
-            string nativesDir = Path.Combine(mcDir, "versions", options.VersionId, "natives");
+            string nativesDir = Path.Combine(options.MinecraftRootDirectory, "versions", options.VersionId, "natives");
             EnsureDirectoryExists(nativesDir);
 
             args.Add($"-Djava.library.path={QuotePath(nativesDir)}");
@@ -300,8 +299,8 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 string gameArgs = versionInfo.MinecraftArguments
                     .Replace("${auth_player_name}", options.Username)
                     .Replace("${version_name}", options.VersionId)
-                    .Replace("${game_directory}", QuotePath(gameDir))
-                    .Replace("${assets_root}", QuotePath(Path.Combine(mcDir, "assets")))
+                    .Replace("${game_directory}", QuotePath(options.GameDirectory))
+                    .Replace("${assets_root}", QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")))
                     .Replace("${assets_index_name}", versionInfo.AssetIndex?.Id ?? "legacy")
                     .Replace("${auth_uuid}", options.UUID)
                     .Replace("${auth_access_token}", options.AccessToken)
@@ -323,8 +322,8 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                             string processedArg = strArg
                                 .Replace("${auth_player_name}", options.Username)
                                 .Replace("${version_name}", options.VersionId)
-                                .Replace("${game_directory}", QuotePath(gameDir))
-                                .Replace("${assets_root}", QuotePath(Path.Combine(mcDir, "assets")))
+                                .Replace("${game_directory}", QuotePath(options.GameDirectory))
+                                .Replace("${assets_root}", QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")))
                                 .Replace("${assets_index_name}", versionInfo.AssetIndex?.Id ?? "legacy")
                                 .Replace("${auth_uuid}", options.UUID)
                                 .Replace("${auth_access_token}", options.AccessToken)
@@ -344,9 +343,9 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 args.Add("--version");
                 args.Add(options.VersionId);
                 args.Add("--gameDir");
-                args.Add(QuotePath(gameDir));
+                args.Add(QuotePath(options.GameDirectory));
                 args.Add("--assetsDir");
-                args.Add(QuotePath(Path.Combine(mcDir, "assets")));
+                args.Add(QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")));
                 args.Add("--assetIndex");
                 args.Add(versionInfo.AssetIndex?.Id ?? "legacy");
                 args.Add("--uuid");
@@ -413,4 +412,4 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
             _gameLogger.Export(filePath);
         }
     }
-} 
+}

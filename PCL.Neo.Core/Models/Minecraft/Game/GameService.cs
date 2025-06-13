@@ -7,19 +7,14 @@ namespace PCL.Neo.Core.Models.Minecraft.Game;
 
 using DefaultJavaRuntimeCombine = (JavaRuntime? Java8, JavaRuntime? Java17, JavaRuntime? Java21);
 
-public class GameService
+public class GameService(IJavaManager javaManager)
 {
-    private IJavaManager JavaManager { get; }
+    private IJavaManager JavaManager { get; } = javaManager;
 
     public static string DefaultGameDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".minecraft");
 
     public DefaultJavaRuntimeCombine DefaultJavaRuntimes => JavaManager.DefaultJavaRuntimes;
-
-    public GameService(IJavaManager javaManager)
-    {
-        JavaManager = javaManager;
-    }
 
     /// <summary>
     /// 获取游戏版本列表
@@ -97,7 +92,7 @@ public class GameService
     /// <summary>
     /// 下载游戏资源文件
     /// </summary>
-    private async Task DownloadAssetsAsync(VersionInfo versionInfo, IProgress<int>? progressCallback = null)
+    private static async Task DownloadAssetsAsync(VersionInfo versionInfo, IProgress<int>? progressCallback = null)
     {
         // 下载assets索引文件
         var assetsDir = Path.Combine(DefaultGameDirectory, "assets");
