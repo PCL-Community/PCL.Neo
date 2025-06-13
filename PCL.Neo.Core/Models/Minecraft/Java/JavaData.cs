@@ -213,7 +213,7 @@ public class JavaRuntime
                 {
                     "x86_64" => ExeArchitectureUtils.ExeArchitecture.X64,
                     "aarch64" => ExeArchitectureUtils.ExeArchitecture.Arm64,
-                    // TODO)) 增加其他架构种类
+                    // TODO: 增加其他架构种类
                     _ => ExeArchitectureUtils.ExeArchitecture.Unknown
                 };
             }

@@ -2,28 +2,8 @@ using System.Diagnostics;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
-public record GameEntityInfo
+public record GameEntity
 {
-    /// <summary>
-    /// The Game Version information.
-    /// </summary>
-    public GameVersionNum? GameVersion { get; init; }
-
-    /// <summary>
-    /// String typed game version. eg: 25w19a、1.21.5-rc2、25w14craftmine.
-    /// </summary>
-    public required string GameVersionString { get; init; }
-
-    /// <summary>
-    /// Game Name that is used to display in the UI.
-    /// </summary>
-    public required string Name { get; set; }
-
-    /// <summary>
-    /// Game Description that is used to display in the UI.
-    /// </summary>
-    public string Description { get; set; }
-
     /// <summary>
     /// Game Folder Path.
     /// </summary>
@@ -34,10 +14,6 @@ public record GameEntityInfo
     /// </summary>
     public required string RootPath { get; set; }
 
-    /// <summary>
-    /// Game Icon that is used to display in the UI.
-    /// </summary>
-    public Icons Icon { get; set; }
 
     /// <summary>
     /// The origin Game Json Content. Type is <see langword="string"/>.
@@ -49,16 +25,12 @@ public record GameEntityInfo
     /// </summary>
     public VersionInfo JsonContent { get; set; }
 
-    /// <summary>
-    /// Demonstrate the Game Version Type.
-    /// Content is <see cref="VersionCardType"/>.
-    /// </summary>
-    public VersionCardType Type { get; set; }
 
     /// <summary>
     /// If <see cref="Type"/> is <see cref="VersionCardType"/>.Moddable, Loader will have value that is used to display in the UI.
     /// </summary>
     public ModLoader Loader { get; set; }
+
 
     /// <summary>
     /// Demonstrater is the game started by user. Used to display in the UI.

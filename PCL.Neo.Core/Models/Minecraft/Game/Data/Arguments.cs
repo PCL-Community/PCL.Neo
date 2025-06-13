@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
-public partial class Arguments
+public record Arguments
 {
     [JsonPropertyName("game")]
     public List<object>? Game { get; set; } = new();

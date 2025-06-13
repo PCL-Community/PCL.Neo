@@ -78,7 +78,7 @@ public static class JavaSelector
         // 如果没有可用的Java，返回空列表
         if (availableJavas == null || !availableJavas.Any())
         {
-            return new List<JavaCompatibilityScore>();
+            return [];
         }
 
         // 获取游戏推荐的Java版本范围
@@ -246,6 +246,8 @@ public static class JavaSelector
             case JavaVerifier.JavaVendor.Azul:
                 score += 40; // 其他知名厂商
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         // 4. JDK优先于JRE，因为JDK包含工具更加全面
@@ -257,14 +259,13 @@ public static class JavaSelector
         // 确保设置正确的推荐级别
         if (level != RecommendationLevel.Perfect && level != RecommendationLevel.Incompatible)
         {
-            if (score >= 800)
-                level = RecommendationLevel.Recommended;
-            else if (score >= 500)
-                level = RecommendationLevel.Acceptable;
-            else if (score >= 200)
-                level = RecommendationLevel.Marginal;
-            else
-                level = RecommendationLevel.Incompatible;
+            level = score switch
+            {
+                >= 800 => RecommendationLevel.Recommended,
+                >= 500 => RecommendationLevel.Acceptable,
+                >= 200 => RecommendationLevel.Marginal,
+                _ => RecommendationLevel.Incompatible
+            };
         }
 
         return new JavaCompatibilityScore

@@ -74,7 +74,7 @@ public class GameService(IJavaManager javaManager)
         var versionDir = Path.Combine(DefaultGameDirectory, "versions", versionId);
         Directory.CreateDirectory(versionDir);
         var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
-        await File.WriteAllTextAsync(versionJsonPath, versionInfo.JsonData);
+        await File.WriteAllTextAsync(versionJsonPath, versionInfo.JsonOriginData);
 
         // 下载资源文件
         await DownloadAssetsAsync(versionInfo, progressCallback);
