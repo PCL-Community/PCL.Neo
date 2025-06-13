@@ -2,57 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data
 {
-    public enum Icons : byte
-    {
-        Auto = 0,
-        Custom = 1,
-        CubeStone = 2,
-        CommandBlock = 3,
-        GrassBlock = 4,
-        EarthenPath = 5,
-        Anvil = 6,
-        RedStone = 7,
-        RedStoneLightOff = 8,
-        RedStoneLightOn = 9,
-        Egg = 10,
-        Fabric = 11,
-        NeoForge = 12
-    }
-
-    // TODO)) 此枚举为UI显示，后续建议移到ViewModel中
-    public enum VersionCardType : byte
-    {
-        Auto = 0,
-        Hide = 1,
-        Moddable = 2,
-        Normal = 3,
-        Unusual = 4,
-        FoolsDay = 5,
-        Error = 6,
-    }
-
-    /// <summary>
-    /// 常规游戏版本的版本号，后续可能会拓展到模组版本
-    /// </summary>
-    public record GameVersionNum(byte Sub, byte? Fix = null) : IComparable<GameVersionNum>
-    {
-        private readonly (byte Major, byte Sub, byte Fix) _version = (1, Sub, Fix ?? 0);
-
-        public byte Major => _version.Major;
-        public byte Sub => _version.Sub;
-        public byte? Fix => _version.Fix > 0 ? _version.Fix : null;
-
-        public int CompareTo(GameVersionNum? other)
-        {
-            return other == null ? 1 : (Major, Sub, Fix ?? 0).CompareTo((other.Major, other.Sub, other.Fix ?? 0));
-        }
-
-        public override string ToString()
-        {
-            return Fix.HasValue ? $"{Major}.{Sub}.{Fix}" : $"{Major}.{Sub}";
-        }
-    }
-
     public enum ModLoader : byte
     {
         None = 0,
@@ -111,7 +60,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data
         /// 存储原始的JSON数据
         /// </summary>
         [JsonIgnore]
-        public string? JsonData { get; set; }
+        public string? JsonOriginData { get; set; }
     }
 
     public class AssetIndexInfo

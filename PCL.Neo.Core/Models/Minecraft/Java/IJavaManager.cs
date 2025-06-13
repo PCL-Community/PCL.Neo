@@ -37,21 +37,21 @@ public interface IJavaManager
     /// 刷新Java列表
     /// </summary>
     Task Refresh();
-    
+
     /// <summary>
     /// 获取适合游戏版本的Java列表
     /// </summary>
     /// <param name="gameEntity">游戏实体</param>
     /// <returns>Java兼容性分数列表</returns>
-    List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameEntityInfo gameEntity);
-    
+    List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameEntity gameEntity);
+
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
     /// <param name="gameEntity">游戏实体</param>
     /// <returns>最合适的Java或null</returns>
-    JavaRuntime? GetBestJavaForGame(GameEntityInfo gameEntity);
-    
+    JavaRuntime? GetBestJavaForGame(GameEntity gameEntity);
+
     /// <summary>
     /// 获取Java的验证结果
     /// </summary>
