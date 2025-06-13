@@ -149,6 +149,8 @@ public static class Versions
 
                     // 添加JsonData属性
                     versionInfo.JsonData = jsonContent;
+                        // 添加JsonData属性
+                        versionInfo.JsonOriginData = jsonContent;
 
                     return versionInfo;
                 }
@@ -196,6 +198,10 @@ public static class Versions
             {
                 // 保存原始JSON数据
                 versionInfo.JsonData = versionJsonResponse;
+                if (versionInfo != null)
+                {
+                    // 保存原始JSON数据
+                    versionInfo.JsonOriginData = versionJsonResponse;
 
                 // 如果没有名称，使用ID作为名称
                 if (string.IsNullOrEmpty(versionInfo.Name))
