@@ -45,7 +45,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                             }
 
                             // 添加JsonData属性
-                            versionInfo.JsonData = jsonContent;
+                            versionInfo.JsonOriginData = jsonContent;
 
                             result.Add(versionInfo);
                         }
@@ -133,7 +133,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                         }
 
                         // 添加JsonData属性
-                        versionInfo.JsonData = jsonContent;
+                        versionInfo.JsonOriginData = jsonContent;
 
                         return versionInfo;
                     }
@@ -180,7 +180,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 if (versionInfo != null)
                 {
                     // 保存原始JSON数据
-                    versionInfo.JsonData = versionJsonResponse;
+                    versionInfo.JsonOriginData = versionJsonResponse;
 
                     // 如果没有名称，使用ID作为名称
                     if (string.IsNullOrEmpty(versionInfo.Name))

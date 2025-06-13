@@ -1,7 +1,5 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Utils;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PCL.Neo.Core.Models.Minecraft.Java;
 
@@ -18,8 +16,8 @@ public static class JavaSelector
         /// <summary>
         /// Java运行时
         /// </summary>
-        public JavaRuntime Runtime { get; init; }
-        
+        public required JavaRuntime Runtime { get; init; }
+
         /// <summary>
         /// 兼容性得分(越高越兼容)
         /// </summary>
@@ -66,7 +64,7 @@ public static class JavaSelector
         /// </summary>
         Incompatible = 0
     }
-    
+
     /// <summary>
     /// 为游戏实体选择最合适的Java
     /// </summary>
@@ -74,13 +72,13 @@ public static class JavaSelector
     /// <param name="availableJavas">可用的Java列表</param>
     /// <returns>排序后的Java兼容性得分列表</returns>
     public static List<JavaCompatibilityScore> SelectJavaForGame(
-        GameEntityInfo gameEntity, 
+        GameEntity gameEntity,
         IEnumerable<JavaRuntime> availableJavas)
     {
         // 如果没有可用的Java，返回空列表
         if (availableJavas == null || !availableJavas.Any())
         {
-            return new List<JavaCompatibilityScore>();
+            return [];
         }
         
         // 获取游戏推荐的Java版本范围
@@ -102,16 +100,16 @@ public static class JavaSelector
         
         return results;
     }
-    
+
     /// <summary>
     /// 为Java根据游戏要求评分
     /// </summary>
     private static JavaCompatibilityScore ScoreJavaForGame(
-        JavaRuntime java, 
-        int minJavaVersion, 
-        int maxJavaVersion, 
-        int specificJavaVersion, 
-        GameEntityInfo gameEntity)
+        JavaRuntime java,
+        int minJavaVersion,
+        int maxJavaVersion,
+        int specificJavaVersion,
+        GameEntity gameEntity)
     {
         int score = 0;
         string reason;
@@ -248,6 +246,8 @@ public static class JavaSelector
             case JavaVerifier.JavaVendor.Azul:
                 score += 40; // 其他知名厂商
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
         
         // 4. JDK优先于JRE，因为JDK包含工具更加全面
@@ -259,14 +259,13 @@ public static class JavaSelector
         // 确保设置正确的推荐级别
         if (level != RecommendationLevel.Perfect && level != RecommendationLevel.Incompatible)
         {
-            if (score >= 800)
-                level = RecommendationLevel.Recommended;
-            else if (score >= 500)
-                level = RecommendationLevel.Acceptable;
-            else if (score >= 200)
-                level = RecommendationLevel.Marginal;
-            else
-                level = RecommendationLevel.Incompatible;
+            level = score switch
+            {
+                >= 800 => RecommendationLevel.Recommended,
+                >= 500 => RecommendationLevel.Acceptable,
+                >= 200 => RecommendationLevel.Marginal,
+                _ => RecommendationLevel.Incompatible
+            };
         }
         
         return new JavaCompatibilityScore
