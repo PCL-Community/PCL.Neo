@@ -1,25 +1,28 @@
+<<<<<<< HEAD:PCL.Neo.Core/Models/Minecraft/Game/Data/GameEntity.cs
 using System.Diagnostics;
+=======
+using System.Text.Json.Serialization;
+>>>>>>> 17b9b08 (refactor(game service): refactor game service. big commit!):PCL.Neo.Core/Models/Minecraft/Game/Data/GameInfo.cs
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
-public record GameEntity
+public record GameInfo
 {
-    public required LaunchOptions LaunchOptions { get; set; }
+    /// <summary>
+    /// .minecraft folder path.
+    /// </summary>
+    public required string GameDirectory { get; set; }
 
     /// <summary>
-    /// Game Folder Path.
+    /// Gane version path.
     /// </summary>
-    public required string MinecraftDiractory { get; set; }
+    public required string RootDirectory { get; set; }
 
     /// <summary>
-    /// Game Root Path.
+    /// The parsed game json content. Type is <see cref="VersionManifes"/>.
     /// </summary>
-    public required string MinecraftRootDirectory { get; set; }
-
-    /// <summary>
-    /// The Parsed Game Json Content. Type is <see cref="Data.VersionInfo"/>.
-    /// </summary>
-    public required VersionInfo VersionInfo { get; set; }
+    [JsonIgnore]
+    public VersionManifes VersionInfo { get; set; }
 
     /// <summary>
     /// The loader type.
@@ -57,8 +60,8 @@ public record GameEntity
                 return _isIndie.Value;
             }
 
-            _isIndie = Path.Exists(Path.Combine(MinecraftDiractory, "saves"))
-                       && Path.Exists(Path.Combine(MinecraftDiractory, "mods"));
+            _isIndie = Path.Exists(Path.Combine(GameDirectory, "saves"))
+                       && Path.Exists(Path.Combine(GameDirectory, "mods"));
 
             return _isIndie.Value;
         }

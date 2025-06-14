@@ -132,35 +132,23 @@ public class GameLauncher
         Directory.CreateDirectory(mcDir);
         Directory.CreateDirectory(gameDir);
 
+        var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
+                          ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
-        // 获取版本信息
-        var versionInfo = await Versions.GetVersionByIdAsync(mcDir, options.VersionId);
-        if (versionInfo == null)
-            throw new Exception($"找不到版本 {options.VersionId}");
-
-
-        // 解析继承关系（如果有）
         if (!string.IsNullOrEmpty(versionInfo.InheritsFrom))
         {
-            var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom);
-            if (parentInfo == null)
-                throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
-
-
-            // 合并版本信息
+            var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom)
+                             ?? throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
             versionInfo = MergeVersionInfo(versionInfo, parentInfo);
         }
 
+        var commandArgs = BuildLaunchCommand(profile, versionInfo);
 
-        // 构建启动命令
-        var commandArgs = BuildLaunchCommand(options, versionInfo);
-
-        // 创建进程
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = options.JavaPath,
+                FileName = profile.Options.RunnerJava.JavaExe,
                 Arguments = commandArgs,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -170,22 +158,18 @@ public class GameLauncher
             }
         };
 
-
-        // 设置环境变量
-        foreach (var env in options.EnvironmentVariables)
+        foreach (var env in profile.Options.EnvironmentVariables)
         {
             process.StartInfo.EnvironmentVariables[env.Key] = env.Value;
         }
 
-
-        // 启动进程
         process.Start();
 
+        //var gameLogDir = Path.Combine(gameDir, "logs");
+        //_gameLogger = new McLogFileLogger(gameLogDir, process);
+        //_gameLogger.Start();
 
-        // 记录日志（异步）
-        var gameLogDir = Path.Combine(options.GameDirectory, "logs");
-        _gameLogger = new McLogFIleLogger(gameLogDir, process);
-        _gameLogger.Start();
+        profile.Information.IsRunning = true;
 
         return process;
     }
@@ -197,7 +181,7 @@ public class GameLauncher
     private VersionInfo MergeVersionInfo(VersionInfo child, VersionInfo parent)
     {
         // 创建一个新的合并版本，保留子版本的ID和名称
-        var merged = new VersionInfo
+        var merged = new VersionManifes
         {
             Id = child.Id,
             Name = child.Name,
@@ -224,10 +208,8 @@ public class GameLauncher
         // 合并库文件（子版本优先）
         var libraries = new List<Library>();
 
-
         if (parent.Libraries != null)
             libraries.AddRange(parent.Libraries);
-
 
         if (child.Libraries != null)
         {
@@ -251,16 +233,15 @@ public class GameLauncher
             }
         }
 
-
         merged.Libraries = libraries;
+
         return merged;
     }
-
 
     /// <summary>
     /// 构建游戏启动命令
     /// </summary>
-    private string BuildLaunchCommand(LaunchOptions options, VersionInfo versionInfo)
+    private static string BuildLaunchCommand(GameProfile profile, VersionManifes versionManifes)
     {
         var args = new List<string>();
 
@@ -315,7 +296,7 @@ public class GameLauncher
             }
         }
 
-        classpaths.Add(Path.Combine(options.GameDirectory, options.VersionId));
+        classpaths.Add(Path.Combine(profile.Information.GameDirectory, profile.Options.VersionId));
         args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', classpaths));
 
         // 客户端类型
@@ -324,14 +305,14 @@ public class GameLauncher
         // 添加额外的JVM参数
         if (options.ExtraJvmArgs != null && options.ExtraJvmArgs.Count > 0)
         {
-            args.AddRange(options.ExtraJvmArgs);
+            args.AddRange(profile.Options.ExtraJvmArgs);
         }
 
         // 主类
-        args.Add(versionInfo.MainClass);
+        args.Add(versionManifes.MainClass);
 
         // 游戏参数
-        if (!string.IsNullOrEmpty(versionInfo.MinecraftArguments))
+        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments))
         {
             // 旧版格式
             var gameArgs = versionInfo.MinecraftArguments
@@ -343,16 +324,16 @@ public class GameLauncher
                 .Replace("${auth_uuid}", options.UUID)
                 .Replace("${auth_access_token}", options.AccessToken)
                 .Replace("${user_type}", clientType)
-                .Replace("${version_type}", versionInfo.Type);
+                .Replace("${version_type}", versionManifes.Type);
             args.AddRange(gameArgs.Split(' '));
         }
-        else if (versionInfo.Arguments != null)
+        else if (versionManifes.Arguments != null)
         {
             // 新版格式
             // 这里简化处理，实际上应该解析Arguments对象并应用规则
-            if (versionInfo.Arguments.Game is not null)
+            if (versionManifes.Arguments.Game is not null)
             {
-                foreach (var arg in versionInfo.Arguments.Game)
+                foreach (var arg in versionManifes.Arguments.Game)
                 {
                     if (arg is string strArg)
                     {
@@ -366,7 +347,7 @@ public class GameLauncher
                             .Replace("${auth_uuid}", options.UUID)
                             .Replace("${auth_access_token}", options.AccessToken)
                             .Replace("${user_type}", clientType)
-                            .Replace("${version_type}", versionInfo.Type);
+                            .Replace("${version_type}", versionManifes.Type);
 
                         args.Add(processedArg);
                     }
@@ -377,32 +358,32 @@ public class GameLauncher
         {
             // 如果没有参数格式，则使用默认参数
             args.Add("--username");
-            args.Add(options.Username);
+            args.Add(profile.Options.Username);
             args.Add("--version");
-            args.Add(options.VersionId);
+            args.Add(profile.Options.VersionId);
             args.Add("--gameDir");
-            args.Add(QuotePath(options.GameDirectory));
+            args.Add(DirectoryUtil.QuotePath(profile.Information.GameDirectory));
             args.Add("--assetsDir");
-            args.Add(QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")));
+            args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
             args.Add("--assetIndex");
-            args.Add(versionInfo.AssetIndex?.Id ?? "legacy");
+            args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
             args.Add("--uuid");
-            args.Add(options.UUID);
+            args.Add(profile.Options.UUID);
             args.Add("--accessToken");
-            args.Add(options.AccessToken);
+            args.Add(profile.Options.AccessToken);
             args.Add("--userType");
             args.Add(clientType);
             args.Add("--versionType");
-            args.Add(versionInfo.Type);
+            args.Add(versionManifes.Type);
         }
 
         // 窗口大小
-        if (!options.FullScreen)
+        if (!profile.Options.FullScreen)
         {
             args.Add("--width");
-            args.Add(options.WindowWidth.ToString());
+            args.Add(profile.Options.WindowWidth.ToString());
             args.Add("--height");
-            args.Add(options.WindowHeight.ToString());
+            args.Add(profile.Options.WindowHeight.ToString());
         }
         else
         {
@@ -410,9 +391,9 @@ public class GameLauncher
         }
 
         // 添加额外的游戏参数
-        if (options.ExtraGameArgs is { Count: > 0 })
+        if (profile.Options.ExtraGameArgs is { Count: > 0 })
         {
-            args.AddRange(options.ExtraGameArgs);
+            args.AddRange(profile.Options.ExtraGameArgs);
         }
 
         // 拼接所有参数

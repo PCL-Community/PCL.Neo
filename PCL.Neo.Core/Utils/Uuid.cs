@@ -1,10 +1,11 @@
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace PCL.Neo.Core.Utils;
 
-public static partial class Uuid // TODO: implement different way of genereate uuid
+public static partial class Uuid
 {
     public enum UuidGenerateType
     {
@@ -13,63 +14,88 @@ public static partial class Uuid // TODO: implement different way of genereate u
         MurmurHash3
     }
 
+    private const string OfflinePlayerPrefix = "OfflinePlayer:";
+    private const int MinUsernameLength = 3;
+    private const int MaxUsernameLength = 16;
+
+    // Thread-safe MD5 instance
+    private static readonly ThreadLocal<MD5> Md5Instance = new(MD5.Create);
+
     /// <summary>
-    /// Generate UUID base on input username. If username is empty or invalid,
+    /// Generate UUID based on input username. If username is empty or invalid,
     /// throw <see cref="ArgumentException"/>.
     /// </summary>
     /// <param name="username">Username to generate UUID.</param>
     /// <param name="type">Type of UUID generation.</param>
-    /// <returns>Generated UUID.</returns>
+    /// <returns>Generated UUID without hyphens.</returns>
     /// <exception cref="ArgumentException">
     /// If <paramref name="username"/> is invalid or empty.
     /// </exception>
     public static string GenerateUuid(string username, UuidGenerateType type)
     {
-        if (string.IsNullOrEmpty(username) ||
-            !IsValidUsername(username))
+        if (!IsValidUsername(username))
         {
-            throw new ArgumentException("Username is invalid.");
+            throw new ArgumentException("Username is invalid.", nameof(username));
         }
 
-        var fullName = $"OfflinePlayer:{username}";
+        // Use StringBuilder for better string concatenation performance
+        var fullNameBuilder = new StringBuilder(OfflinePlayerPrefix.Length + username.Length);
+        fullNameBuilder.Append(OfflinePlayerPrefix).Append(username);
+        var fullName = fullNameBuilder.ToString();
 
-        var uuid = type switch
+        return type switch
         {
-            UuidGenerateType.Guid => new Guid(MD5.HashData(Encoding.UTF8.GetBytes(fullName))).ToString(),
-            UuidGenerateType.Standard => StadardVer(fullName),
-            UuidGenerateType.MurmurHash3 => new Guid(MurmurHash3.Hash(fullName)).ToString(),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            UuidGenerateType.Guid => GenerateGuidUuid(fullName),
+            UuidGenerateType.Standard => GenerateStandardUuid(fullName),
+            UuidGenerateType.MurmurHash3 => GenerateMurmurHash3Uuid(fullName),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid UUID generation type.")
         };
-
-        uuid = uuid.Replace("-", string.Empty);
-
-        return uuid;
     }
 
-    private static string StadardVer(string name)
+    private static string GenerateGuidUuid(string input)
     {
-        var hash = MD5.HashData(Encoding.UTF8.GetBytes(name));
+        var bytes = Encoding.UTF8.GetBytes(input);
+        var hash = Md5Instance.Value!.ComputeHash(bytes);
+        return new Guid(hash).ToString("N"); // "N" format removes hyphens directly
+    }
 
+    private static string GenerateStandardUuid(string input)
+    {
+        var bytes = Encoding.UTF8.GetBytes(input);
+        var hash = Md5Instance.Value!.ComputeHash(bytes);
+
+        // Set version (3) and variant bits
         hash[6] = (byte)((hash[6] & 0x0F) | 0x30); // Version 3
         hash[8] = (byte)((hash[8] & 0x3F) | 0x80); // Variant 1 (RFC 4122)
 
-        return new Uuids.Uuid(hash).ToString();
+        return new Guid(hash).ToString("N");
     }
 
-    [GeneratedRegex("^[a-zA-Z0-9_]+$")]
+    private static string GenerateMurmurHash3Uuid(string input)
+    {
+        var hash = MurmurHash3.Hash(input);
+        return new Guid(hash).ToString("N");
+    }
+
+    [GeneratedRegex("^[a-zA-Z0-9_]+$", RegexOptions.Compiled)]
     private static partial Regex ValidUsernameRegex();
 
-    public static bool IsValidUsername(string username)
+    private static bool IsValidUsername(string? username)
     {
         return !string.IsNullOrEmpty(username) &&
-               username.Length is >= 3 and <= 16 &&
+               username.Length is >= MinUsernameLength and <= MaxUsernameLength &&
                ValidUsernameRegex().IsMatch(username);
     }
 
-    // MurmurHash3算法实现
-
+    // Optimized MurmurHash3 implementation
     private static class MurmurHash3
     {
+        private const uint Seed = 144;
+        private const uint C1 = 0xcc9e2d51;
+        private const uint C2 = 0x1b873593;
+        private const uint FinalMix1 = 0x85ebca6b;
+        private const uint FinalMix2 = 0xc2b2ae35;
+
         public static byte[] Hash(string str)
         {
             var bytes = Encoding.UTF8.GetBytes(str);
@@ -88,7 +114,8 @@ public static partial class Uuid // TODO: implement different way of genereate u
                             ((bytes[i + 3] & 0xFF) << 24));
                 k1 *= c1;
                 k1 = RotateLeft(k1, 15);
-                k1 *= c2;
+                k1 *= C2;
+
                 h1 ^= k1;
                 h1 = RotateLeft(h1, 13);
                 h1 = h1 * 5 + 0xe6546b64;
@@ -104,11 +131,11 @@ public static partial class Uuid // TODO: implement different way of genereate u
                     k1 ^= (uint)(bytes[i + 1] & 0xFF) << 8;
                     goto case 1;
                 case 1:
-                    k1 ^= (uint)(bytes[i] & 0xFF);
-                    k1 *= c1;
-                    k1 = RotateLeft(k1, 15);
-                    k1 *= c2;
-                    h1 ^= k1;
+                    k1Tail ^= bytes[tailIndex];
+                    k1Tail *= C1;
+                    k1Tail = RotateLeft(k1Tail, 15);
+                    k1Tail *= C2;
+                    h1 ^= k1Tail;
                     break;
             }
 
@@ -130,9 +157,9 @@ public static partial class Uuid // TODO: implement different way of genereate u
         private static uint Fmix(uint h)
         {
             h ^= h >> 16;
-            h *= 0x85ebca6b;
+            h *= FinalMix1;
             h ^= h >> 13;
-            h *= 0xc2b2ae35;
+            h *= FinalMix2;
             h ^= h >> 16;
             return h;
         }

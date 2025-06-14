@@ -58,7 +58,7 @@ public partial class Rule
         }
     }
 
-    private bool IsGameFeatureAllow => true; // TODO)) 设置具体值
+    private bool IsGameFeatureAllow => true; // TODO: 设置具体值 | need more information - whitecat346
     private bool GameArgumentsFilter => IsGameFeatureAllow || IsOsRuleAllow || IsArchRuleAllow;
     private bool JvmArgumentsFilter => IsOsRuleAllow || IsArchRuleAllow;
 }

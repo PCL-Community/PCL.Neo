@@ -744,7 +744,7 @@ public class AccountService : IAccountService
                     updatedAccount.CurrentProfileId = profileId;
                     this.LogProfileInfo($"自动设置账户 {account.UserName} 的当前档案为 {profileId}");
                 }
-
+                
                 await SaveAccountAsync(updatedAccount);
             }
             else

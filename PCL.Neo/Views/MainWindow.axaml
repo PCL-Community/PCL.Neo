@@ -275,9 +275,22 @@
                         IsVisible="False"
                         Name="PanMsg"
                         ZIndex="10" />
+
                 </Grid>
+
             </Border>
+
         </Border>
+
+        <Grid Width="480" Height="380" VerticalAlignment="Bottom"
+              Margin="0,0,0,20"
+              Background="AliceBlue">
+            <Button Content="StartGameTest"
+                    Background="SteelBlue"
+                    Margin="10,0,0,0"
+                    Command="{Binding StartGameCommand}"/>
+        </Grid>
+
         <Grid Margin="10" Name="GridResize">
             <Grid.RowDefinitions>
                 <RowDefinition Height="8" />

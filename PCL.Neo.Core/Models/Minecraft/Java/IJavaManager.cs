@@ -39,14 +39,14 @@ public interface IJavaManager
     /// <summary>
     /// 获取适合游戏版本的Java列表
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <returns>Java兼容性分数列表</returns>
     List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameEntityInfo gameEntity);
 
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <returns>最合适的Java或null</returns>
     JavaRuntime? GetBestJavaForGame(GameEntityInfo gameEntity);
 

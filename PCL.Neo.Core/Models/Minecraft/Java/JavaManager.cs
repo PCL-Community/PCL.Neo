@@ -58,9 +58,9 @@ public sealed partial class JavaManager : IJavaManager
     /// <summary>
     /// 获取适合游戏版本的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <returns>排序后的Java兼容性列表</returns>
-    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameEntity gameEntity)
+    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameInfo gameInfo)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {
@@ -73,9 +73,9 @@ public sealed partial class JavaManager : IJavaManager
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <returns>最佳的Java或null</returns>
-    public JavaRuntime? GetBestJavaForGame(GameEntity gameEntity)
+    public JavaRuntime? GetBestJavaForGame(GameInfo gameInfo)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {

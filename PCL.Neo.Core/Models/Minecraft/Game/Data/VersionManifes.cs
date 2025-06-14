@@ -18,7 +18,6 @@ public enum Icons : byte
     Fabric = 11,
     NeoForge = 12
 }
-
 // TODO)) 此枚举为UI显示，后续建议移到ViewModel中
 public enum VersionCardType : byte
 {

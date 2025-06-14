@@ -68,7 +68,7 @@ public static class JavaSelector
     /// <summary>
     /// 为游戏实体选择最合适的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <param name="availableJavas">可用的Java列表</param>
     /// <returns>排序后的Java兼容性得分列表</returns>
     public static List<JavaCompatibilityScore> SelectJavaForGame(
@@ -76,10 +76,11 @@ public static class JavaSelector
         IEnumerable<JavaRuntime> availableJavas)
     {
         // 如果没有可用的Java，返回空列表
-        if (availableJavas == null || !availableJavas.Any())
+        if (!availableJavas.Any())
         {
             return [];
         }
+
 
         // 获取游戏推荐的Java版本范围
         var (minJavaVersion, maxJavaVersion) = gameEntity.JsonContent.MatchJavaVersionSpan();

@@ -1,17 +1,18 @@
 using PCL.Neo.Core.Download;
+using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils;
 using System.Text.Json;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game;
+namespace PCL.Neo.Core.Service.Game;
 
 using DefaultJavaRuntimeCombine = (JavaRuntime? Java8, JavaRuntime? Java17, JavaRuntime? Java21);
 
 /// <summary>
 /// 提供了 Minecraft 各版本的本地/远程获取、下载、校验、删除等一站式服务，并结合 Java 运行环境的管理，确保游戏运行环境的完整性和兼容性。
 /// </summary>
-public class GameService(IJavaManager javaManager)
+public class GameService(IJavaManager javaManager) : IGameService
 {
     private IJavaManager JavaManager { get; } = javaManager;
 
@@ -23,7 +24,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 获取游戏版本列表
     /// </summary>
-    public static async Task<List<VersionInfo>> GetVersionsAsync(string? minecraftDirectory = null,
+    public async Task<List<VersionManifes>> GetVersionsAsync(string? minecraftDirectory = null,
         bool forceRefresh = false)
     {
         var directory = minecraftDirectory ?? DefaultGameDirectory;
@@ -37,7 +38,7 @@ public class GameService(IJavaManager javaManager)
                 var remoteVersions = await Versions.GetRemoteVersionsAsync();
 
                 // 合并版本列表，保留本地版本的信息
-                Dictionary<string, VersionInfo> versionDict = new();
+                Dictionary<string, VersionManifes> versionDict = new();
 
                 foreach (var version in localVersions)
                 {
@@ -96,7 +97,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 下载游戏资源文件
     /// </summary>
-    private static async Task DownloadAssetsAsync(VersionInfo versionInfo, IProgress<int>? progressCallback = null)
+    private async Task DownloadAssetsAsync(VersionManifes versionManifes, IProgress<int>? progressCallback = null)
     {
         // 下载assets索引文件
         var assetsDir = Path.Combine(DefaultGameDirectory, "assets");
@@ -106,8 +107,8 @@ public class GameService(IJavaManager javaManager)
         Directory.CreateDirectory(indexesDir);
         Directory.CreateDirectory(objectsDir);
 
-        var assetsIndexUrl = versionInfo.AssetIndex.Url;
-        var assetsIndexPath = Path.Combine(indexesDir, $"{versionInfo.AssetIndex.Id}.json");
+        var assetsIndexUrl = versionManifes.AssetIndex.Url;
+        var assetsIndexPath = Path.Combine(indexesDir, $"{versionManifes.AssetIndex.Id}.json");
 
         await DownloadReceipt.FastDownloadAsync(assetsIndexUrl, assetsIndexPath);
 
@@ -146,7 +147,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 下载游戏库文件
     /// </summary>
-    private async Task DownloadLibrariesAsync(VersionInfo versionInfo, IProgress<int>? progressCallback = null)
+    private async Task DownloadLibrariesAsync(VersionManifes versionManifes, IProgress<int>? progressCallback = null)
     {
         var librariesDir = Path.Combine(DefaultGameDirectory, "libraries");
         Directory.CreateDirectory(librariesDir);
@@ -209,7 +210,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 评估规则是否适用于当前系统
     /// </summary>
-    private static bool EvaluateRules(List<Rule> rules)
+    private bool EvaluateRules(List<Rule> rules)
     {
         var allow = true;
 
@@ -233,6 +234,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 检查版本是否已安装
     /// </summary>
+    [Obsolete]
     public bool IsVersionInstalled(string versionId, string? minecraftDirectory = null)
     {
         var directory = minecraftDirectory ?? DefaultGameDirectory;
@@ -245,7 +247,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 删除版本
     /// </summary>
-    public static void DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
+    public void DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
     {
         var directory = minecraftDirectory ?? DefaultGameDirectory;
         var versionDir = Path.Combine(directory, "versions", versionId);
