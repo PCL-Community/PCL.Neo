@@ -268,7 +268,7 @@ public class GameService(IJavaManager javaManager) : IGameService
     /// <summary>
     /// 检查Java版本是否兼容指定的Minecraft版本
     /// </summary>
-    public static bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion)
+    public bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion)
     {
         // 先获取Java版本
         string javaVersionString = javaRuntime.Version;
