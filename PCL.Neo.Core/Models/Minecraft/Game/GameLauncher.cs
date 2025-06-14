@@ -1,170 +1,39 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Utils;
 using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using PCL.Neo.Core.Models.Minecraft.Java;
-using PCL.Neo.Core.Utils.Logger;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game;
 
-public class LaunchOptions
+public class GameLauncher : IGameLauncher
 {
-    /// <summary>
-    /// Minecraft版本ID
-    /// </summary>
-    public string VersionId { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Minecraft根目录
-    /// </summary>
-    public string MinecraftRootDirectory { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 游戏数据目录
-    /// </summary>
-    public string GameDirectory { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Java可执行文件路径
-    /// </summary>
-    public string JavaPath { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 最大内存分配(MB)
-    /// </summary>
-    public int MaxMemoryMB { get; set; } = 2048;
-
-    /// <summary>
-    /// 最小内存分配(MB)
-    /// </summary>
-    public int MinMemoryMB { get; set; } = 512;
-
-    /// <summary>
-    /// 玩家用户名
-    /// </summary>
-    public string Username { get; set; } = "Player";
-
-    /// <summary>
-    /// 玩家UUID
-    /// </summary>
-    public string UUID { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 访问令牌
-    /// </summary>
-    public string AccessToken { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 游戏窗口宽度
-    /// </summary>
-    public int WindowWidth { get; set; } = 854;
-
-    /// <summary>
-    /// 游戏窗口高度
-    /// </summary>
-    public int WindowHeight { get; set; } = 480;
-
-    /// <summary>
-    /// 是否全屏
-    /// </summary>
-    public bool FullScreen { get; set; } = false;
-
-    /// <summary>
-    /// 额外的JVM参数
-    /// </summary>
-    public List<string> ExtraJvmArgs { get; set; } = new List<string>();
-
-    /// <summary>
-    /// 额外的游戏参数
-    /// </summary>
-    public List<string> ExtraGameArgs { get; set; } = new List<string>();
-
-    /// <summary>
-    /// 环境变量
-    /// </summary>
-    public Dictionary<string, string> EnvironmentVariables { get; set; } = new Dictionary<string, string>();
-
-    /// <summary>
-    /// 启动后关闭启动器
-    /// </summary>
-    public bool CloseAfterLaunch { get; set; } = false;
-
-    /// <summary>
-    /// 是否使用离线模式
-    /// </summary>
-    public bool IsOfflineMode { get; set; } = true;
-}
-
-public class GameLauncher
-{
-    private readonly GameService _gameService;
-    private McLogFIleLogger _gameLogger;
-
-    public GameLauncher(GameService gameService)
-    {
-        _gameService = gameService;
-    }
-
     /// <summary>
     /// 启动游戏
     /// </summary>
-    public async Task<Process> LaunchAsync(LaunchOptions options)
+    public async Task<Process> LaunchAsync(GameProfile profile)
     {
-        // 验证必要参数
-        if (string.IsNullOrEmpty(options.VersionId))
-            throw new ArgumentException("版本ID不能为空");
+        string mcDir = profile.Information.RootDirectory;
+        string gameDir = profile.Information.GameDirectory;
 
-
-        if (string.IsNullOrEmpty(options.JavaPath))
-            throw new ArgumentException("Java路径不能为空");
-
-
-        // 确保目录存在
-        string mcDir = options.MinecraftRootDirectory;
-        if (string.IsNullOrEmpty(mcDir))
-            mcDir = GameService.DefaultGameDirectory;
-
-
-        string gameDir = options.GameDirectory;
-        if (string.IsNullOrEmpty(gameDir))
-            gameDir = mcDir;
-
-
-        // 确保目录存在
         Directory.CreateDirectory(mcDir);
         Directory.CreateDirectory(gameDir);
 
+        var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
+                          ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
-        // 获取版本信息
-        var versionInfo = await Versions.GetVersionByIdAsync(mcDir, options.VersionId);
-        if (versionInfo == null)
-            throw new Exception($"找不到版本 {options.VersionId}");
-
-
-        // 解析继承关系（如果有）
         if (!string.IsNullOrEmpty(versionInfo.InheritsFrom))
         {
-            var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom);
-            if (parentInfo == null)
-                throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
-
-
-            // 合并版本信息
+            var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom)
+                             ?? throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
             versionInfo = MergeVersionInfo(versionInfo, parentInfo);
         }
 
+        var commandArgs = BuildLaunchCommand(profile, versionInfo);
 
-        // 构建启动命令
-        var commandArgs = BuildLaunchCommand(options, versionInfo);
-
-        // 创建进程
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = options.JavaPath,
+                FileName = profile.Options.RunnerJava.JavaExe,
                 Arguments = commandArgs,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -174,34 +43,31 @@ public class GameLauncher
             }
         };
 
-
-        // 设置环境变量
-        foreach (var env in options.EnvironmentVariables)
+        foreach (var env in profile.Options.EnvironmentVariables)
         {
             process.StartInfo.EnvironmentVariables[env.Key] = env.Value;
         }
 
-
-        // 启动进程
         process.Start();
 
+        //var gameLogDir = Path.Combine(gameDir, "logs");
+        //_gameLogger = new McLogFileLogger(gameLogDir, process);
+        //_gameLogger.Start();
 
-        // 记录日志（异步）
-        var gameLogDir = Path.Combine(options.GameDirectory, "logs");
-        _gameLogger = new McLogFIleLogger(gameLogDir, process);
-        _gameLogger.Start();
+        profile.Information.IsRunning = true;
 
         return process;
     }
-
+        return process;
+    }
 
     /// <summary>
     /// 合并版本信息（处理继承关系）
     /// </summary>
-    private static VersionInfo MergeVersionInfo(VersionInfo child, VersionInfo parent)
+    private static VersionManifes MergeVersionInfo(VersionManifes child, VersionManifes parent)
     {
         // 创建一个新的合并版本，保留子版本的ID和名称
-        var merged = new VersionInfo
+        var merged = new VersionManifes
         {
             Id = child.Id,
             Name = child.Name,
@@ -220,13 +86,11 @@ public class GameLauncher
             Downloads = child.Downloads ?? parent.Downloads
         };
 
-            // 合并库文件（子版本优先）
-            var libraries = new List<Library>();
-
+        // 合并库文件（子版本优先）
+        var libraries = new List<Library>();
 
         if (parent.Libraries != null)
             libraries.AddRange(parent.Libraries);
-
 
         if (child.Libraries != null)
         {
@@ -241,21 +105,20 @@ public class GameLauncher
             }
         }
 
-
         merged.Libraries = libraries;
+
         return merged;
     }
-
 
     /// <summary>
     /// 构建游戏启动命令
     /// </summary>
-    private string BuildLaunchCommand(LaunchOptions options, VersionInfo versionInfo)
+    private static string BuildLaunchCommand(GameProfile profile, VersionManifes versionManifes)
     {
         List<string> args =
         [
-            $"-Xmx{options.MaxMemoryMB}M",
-            $"-Xms{options.MinMemoryMB}M", // 标准JVM参数
+            $"-Xmx{profile.Options.MaxMemoryMB}M",
+            $"-Xms{profile.Options.MinMemoryMB}M", // 标准JVM参数
             "-XX:+UseG1GC",
             "-XX:+ParallelRefProcEnabled",
             "-XX:MaxGCPauseMillis=200",
@@ -277,78 +140,81 @@ public class GameLauncher
         ];
 
         // 设置natives路径
-        string nativesDir = Path.Combine(options.MinecraftRootDirectory, "versions", options.VersionId, "natives");
-        EnsureDirectoryExists(nativesDir);
+        string nativesDir = Path.Combine(profile.Information.RootDirectory, "versions", "natives");
+        DirectoryUtil.EnsureDirectoryExists(nativesDir);
 
-        args.Add($"-Djava.library.path={QuotePath(nativesDir)}");
+        args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}");
         args.Add($"-Dminecraft.launcher.brand=PCL.Neo");
-        args.Add($"-Dminecraft.launcher.version=1.0.0");
+        args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
 
         // 类路径
         args.Add("-cp");
         List<string> classpaths = [];
-        if (versionInfo.Libraries != null)
+        if (versionManifes.Libraries != null)
         {
-            foreach (Library library in versionInfo.Libraries)
+            foreach (Library library in versionManifes.Libraries)
             {
                 if (library.Downloads?.Artifact?.Path != null)
                 {
-                    classpaths.Add(Path.Combine(options.MinecraftRootDirectory, "libraries", library.Downloads!.Artifact!.Path!)); // 不用担心空格问题
+                    classpaths.Add(Path.Combine(profile.Information.RootDirectory, "libraries",
+                        library.Downloads!.Artifact!.Path!)); // 不用担心空格问题
                 }
             }
         }
 
-        classpaths.Add(Path.Combine(options.GameDirectory, options.VersionId));
+        classpaths.Add(Path.Combine(profile.Information.GameDirectory, profile.Options.VersionId));
         args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', classpaths));
 
         // 客户端类型
-        string clientType = options.IsOfflineMode ? "legacy" : "mojang";
+        string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
 
         // 添加额外的JVM参数
-        if (options.ExtraJvmArgs is { Count: > 0 })
+        if (profile.Options.ExtraJvmArgs is { Count: > 0 })
         {
-            args.AddRange(options.ExtraJvmArgs);
+            args.AddRange(profile.Options.ExtraJvmArgs);
         }
 
         // 主类
-        args.Add(versionInfo.MainClass);
+        args.Add(versionManifes.MainClass);
 
         // 游戏参数
-        if (!string.IsNullOrEmpty(versionInfo.MinecraftArguments))
+        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments))
         {
             // 旧版格式
-            string gameArgs = versionInfo.MinecraftArguments
-                .Replace("${auth_player_name}", options.Username)
-                .Replace("${version_name}", options.VersionId)
-                .Replace("${game_directory}", QuotePath(options.GameDirectory))
-                .Replace("${assets_root}", QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")))
-                .Replace("${assets_index_name}", versionInfo.AssetIndex?.Id ?? "legacy")
-                .Replace("${auth_uuid}", options.UUID)
-                .Replace("${auth_access_token}", options.AccessToken)
+            string gameArgs = versionManifes.MinecraftArguments
+                .Replace("${auth_player_name}", profile.Options.Username)
+                .Replace("${version_name}", profile.Options.VersionId)
+                .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
+                .Replace("${assets_root}",
+                    DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
+                .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
+                .Replace("${auth_uuid}", profile.Options.UUID)
+                .Replace("${auth_access_token}", profile.Options.AccessToken)
                 .Replace("${user_type}", clientType)
-                .Replace("${version_type}", versionInfo.Type);
+                .Replace("${version_type}", versionManifes.Type);
             args.AddRange(gameArgs.Split(' '));
         }
-        else if (versionInfo.Arguments != null)
+        else if (versionManifes.Arguments != null)
         {
             // 新版格式
             // 这里简化处理，实际上应该解析Arguments对象并应用规则
-            if (versionInfo.Arguments.Game is not null)
+            if (versionManifes.Arguments.Game is not null)
             {
-                foreach (var arg in versionInfo.Arguments.Game)
+                foreach (var arg in versionManifes.Arguments.Game)
                 {
                     if (arg is string strArg)
                     {
                         string processedArg = strArg
-                            .Replace("${auth_player_name}", options.Username)
-                            .Replace("${version_name}", options.VersionId)
-                            .Replace("${game_directory}", QuotePath(options.GameDirectory))
-                            .Replace("${assets_root}", QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")))
-                            .Replace("${assets_index_name}", versionInfo.AssetIndex?.Id ?? "legacy")
-                            .Replace("${auth_uuid}", options.UUID)
-                            .Replace("${auth_access_token}", options.AccessToken)
+                            .Replace("${auth_player_name}", profile.Options.Username)
+                            .Replace("${version_name}", profile.Options.VersionId)
+                            .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
+                            .Replace("${assets_root}",
+                                DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
+                            .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
+                            .Replace("${auth_uuid}", profile.Options.UUID)
+                            .Replace("${auth_access_token}", profile.Options.AccessToken)
                             .Replace("${user_type}", clientType)
-                            .Replace("${version_type}", versionInfo.Type);
+                            .Replace("${version_type}", versionManifes.Type);
 
                         args.Add(processedArg);
                     }
@@ -359,32 +225,32 @@ public class GameLauncher
         {
             // 如果没有参数格式，则使用默认参数
             args.Add("--username");
-            args.Add(options.Username);
+            args.Add(profile.Options.Username);
             args.Add("--version");
-            args.Add(options.VersionId);
+            args.Add(profile.Options.VersionId);
             args.Add("--gameDir");
-            args.Add(QuotePath(options.GameDirectory));
+            args.Add(DirectoryUtil.QuotePath(profile.Information.GameDirectory));
             args.Add("--assetsDir");
-            args.Add(QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")));
+            args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
             args.Add("--assetIndex");
-            args.Add(versionInfo.AssetIndex?.Id ?? "legacy");
+            args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
             args.Add("--uuid");
-            args.Add(options.UUID);
+            args.Add(profile.Options.UUID);
             args.Add("--accessToken");
-            args.Add(options.AccessToken);
+            args.Add(profile.Options.AccessToken);
             args.Add("--userType");
             args.Add(clientType);
             args.Add("--versionType");
-            args.Add(versionInfo.Type);
+            args.Add(versionManifes.Type);
         }
 
         // 窗口大小
-        if (!options.FullScreen)
+        if (!profile.Options.FullScreen)
         {
             args.Add("--width");
-            args.Add(options.WindowWidth.ToString());
+            args.Add(profile.Options.WindowWidth.ToString());
             args.Add("--height");
-            args.Add(options.WindowHeight.ToString());
+            args.Add(profile.Options.WindowHeight.ToString());
         }
         else
         {
@@ -392,43 +258,12 @@ public class GameLauncher
         }
 
         // 添加额外的游戏参数
-        if (options.ExtraGameArgs is { Count: > 0 })
+        if (profile.Options.ExtraGameArgs is { Count: > 0 })
         {
-            args.AddRange(options.ExtraGameArgs);
+            args.AddRange(profile.Options.ExtraGameArgs);
         }
 
-            // 拼接所有参数
-            return string.Join(' ', args);
-    }
-
-    /// <summary>
-    /// 确保目录存在
-    /// </summary>
-    private static void EnsureDirectoryExists(string path)
-    {
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-    }
-
-    /// <summary>
-    /// 为路径加上引号（如果包含空格）
-    /// </summary>
-    private static string QuotePath(string path)
-    {
-        // 统一路径分隔符为当前系统的分隔符
-        path = path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
-
-        // 如果路径包含空格，则加上引号
-        return path.Contains(' ') ? $"\"{path}\"" : path;
-    }
-
-    /// <summary>
-    /// 导出游戏日志
-    /// </summary>
-    public void ExportGameLogsAsync(string filePath)
-    {
-        _gameLogger.Export(filePath);
+        // 拼接所有参数
+        return string.Join(' ', args);
     }
 }

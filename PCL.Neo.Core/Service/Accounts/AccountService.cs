@@ -503,26 +503,26 @@ namespace PCL.Neo.Core.Service.Accounts
                     this.LogAccountError("尝试验证外置登录账户时提供了空服务器URL");
                     throw new ArgumentException("服务器URL不能为空");
                 }
-                    
+
                 if (string.IsNullOrEmpty(username))
                 {
                     this.LogAccountError("尝试验证外置登录账户时提供了空用户名");
                     throw new ArgumentException("用户名不能为空");
                 }
-                    
+
                 if (string.IsNullOrEmpty(password))
                 {
                     this.LogAccountError("尝试验证外置登录账户时提供了空密码");
                     throw new ArgumentException("密码不能为空");
                 }
-                    
+
                 // 外置登录服务端点
                 var authEndpoint = $"{serverUrl.TrimEnd('/')}/authserver/authenticate";
                 this.LogAccountDebug($"外置登录认证端点: {authEndpoint}");
-                
+
                 // 生成客户端令牌
                 var clientToken = Guid.NewGuid().ToString();
-                
+
                 // 构建认证请求
                 var authRequest = new
                 {
@@ -532,30 +532,30 @@ namespace PCL.Neo.Core.Service.Accounts
                     requestUser = true,
                     agent = new { name = "Minecraft", version = 1 }
                 };
-                
+
                 this.LogYggdrasilInfo($"开始外置登录验证: {username} @ {serverUrl}");
-                
+
                 // TODO: 实现与Yggdrasil服务器的实际HTTP通信
                 // 以下代码仅为框架，需要替换为实际的HTTP请求逻辑
-                
+
                 /*
                 使用HTTP客户端发送请求示例:
-                
+
                 var client = new HttpClient();
                 client.Timeout = TimeSpan.FromMilliseconds(_yggdrasilApiTimeoutMs);
-                
+
                 if (!string.IsNullOrEmpty(_yggdrasilApiKey))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_yggdrasilApiKey}");
                 }
-                
+
                 var content = new StringContent(
                     JsonSerializer.Serialize(authRequest, _jsonOptions),
                     System.Text.Encoding.UTF8,
                     "application/json");
-                    
+
                 var response = await client.PostAsync(authEndpoint, content);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -563,12 +563,12 @@ namespace PCL.Neo.Core.Service.Accounts
                     this.LogYggdrasilError($"外置登录验证失败: {response.StatusCode} - {errorContent}");
                     throw new YggdrasilAuthException($"认证失败: {response.StatusCode} - {errorContent}");
                 }
-                
+
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var authResponse = JsonSerializer.Deserialize<YggdrasilAuthResponse>(responseContent, _jsonOptions);
-                
+
                 this.LogYggdrasilInfo($"外置登录验证成功: {authResponse.SelectedProfile.Name}");
-                
+
                 // 返回账户信息
                 return new YggdrasilAccount
                 {
@@ -582,7 +582,7 @@ namespace PCL.Neo.Core.Service.Accounts
                     LastUsed = DateTime.Now
                 };
                 */
-                
+
                 // 暂时抛出未实现异常
                 this.LogYggdrasilError("外置登录认证功能尚未实现");
                 throw new NotImplementedException("Yggdrasil认证尚未实现");

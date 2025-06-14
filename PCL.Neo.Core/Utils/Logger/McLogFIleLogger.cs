@@ -3,13 +3,13 @@ using System.Text;
 
 namespace PCL.Neo.Core.Utils.Logger;
 
-public sealed class McLogFIleLogger : IDisposable
+public sealed class McLogFileLogger : IDisposable
 {
     private readonly StreamWriter _writer;
     private readonly Process _process;
     private readonly string _logDir;
 
-    public McLogFIleLogger(string targetDir, Process process)
+    public McLogFileLogger(string targetDir, Process process)
     {
         if (Directory.Exists(targetDir) == false)
         {

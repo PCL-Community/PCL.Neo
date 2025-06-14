@@ -7,14 +7,14 @@ public static class JavaVersionMatcherForGameEntityExtension
     /// <summary>
     /// 根据游戏版本计算其适配的Java版本范围
     /// </summary>
-    /// <param name="versionInfo">游戏版本信息</param>
+    /// <param name="versionManifes">游戏版本信息</param>
     /// <returns>适配的Java版本范围</returns>
-    public static (int min, int max) MatchJavaVersionSpan(this VersionInfo versionInfo)
+    public static (int min, int max) MatchJavaVersionSpan(this VersionManifes versionManifes)
     {
-        if (versionInfo.Type == "release")
+        if (versionManifes.Type == "release")
         {
         }
-        else if (versionInfo.Type == "snapshot")
+        else if (versionManifes.Type == "snapshot")
         {
         }
         return (0, 0);

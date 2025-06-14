@@ -1,26 +1,20 @@
+using PCL.Neo.Core.Models.Minecraft.Java;
+using System.Text.Json.Serialization;
+
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
-public record LaunchOptions
+public sealed record LaunchOptions
 {
     /// <summary>
     /// Minecraft版本ID
     /// </summary>
-    public string VersionId { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Minecraft根目录
-    /// </summary>
-    public string MinecraftDirectory { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 游戏数据目录
-    /// </summary>
-    public string GameDirectory { get; set; } = string.Empty;
+    public required string VersionId { get; set; } = string.Empty;
 
     /// <summary>
     /// Java可执行文件路径
     /// </summary>
-    public string JavaPath { get; set; } = string.Empty;
+    [JsonIgnore]
+    public JavaRuntime? RunnerJava { get; set; } // TODO: replace by nullable. if null, use global java runtime
 
     /// <summary>
     /// 最大内存分配(MB)
@@ -35,7 +29,7 @@ public record LaunchOptions
     /// <summary>
     /// 玩家用户名
     /// </summary>
-    public string Username { get; set; } = "Player";
+    public string Username { get; set; } = "Steve";
 
     /// <summary>
     /// 玩家UUID

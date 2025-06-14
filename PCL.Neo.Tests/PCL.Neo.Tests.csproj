@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Minecraft\Game\Data\" />
     <Folder Include="Utils\Logger\" />
   </ItemGroup>
 
