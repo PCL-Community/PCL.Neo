@@ -144,8 +144,6 @@ public class GameLauncher
         {
             var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom)
                              ?? throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
-            var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom)
-                             ?? throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
             versionInfo = MergeVersionInfo(versionInfo, parentInfo);
         }
 
