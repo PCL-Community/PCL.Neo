@@ -84,6 +84,7 @@ public static class JavaSelector
             return [];
         }
 
+
         // 获取游戏推荐的Java版本范围
         var (minJavaVersion, maxJavaVersion) = gameEntity.JsonContent.MatchJavaVersionSpan();
 

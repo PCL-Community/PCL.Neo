@@ -221,7 +221,7 @@ public class GameService(IJavaManager javaManager) : IGameService
     /// <summary>
     /// 评估规则是否适用于当前系统
     /// </summary>
-    private static bool EvaluateRules(List<Rule> rules)
+    private bool EvaluateRules(List<Rule> rules)
     {
         var allow = true;
 

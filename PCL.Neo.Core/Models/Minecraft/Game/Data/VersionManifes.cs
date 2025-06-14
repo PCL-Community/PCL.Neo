@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
-public record VersionInfo
+public record VersionManifes
 {
-    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
 
     [JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
 
