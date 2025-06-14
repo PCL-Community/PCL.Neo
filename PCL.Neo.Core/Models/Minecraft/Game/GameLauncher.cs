@@ -132,6 +132,7 @@ public class GameLauncher
         Directory.CreateDirectory(mcDir);
         Directory.CreateDirectory(gameDir);
 
+
         var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
                           ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
