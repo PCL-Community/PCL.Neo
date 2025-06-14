@@ -7,6 +7,9 @@ namespace PCL.Neo.Core.Models.Minecraft.Game;
 
 using DefaultJavaRuntimeCombine = (JavaRuntime? Java8, JavaRuntime? Java17, JavaRuntime? Java21);
 
+/// <summary>
+/// 提供了 Minecraft 各版本的本地/远程获取、下载、校验、删除等一站式服务，并结合 Java 运行环境的管理，确保游戏运行环境的完整性和兼容性。
+/// </summary>
 public class GameService(IJavaManager javaManager)
 {
     private IJavaManager JavaManager { get; } = javaManager;
@@ -241,7 +244,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 删除版本
     /// </summary>
-    public static async Task DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
+    public static void DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
     {
         string directory = minecraftDirectory ?? DefaultGameDirectory;
         string versionDir = Path.Combine(directory, "versions", versionId);
@@ -263,7 +266,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 检查Java版本是否兼容指定的Minecraft版本
     /// </summary>
-    public bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion)
+    public static bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion)
     {
         // 先获取Java版本
         string javaVersionString = javaRuntime.Version;
@@ -303,7 +306,7 @@ public class GameService(IJavaManager javaManager)
     /// <summary>
     /// 获取Minecraft版本需要的Java版本
     /// </summary>
-    private int GetRequiredJavaVersion(string minecraftVersion)
+    private static int GetRequiredJavaVersion(string minecraftVersion)
     {
         // 解析Minecraft版本号
         string[] parts = minecraftVersion.Split('.');

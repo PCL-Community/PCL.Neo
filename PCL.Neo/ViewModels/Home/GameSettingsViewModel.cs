@@ -550,7 +550,7 @@ public partial class GameSettingsViewModel : ViewModelBase
             }
 
             // 创建测试启动选项
-            var testOptions = new PCL.Neo.Core.Models.Minecraft.Game.LaunchOptions
+            var testOptions = new PCL.Neo.Core.Models.Minecraft.Game.Data.LaunchOptions
             {
                 VersionId = VersionId,
                 JavaPath = JavaPath,

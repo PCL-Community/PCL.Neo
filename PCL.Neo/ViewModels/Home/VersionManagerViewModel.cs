@@ -337,7 +337,7 @@ public partial class VersionManagerViewModel : ViewModelBase
         }
 
         // 检查Java版本与Minecraft版本的兼容性
-        if (!_gameService.IsJavaCompatibleWithGame(_gameService.DefaultJavaRuntimes.Java21, version.Id))
+        if (!GameService.IsJavaCompatibleWithGame(_gameService.DefaultJavaRuntimes.Java21, version.Id))
         {
             // 提示用户但不阻止启动
             StatusMessage = "警告：当前Java版本可能与所选Minecraft版本不兼容";
@@ -353,7 +353,7 @@ public partial class VersionManagerViewModel : ViewModelBase
             StatusMessage = $"正在启动 {version.Name}...";
 
             // 创建完善的启动选项
-            var launchOptions = new PCL.Neo.Core.Models.Minecraft.Game.LaunchOptions
+            var launchOptions = new PCL.Neo.Core.Models.Minecraft.Game.Data.LaunchOptions
             {
                 VersionId = version.Id,
                 MinecraftRootDirectory = version.Directory,

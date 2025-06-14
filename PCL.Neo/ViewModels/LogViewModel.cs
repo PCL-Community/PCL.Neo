@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PCL.Neo.Models.Minecraft.Game;
 using PCL.Neo.Services;
 using System;
 using System.Collections.ObjectModel;
