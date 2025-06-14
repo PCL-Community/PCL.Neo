@@ -11,7 +11,7 @@
     <PackageReference Include="GenHTTP.Modules.Functional" Version="9.7.0" />
     <PackageReference Include="GenHTTP.Modules.Layouting" Version="9.7.0" />
     <PackageReference Include="GenHTTP.Modules.StaticWebsites" Version="9.7.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>
@@ -19,6 +19,10 @@
   <ItemGroup>
     <ProjectReference Include="..\PCL.Neo.Core\PCL.Neo.Core.csproj" />
     <ProjectReference Include="..\PCL.Neo\PCL.Neo.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Utils\Logger\" />
   </ItemGroup>
 
 </Project>

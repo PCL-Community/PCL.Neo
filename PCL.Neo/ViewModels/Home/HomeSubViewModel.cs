@@ -91,7 +91,7 @@ public partial class HomeSubViewModel : ViewModelBase
         UserService userService,
         StorageService storageService,
         GameService gameService,
-        PCL.Neo.Core.Models.Minecraft.Game.GameLauncher gameLauncher,
+        GameLauncher gameLauncher,
         GameSettingsViewModel gameSettingsViewModel)
     {
         _navigationService = navigationService;
@@ -280,7 +280,7 @@ public partial class HomeSubViewModel : ViewModelBase
             {
                 VersionId = SelectedGameVersion.Id,
                 JavaPath = _gameSettingsViewModel.JavaPath,
-                MinecraftDirectory = _gameSettingsViewModel.GameDirectory,
+                MinecraftRootDirectory = _gameSettingsViewModel.GameDirectory,
                 GameDirectory = _gameSettingsViewModel.GameDirectory,
                 MaxMemoryMB = _gameSettingsViewModel.MemoryAllocation,
                 MinMemoryMB = Math.Max(512, _gameSettingsViewModel.MemoryAllocation / 4), // 最小内存设为最大内存的1/4，但不低于512MB
@@ -290,7 +290,8 @@ public partial class HomeSubViewModel : ViewModelBase
                 WindowWidth = _gameSettingsViewModel.GameWidth,
                 WindowHeight = _gameSettingsViewModel.GameHeight,
                 FullScreen = _gameSettingsViewModel.IsFullScreen,
-                IsOfflineMode = SelectedUser.StorageType == PCL.Neo.Core.Service.Accounts.Storage.UserTypeConstants.Offline,
+                IsOfflineMode = SelectedUser.StorageType ==
+                                PCL.Neo.Core.Service.Accounts.Storage.UserTypeConstants.Offline,
 
                 // 添加额外的JVM参数
                 ExtraJvmArgs = string.IsNullOrEmpty(_gameSettingsViewModel.JvmArguments)
@@ -368,7 +369,7 @@ public partial class HomeSubViewModel : ViewModelBase
 
             if (!string.IsNullOrEmpty(filePath))
             {
-                await GameLauncher.ExportGameLogsAsync(filePath);
+                _gameLauncher.ExportGameLogsAsync(filePath);
                 StatusMessage = "日志导出成功";
             }
         }

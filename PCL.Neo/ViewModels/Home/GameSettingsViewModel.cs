@@ -554,7 +554,7 @@ public partial class GameSettingsViewModel : ViewModelBase
             {
                 VersionId = VersionId,
                 JavaPath = JavaPath,
-                MinecraftDirectory = GameDirectory,
+                MinecraftRootDirectory = GameDirectory,
                 GameDirectory = GameDirectory,
                 MaxMemoryMB = MemoryAllocation,
                 MinMemoryMB = Math.Max(512, MemoryAllocation / 4),

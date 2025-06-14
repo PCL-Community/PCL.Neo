@@ -10,7 +10,7 @@ namespace PCL.Neo.Core.Service.Audio;
 /// <summary>
 /// 跨平台音频服务实现类，基于命令行工具实现音频播放功能
 /// </summary>
-public class AudioService : IAudioService
+public class AudioService : IAudioService, IDisposable
 {
     private readonly AudioOptions _options;
     protected Process? _currentProcess;
@@ -19,7 +19,7 @@ public class AudioService : IAudioService
     private bool _isPaused;
     private float _currentVolume;
     private bool _isDisposed;
-    private readonly object _lock = new object();
+    private readonly Lock _lock = new();
     private CancellationTokenSource? _playbackCancellation;
 
     /// <summary>
@@ -617,9 +617,7 @@ public class AudioService : IAudioService
         }
     }
 
-    /// <summary>
-    /// 释放资源
-    /// </summary>
+    /// <inheritdoc/>
     public void Dispose()
     {
         if (_isDisposed) return;

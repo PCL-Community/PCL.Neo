@@ -307,7 +307,7 @@ public partial class VersionManagerViewModel : ViewModelBase
             StatusMessage = $"正在删除版本 {version.Name}...";
 
             // 删除版本
-            await _gameService.DeleteVersionAsync(version.Id, version.Directory);
+            await GameService.DeleteVersionAsync(version.Id, version.Directory);
 
             // 从列表中移除
             Versions.Remove(version);
@@ -359,11 +359,11 @@ public partial class VersionManagerViewModel : ViewModelBase
             var launchOptions = new PCL.Neo.Core.Models.Minecraft.Game.LaunchOptions
             {
                 VersionId = version.Id,
-                MinecraftDirectory = version.Directory,
+                MinecraftRootDirectory = version.Directory,
                 GameDirectory = version.Directory,
                 JavaPath = _gameService.DefaultJavaRuntimes.Java21.JavaWExe,
                 MaxMemoryMB = 2048, // 默认2GB内存
-                MinMemoryMB = 512,  // 最小内存设为512MB
+                MinMemoryMB = 512, // 最小内存设为512MB
                 Username = "Player", // 默认用户
                 UUID = Guid.NewGuid().ToString(),
                 AccessToken = Guid.NewGuid().ToString(),

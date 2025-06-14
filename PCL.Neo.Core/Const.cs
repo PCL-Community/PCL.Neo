@@ -22,6 +22,11 @@ public static class Const
     public static readonly string Path = Environment.CurrentDirectory + Sep;
 
     /// <summary>
+    /// 程序本体所在位置，无程序名
+    /// </summary>
+    public static readonly string PathWithoutName = AppDomain.CurrentDomain.BaseDirectory;
+
+    /// <summary>
     /// 包含程序名的完整路径。
     /// </summary>
     public static readonly string PathWithName = Process.GetCurrentProcess().MainModule!.FileName;
