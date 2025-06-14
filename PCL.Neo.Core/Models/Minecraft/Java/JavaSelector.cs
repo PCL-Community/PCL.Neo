@@ -22,18 +22,18 @@ public static class JavaSelector
         /// 兼容性得分(越高越兼容)
         /// </summary>
         public int Score { get; init; }
-        
+
         /// <summary>
         /// 推荐级别
         /// </summary>
         public RecommendationLevel RecommendationLevel { get; init; }
-        
+
         /// <summary>
         /// 推荐原因
         /// </summary>
         public string Reason { get; init; } = string.Empty;
     }
-    
+
     /// <summary>
     /// Java推荐级别
     /// </summary>
@@ -43,22 +43,22 @@ public static class JavaSelector
         /// 完美匹配，官方指定版本
         /// </summary>
         Perfect = 4,
-        
+
         /// <summary>
         /// 高度推荐，适合该版本的最佳选择
         /// </summary>
         Recommended = 3,
-        
+
         /// <summary>
         /// 可用，能满足基本需求
         /// </summary>
         Acceptable = 2,
-        
+
         /// <summary>
         /// 勉强可用，可能会有兼容性问题
         /// </summary>
         Marginal = 1,
-        
+
         /// <summary>
         /// 不兼容，不应使用
         /// </summary>
@@ -68,36 +68,36 @@ public static class JavaSelector
     /// <summary>
     /// 为游戏实体选择最合适的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <param name="availableJavas">可用的Java列表</param>
     /// <returns>排序后的Java兼容性得分列表</returns>
     public static List<JavaCompatibilityScore> SelectJavaForGame(
-        GameEntity gameEntity,
+        GameInfo gameInfo,
         IEnumerable<JavaRuntime> availableJavas)
     {
         // 如果没有可用的Java，返回空列表
-        if (availableJavas == null || !availableJavas.Any())
+        if (!availableJavas.Any())
         {
             return [];
         }
 
+
         // 获取游戏推荐的Java版本范围
-        (int minJavaVersion, int maxJavaVersion) = gameEntity.VersionInfo.MatchJavaVersionSpan();
+        (int minJavaVersion, int maxJavaVersion) = gameInfo.VersionInfo.MatchJavaVersionSpan();
 
         // 如果游戏有明确指定Java版本
-        bool hasSpecificJavaRequirement = gameEntity.VersionInfo.JavaVersion != null &&
-                                          gameEntity.VersionInfo.JavaVersion.MajorVersion > 0;
+        bool hasSpecificJavaRequirement = gameInfo.VersionInfo.JavaVersion is { MajorVersion: > 0 };
 
         int specificJavaVersion =
-            hasSpecificJavaRequirement ? gameEntity.VersionInfo.JavaVersion?.MajorVersion ?? 0 : 0;
+            hasSpecificJavaRequirement ? gameInfo.VersionInfo.JavaVersion?.MajorVersion ?? 0 : 0;
 
         // 对每个Java评分
         var results = availableJavas
-            .Where(java => java.Compability == JavaCompability.Yes)  // 只选择兼容的Java
-            .Select(java => ScoreJavaForGame(java, minJavaVersion, maxJavaVersion, specificJavaVersion, gameEntity))
+            .Where(java => java.Compability == JavaCompability.Yes) // 只选择兼容的Java
+            .Select(java => ScoreJavaForGame(java, minJavaVersion, maxJavaVersion, specificJavaVersion, gameInfo))
             .OrderByDescending(score => score.Score)
             .ToList();
-        
+
         return results;
     }
 
@@ -109,12 +109,12 @@ public static class JavaSelector
         int minJavaVersion,
         int maxJavaVersion,
         int specificJavaVersion,
-        GameEntity gameEntity)
+        GameInfo gameInfo)
     {
         int score = 0;
         string reason;
         RecommendationLevel level;
-        
+
         // 1. 版本兼容性检查
         if (specificJavaVersion > 0)
         {
@@ -163,7 +163,7 @@ public static class JavaSelector
                 score += 800;
                 level = RecommendationLevel.Recommended;
                 reason = $"版本适合此游戏(Java {minJavaVersion}-{maxJavaVersion})";
-                
+
                 // 特殊处理：偏好中间版本
                 if (maxJavaVersion > minJavaVersion)
                 {
@@ -200,13 +200,13 @@ public static class JavaSelector
                 }
             }
         }
-        
+
         // 2. 架构兼容性分数
         if (java.Is64Bit)
         {
             score += 100; // 64位Java通常性能更好
         }
-        
+
         // 3. 厂商偏好分数
         var vendor = JavaVerifier.JavaVendor.Unknown;
         try
@@ -232,7 +232,7 @@ public static class JavaSelector
         {
             // 忽略任何异常
         }
-        
+
         // 根据厂商给予额外分数
         switch (vendor)
         {
@@ -249,13 +249,13 @@ public static class JavaSelector
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        
+
         // 4. JDK优先于JRE，因为JDK包含工具更加全面
         if (!java.IsJre)
         {
-            score += 40; 
+            score += 40;
         }
-        
+
         // 确保设置正确的推荐级别
         if (level != RecommendationLevel.Perfect && level != RecommendationLevel.Incompatible)
         {
@@ -267,7 +267,7 @@ public static class JavaSelector
                 _ => RecommendationLevel.Incompatible
             };
         }
-        
+
         return new JavaCompatibilityScore
         {
             Runtime = java,
@@ -276,7 +276,7 @@ public static class JavaSelector
             Reason = reason
         };
     }
-    
+
     /// <summary>
     /// 获取推荐级别的描述
     /// </summary>
@@ -294,4 +294,4 @@ public static class JavaSelector
             _ => "未知"
         };
     }
-} 
+}

@@ -11,9 +11,9 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 获取本地已安装的Minecraft版本
         /// </summary>
-        public static async Task<List<VersionInfo>> GetLocalVersionsAsync(string minecraftDirectory)
+        public static async Task<List<VersionManifes>> GetLocalVersionsAsync(string minecraftDirectory)
         {
-            var result = new List<VersionInfo>();
+            var result = new List<VersionManifes>();
             var versionsDirectory = Path.Combine(minecraftDirectory, "versions");
 
             if (!Directory.Exists(versionsDirectory))
@@ -31,10 +31,8 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                     try
                     {
                         var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
-                        var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent, new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
+                        var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                         if (versionInfo != null)
                         {
@@ -63,7 +61,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 获取Minecraft远程版本列表
         /// </summary>
-        public static async Task<List<VersionInfo>> GetRemoteVersionsAsync()
+        public static async Task<List<VersionManifes>> GetRemoteVersionsAsync()
         {
             try
             {
@@ -76,7 +74,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                     return [];
                 }
 
-                return manifest.Versions.Select(version => new VersionInfo
+                return manifest.Versions.Select(version => new VersionManifes
                     {
                         Id = version.Id,
                         Name = version.Id, // 使用ID作为名称
@@ -110,7 +108,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 通过ID获取特定版本信息
         /// </summary>
-        public static async Task<VersionInfo?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
+        public static async Task<VersionManifes?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
         {
             var versionDir = Path.Combine(minecraftDirectory, "versions", versionId);
             var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
@@ -120,10 +118,8 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 try
                 {
                     var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
-                    var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                     if (versionInfo != null)
                     {
@@ -150,7 +146,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 从远程获取特定版本信息
         /// </summary>
-        public static async Task<VersionInfo?> GetRemoteVersionInfoAsync(string versionId)
+        public static async Task<VersionManifes?> GetRemoteVersionInfoAsync(string versionId)
         {
             try
             {
@@ -172,10 +168,8 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
 
                 // 获取详细版本信息
                 var versionJsonResponse = await Shared.HttpClient.GetStringAsync(version.Url);
-                var versionInfo = JsonSerializer.Deserialize<VersionInfo>(versionJsonResponse, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                var versionInfo = JsonSerializer.Deserialize<VersionManifes>(versionJsonResponse,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 if (versionInfo != null)
                 {

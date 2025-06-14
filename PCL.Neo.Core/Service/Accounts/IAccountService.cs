@@ -1,9 +1,5 @@
-using PCL.Neo.Core.Models.Profile;
 using PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 using PCL.Neo.Core.Service.Accounts.Storage;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PCL.Neo.Core.Service.Accounts
 {
