@@ -4,24 +4,25 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 public record GameEntity
 {
+    public required LaunchOptions LaunchOptions { get; set; }
+
     /// <summary>
     /// Game Folder Path.
     /// </summary>
-    public required string GamePath { get; set; }
+    public required string MinecraftDiractory { get; set; }
 
     /// <summary>
     /// Game Root Path.
     /// </summary>
-    public required string RootPath { get; set; }
-
+    public required string MinecraftRootDirectory { get; set; }
 
     /// <summary>
-    /// The origin Game Json Content. Type is <see langword="string"/>.
+    /// The Parsed Game Json Content. Type is <see cref="Data.VersionInfo"/>.
     /// </summary>
-    public required string JsonOrigContent { get; set; }
+    public required VersionInfo VersionInfo { get; set; }
 
     /// <summary>
-    /// The Parsed Game Json Content. Type is <see cref="VersionInfo"/>.
+    /// The loader type.
     /// </summary>
     public VersionInfo JsonContent { get; set; }
 
@@ -40,10 +41,13 @@ public record GameEntity
     /// <summary>
     /// Demonstrate is the version has been loader (runed).
     /// </summary>
-    public bool IsLoaded { get; set; } = false;
+    public bool IsRunning { get; set; } = false;
 
     private bool? _isIndie;
 
+    /// <summary>
+    /// Wether the game is an indie game.
+    /// </summary>
     public bool IsIndie
     {
         get
@@ -53,15 +57,17 @@ public record GameEntity
                 return _isIndie.Value;
             }
 
-            _isIndie = Path.Exists(Path.Combine(GamePath, "saves"))
-                       && Path.Exists(Path.Combine(GamePath, "mods"));
+            _isIndie = Path.Exists(Path.Combine(MinecraftDiractory, "saves"))
+                       && Path.Exists(Path.Combine(MinecraftDiractory, "mods"));
 
             return _isIndie.Value;
         }
+
+        set { _isIndie = value; }
     }
 
     /// <summary>
-    /// THe Game Jar File Path.
+    /// The Game Jar File Path.
     /// </summary>
     public required string JarPath { get; set; }
 }

@@ -295,7 +295,6 @@ public class GameLauncher
         var nativesDir = Path.Combine(options.MinecraftRootDirectory, "versions", options.VersionId, "natives");
         EnsureDirectoryExists(nativesDir);
 
-
         args.Add($"-Djava.library.path={QuotePath(nativesDir)}");
         args.Add("-Dminecraft.launcher.brand=PCL.Neo");
         args.Add("-Dminecraft.launcher.version=1.0.0");
@@ -345,14 +344,13 @@ public class GameLauncher
                 .Replace("${auth_access_token}", options.AccessToken)
                 .Replace("${user_type}", clientType)
                 .Replace("${version_type}", versionInfo.Type);
-
             args.AddRange(gameArgs.Split(' '));
         }
         else if (versionInfo.Arguments != null)
         {
             // 新版格式
             // 这里简化处理，实际上应该解析Arguments对象并应用规则
-            if (versionInfo.Arguments.Game != null)
+            if (versionInfo.Arguments.Game is not null)
             {
                 foreach (var arg in versionInfo.Arguments.Game)
                 {
