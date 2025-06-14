@@ -269,7 +269,7 @@ public partial class HomeSubViewModel : ViewModelBase
             };
 
             // 创建完善的启动选项
-            var launchOptions = new PCL.Neo.Core.Models.Minecraft.Game.LaunchOptions
+            var launchOptions = new PCL.Neo.Core.Models.Minecraft.Game.Data.LaunchOptions
             {
                 VersionId = SelectedGameVersion.Id,
                 JavaPath = _gameSettingsViewModel.JavaPath,

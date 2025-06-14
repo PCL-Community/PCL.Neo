@@ -80,17 +80,17 @@ public static class JavaSelector
         {
             return [];
         }
-        
+
         // 获取游戏推荐的Java版本范围
-        (int minJavaVersion, int maxJavaVersion) = gameEntity.JsonContent.MatchJavaVersionSpan();
-        
+        (int minJavaVersion, int maxJavaVersion) = gameEntity.VersionInfo.MatchJavaVersionSpan();
+
         // 如果游戏有明确指定Java版本
-        bool hasSpecificJavaRequirement = gameEntity.JsonContent.JavaVersion != null && 
-                                          gameEntity.JsonContent.JavaVersion.MajorVersion > 0;
-        
-        int specificJavaVersion = hasSpecificJavaRequirement ? 
-                                 gameEntity.JsonContent.JavaVersion?.MajorVersion ?? 0 : 0;
-        
+        bool hasSpecificJavaRequirement = gameEntity.VersionInfo.JavaVersion != null &&
+                                          gameEntity.VersionInfo.JavaVersion.MajorVersion > 0;
+
+        int specificJavaVersion =
+            hasSpecificJavaRequirement ? gameEntity.VersionInfo.JavaVersion?.MajorVersion ?? 0 : 0;
+
         // 对每个Java评分
         var results = availableJavas
             .Where(java => java.Compability == JavaCompability.Yes)  // 只选择兼容的Java
