@@ -2,6 +2,7 @@ using PCL.Neo.Core.Models.Configuration;
 using PCL.Neo.Core.Models.Configuration.Data;
 using System.Collections.Immutable;
 using System.Text.Json.Serialization;
+using static PCL.Neo.Core.Service.Accounts.OAuthService.OAuthData.RequireData;
 
 namespace PCL.Neo.Core.Service.Accounts.OAuthService;
 
@@ -65,9 +66,11 @@ public static class OAuthData
     {
         private static OAuth2Configurations? _configurations;
 
-        private static OAuth2Configurations Configurations =>
-            _configurations ??= ConfigurationManager.Instance.GetConfiguration<OAuth2Configurations>();
-
+        //private static OAuth2Configurations Configurations => _configurations ??= ConfigurationManager.Instance.GetConfiguration<OAuth2Configurations>();
+        public static OAuth2Configurations Configurations = new OAuth2Configurations()
+        {
+            ClientId = "12345678-1234-1234-1234-abcdefghijkl",//自己申请去
+        };
         /// <summary>
         /// 获取授权码的地址
         /// </summary>
@@ -127,41 +130,38 @@ public static class OAuthData
 
     public static class RequireData
     {
-        public sealed record XboxLiveAuthRequire
+        public record XBLProperties
         {
-            [property: JsonPropertyName("PropertiesData")]
-            public required PropertiesData Properties { get; set; }
-
-            public const  string TokenType = "JWT";
-            public static string RelyingParty => "http://auth.xboxlive.com";
-
-            public sealed record PropertiesData(
-                [property: JsonPropertyName("RpsTicket")]
-                string RpsTicket)
-            {
-                public const string AuthMethod = "RPS";
-                public const string SiteName   = "user.auth.xboxlive.com";
-            }
+            public required string SiteName { get; init; }
+            public required string RpsTicket { get; init; }
+            public required string AuthMethod { get; init; }
         }
 
-        public sealed record XstsRequire(
-            XstsRequire.PropertiesData Properties)
+        public record XSTSProperties
         {
-            public const string RelyingParty = "rp://api.minecraftservices.com/";
-            public const string TokenType    = "JWT";
+            public required string SandboxId { get; init; }
+            public required string[] UserTokens { get; init; }
+        }
 
-            public sealed record PropertiesData(
-                [property: JsonPropertyName("UserTokens")]
-                List<string> UserTokens)
-            {
-                public const string SandboxId = "RETAIL";
-            }
+        public record XBLTokenPayload
+        {
+            public required string TokenType { get; init; }
+            public required string RelyingParty { get; init; }
+            public required XBLProperties Properties { get; init; }
+        }
+
+        public record XSTSTokenPayload
+        {
+            public required string TokenType { get; init; }
+            public required string RelyingParty { get; init; }
+            public required XSTSProperties Properties { get; init; }
         }
 
         public sealed record MinecraftAccessTokenRequire
         {
             [JsonPropertyName("identityToken")] public string IdentityToken { get; set; }
         }
+        
     }
 
     public static class ResponseData
