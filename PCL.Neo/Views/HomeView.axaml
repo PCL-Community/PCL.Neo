@@ -54,7 +54,7 @@
                         <TextBlock Text="{Binding CurrentUserName, FallbackValue=Player}" 
                                   FontWeight="SemiBold"
                                   FontSize="14"/>
-                        <TextBlock Text="{Binding IsOnline, Converter={StaticResource BoolToOnlineStatusConverter}, FallbackValue=离线账户}"
+                        <TextBlock Text="{Binding CurrentUserType, FallbackValue=离线账户}"
                                   Opacity="0.7"
                                   FontSize="12"/>
                     </StackPanel>
