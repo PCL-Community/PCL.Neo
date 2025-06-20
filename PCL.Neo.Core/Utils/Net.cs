@@ -51,6 +51,7 @@ public static class Net
     /// <param name="content">请求内容</param>
     /// <param name="bearerToken"></param>
     /// <returns></returns>
+    [Obsolete]
     public static async Task<TResponse> SendHttpRequestAsync<TResponse>(
         HttpMethod method,
         Uri url,

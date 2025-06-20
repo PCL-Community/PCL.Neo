@@ -1,8 +1,14 @@
+using System.Text.Json.Serialization;
+
 namespace PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 
 public static class DeviceCodeData
 {
-    public record DeviceCodeInfo(string device_code, string user_code, string verification_uri, int interval);
+    public record DeviceCodeInfo(
+        [property: JsonPropertyName("device_code")] string DeviceCode,
+        [property: JsonPropertyName("user_code")] string UserCode,
+        [property: JsonPropertyName("verification_uri")] string VerificationUri,
+        [property: JsonPropertyName("interval")] int Interval);
 
     public record DeviceCodeAccessToken(string AccessToken, string RefreshToken, DateTimeOffset ExpiresIn);
 

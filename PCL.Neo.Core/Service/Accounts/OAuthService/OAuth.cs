@@ -44,25 +44,15 @@ public static class OAuth
             TokenType = "JWT"
         };
         var request = Net.Request("https://user.auth.xboxlive.com/user/authenticate");
-
         /*var result = await Net.SendHttpRequestAsync<OAuthData.ResponseData.XboxResponse>(
             HttpMethod.Post,
             OAuthData.RequestUrls.XboxLiveAuth.Value,
             jsonContent);*/
-        try
-        {
-            var b = JsonSerializer.Serialize(xblContent);
-            var xblJsonReq = await request.PostAsync(new StringContent(b,Encoding.UTF8, "application/json"));
-            var temp = await xblJsonReq.GetStringAsync();
-            var result = JsonSerializer.Deserialize<OAuthData.ResponseData.XboxResponse>(temp);
-            return result;
-        }
-        catch(Exception ex)
-        {
-            throw ex;
-        }
-        
-        
+        var b = JsonSerializer.Serialize(xblContent);
+        var xblJsonReq = await request.PostAsync(new StringContent(b, Encoding.UTF8, "application/json"));
+        var temp = await xblJsonReq.GetStringAsync();
+        var result = JsonSerializer.Deserialize<OAuthData.ResponseData.XboxResponse>(temp);
+        return result;
     }
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(OAuthData.RequireData))]
@@ -95,13 +85,11 @@ public static class OAuth
         var xboxToken = await GetXboxTokenAsync(accessToken);
         var xstsToken = await GetXstsTokenAsync(xboxToken.Token);
         var minecraftAccessToken =
-            await MinecraftInfo.GetMinecraftAccessTokenAsync(xboxToken.DisplayClaims.Xui.First().Uhs, xstsToken);
-
+        await MinecraftInfo.GetMinecraftAccessTokenAsync(xboxToken.DisplayClaims.Xui.First().Uhs, xstsToken);
         if (!await MinecraftInfo.IsHaveGameAsync(minecraftAccessToken))
         {
             throw new NotHaveGameException("Logged-in user does not own any game!");
         }
-
         return minecraftAccessToken;
     }
 

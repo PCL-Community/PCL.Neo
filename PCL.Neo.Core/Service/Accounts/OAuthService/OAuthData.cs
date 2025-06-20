@@ -69,7 +69,7 @@ public static class OAuthData
         //private static OAuth2Configurations Configurations => _configurations ??= ConfigurationManager.Instance.GetConfiguration<OAuth2Configurations>();
         public static OAuth2Configurations Configurations = new OAuth2Configurations()
         {
-            ClientId = "12345678-1234-1234-1234-abcdefghijkl",//自己申请去
+            ClientId = "12345678-1234-1234-1234-abcdefghijkl",//TODO:需要一个能正常使用的ClientID
         };
         /// <summary>
         /// 获取授权码的地址

@@ -12,6 +12,7 @@ using PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 using PCL.Neo.Helpers;
 using PCL.Neo.Models.User;
 using PCL.Neo.Services;
+using PCL.Neo.Utils;
 using PCL.Neo.ViewModels.Home;
 using PCL.Neo.Views;
 using SkiaSharp;
@@ -139,6 +140,8 @@ public partial class HomeViewModel : ViewModelBase
     {
         MicrosoftAuthService microsoftAuthService = new MicrosoftAuthService();
         var result = microsoftAuthService.StartDeviceCodeFlow();
+        Logger.InitLogger(@".\");
+        var log = Logger.GetInstance();
         result.Subscribe(
     onNext: async state =>
     {
@@ -153,57 +156,59 @@ public partial class HomeViewModel : ViewModelBase
                     var launcher = topLevel.Launcher;
                     await clipboard.SetTextAsync(awaitUser.UserCode);
                     await launcher.LaunchUriAsync(new Uri(awaitUser.VerificationUri));
+                    log.Log($"请访问 {awaitUser.VerificationUri} 并输入代码: {awaitUser.UserCode}", Logger.LogLevel.Msgbox);
                 }
                 break;
 
             case DeviceFlowPolling:
-                Debug.WriteLine("正在轮询服务器，等待用户验证...");
+                log.Log("正在轮询服务器，等待用户验证...");
                 break;
 
             case DeviceFlowDeclined:
-                Debug.WriteLine("用户拒绝了授权请求。");
+                log.Log("用户拒绝了授权请求。");
                 break;
 
             case DeviceFlowExpired:
-                Debug.WriteLine("设备代码已过期，请重新启动验证流程。");
+                log.Log("设备代码已过期，请重新启动验证流程。", Logger.LogLevel.Msgbox);
                 break;
 
             case DeviceFlowBadVerificationCode:
-                Debug.WriteLine("验证码无效，请检查后重试。");
+                log.Log("验证码无效，请检查后重试。", Logger.LogLevel.Msgbox);
                 break;
 
             case DeviceFlowGetAccountInfo:
-                Debug.WriteLine("正在获取 Minecraft 账户信息...");
+                log.Log("正在获取 Minecraft 账户信息...");
                 break;
 
             case DeviceFlowSucceeded success:
+                log.Log($"登录成功！用户名: {success.Account.UserName}");
                 UpdateCurrentUserInfo(new(success.Account));
                 break;
 
             case DeviceFlowInternetError:
-                Debug.WriteLine("网络错误，请检查连接后重试。");
+                log.Log("网络错误，请检查连接后重试。", Logger.LogLevel.Msgbox);
                 break;
 
             case DeviceFlowJsonError:
-                Debug.WriteLine("服务器返回的数据格式错误，可能是 API 变更。");
+                log.Log("服务器返回的数据格式错误，可能是 API 变更。", Logger.LogLevel.Msgbox);
                 break;
 
             case DeviceFlowUnkonw:
-                Debug.WriteLine("未知错误，请查看日志。");
+                log.Log("未知错误，请查看日志。", Logger.LogLevel.Msgbox);
                 break;
 
             default:
-                Debug.WriteLine($"收到未处理的状态: {state.GetType().Name}");
+                log.Log($"收到未处理的状态: {state.GetType().Name}", Logger.LogLevel.Msgbox);
                 break;
         }
     },
     onError: error =>
     {
-        Debug.WriteLine($"发生未捕获的错误: {error.Message}");
+        log.Log($"发生未捕获的错误: {error.Message}", Logger.LogLevel.Msgbox);
     },
     onCompleted: () =>
     {
-        Debug.WriteLine("验证流程已完成（成功或不可恢复的错误）。");
+        log.Log("验证流程已完成（成功或不可恢复的错误）。", Logger.LogLevel.Msgbox);
     }
 );
     }

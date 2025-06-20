@@ -1,5 +1,4 @@
 using Flurl.Http;
-using Microsoft.Extensions.Configuration;
 using PCL.Neo.Core.Service.Accounts.Exceptions;
 using PCL.Neo.Core.Service.Accounts.OAuthService;
 using PCL.Neo.Core.Service.Accounts.OAuthService.Exceptions;
@@ -10,7 +9,6 @@ using System.Net.Http.Headers;
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 
 namespace PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 
@@ -31,16 +29,16 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         var deviceCodeInfo = deviceCodeResult.Value;
 
         // show for user 将流式验证要输入的验证码返回给观察者
-        observer.OnNext(new DeviceFlowAwaitUser(deviceCodeInfo.user_code, deviceCodeInfo.verification_uri));
+        observer.OnNext(new DeviceFlowAwaitUser(deviceCodeInfo.UserCode, deviceCodeInfo.VerificationUri));
 
         // polling server 等待验证信息
-        var tokenResult = await PollForTokenAsync(deviceCodeInfo.device_code, deviceCodeInfo.interval)
+        var tokenResult = await PollForTokenAsync(deviceCodeInfo.DeviceCode, deviceCodeInfo.Interval)
             .ConfigureAwait(false);
         observer.OnNext(new DeviceFlowPolling());
         // Failed 验证失败后直接返回错误
         if (tokenResult.IsFailure)
         {
-            observer.OnNext(tokenResult.Error);
+            observer.OnError(tokenResult.Error.Exc);
             return;
         }
         //验证成功后继续获取MC玩家数据
@@ -94,7 +92,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             {
                 ["client_id"] = OAuthData.FormUrlReqData.Configurations.ClientId,
                 ["tenant"] = "/consumers",
-                ["scope"] = string.Join(" ", _scopes)
+                ["scope"] = string.Join(' ', _scopes)
             };
             var request = Net.Request("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode");
             string json = await request.PostUrlEncodedAsync(parameters).ReceiveString();
@@ -102,7 +100,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             /* 返回400
             var temp = await Net.SendHttpRequestAsync<DeviceCodeData.DeviceCodeInfo>(HttpMethod.Post,
                 OAuthData.RequestUrls.DeviceCode.Value, content).ConfigureAwait(false); */
-            var result = new DeviceCodeData.DeviceCodeInfo(temp.device_code, temp.user_code, temp.verification_uri,temp.interval);
+            var result = new DeviceCodeData.DeviceCodeInfo(temp.DeviceCode, temp.UserCode, temp.VerificationUri,temp.Interval);
             return Result<DeviceCodeData.DeviceCodeInfo, HttpError>.Ok(result);
         }
         catch (HttpRequestException e)
