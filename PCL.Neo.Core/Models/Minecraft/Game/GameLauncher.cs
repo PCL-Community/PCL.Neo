@@ -6,16 +6,9 @@ namespace PCL.Neo.Core.Models.Minecraft.Game;
 
 public class GameLauncher : IGameLauncher
 {
-public class GameLauncher : IGameLauncher
-{
     /// <summary>
     /// 启动游戏
     /// </summary>
-    public async Task<Process> LaunchAsync(GameProfile profile)
-    {
-        string mcDir = profile.Information.RootDirectory;
-        string gameDir = profile.Information.GameDirectory;
-
     public async Task<Process> LaunchAsync(GameProfile profile)
     {
         string mcDir = profile.Information.RootDirectory;
@@ -27,26 +20,20 @@ public class GameLauncher : IGameLauncher
 
         var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
                           ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
-        var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
-                          ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
         if (!string.IsNullOrEmpty(versionInfo.InheritsFrom))
         {
-            var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom)
-                             ?? throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
             var parentInfo = await Versions.GetVersionByIdAsync(mcDir, versionInfo.InheritsFrom)
                              ?? throw new Exception($"找不到父版本 {versionInfo.InheritsFrom}");
             versionInfo = MergeVersionInfo(versionInfo, parentInfo);
         }
 
         var commandArgs = BuildLaunchCommand(profile, versionInfo);
-        var commandArgs = BuildLaunchCommand(profile, versionInfo);
 
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = profile.Options.RunnerJava.JavaExe,
                 FileName = profile.Options.RunnerJava.JavaExe,
                 Arguments = commandArgs,
                 UseShellExecute = false,
@@ -58,7 +45,6 @@ public class GameLauncher : IGameLauncher
         };
 
         foreach (var env in profile.Options.EnvironmentVariables)
-        foreach (var env in profile.Options.EnvironmentVariables)
         {
             process.StartInfo.EnvironmentVariables[env.Key] = env.Value;
         }
@@ -68,11 +54,7 @@ public class GameLauncher : IGameLauncher
         //var gameLogDir = Path.Combine(gameDir, "logs");
         //_gameLogger = new McLogFileLogger(gameLogDir, process);
         //_gameLogger.Start();
-        //var gameLogDir = Path.Combine(gameDir, "logs");
-        //_gameLogger = new McLogFileLogger(gameLogDir, process);
-        //_gameLogger.Start();
 
-        profile.Information.IsRunning = true;
         profile.Information.IsRunning = true;
 
         return process;
@@ -82,10 +64,8 @@ public class GameLauncher : IGameLauncher
     /// 合并版本信息（处理继承关系）
     /// </summary>
     private static VersionManifes MergeVersionInfo(VersionManifes child, VersionManifes parent)
-    private static VersionManifes MergeVersionInfo(VersionManifes child, VersionManifes parent)
     {
         // 创建一个新的合并版本，保留子版本的ID和名称
-        var merged = new VersionManifes
         var merged = new VersionManifes
         {
             Id = child.Id,
@@ -105,8 +85,6 @@ public class GameLauncher : IGameLauncher
             Downloads = child.Downloads ?? parent.Downloads
         };
 
-        // 合并库文件（子版本优先）
-        var libraries = new List<Library>();
         // 合并库文件（子版本优先）
         var libraries = new List<Library>();
 
@@ -135,7 +113,6 @@ public class GameLauncher : IGameLauncher
     /// <summary>
     /// 构建游戏启动命令
     /// </summary>
-    private static string BuildLaunchCommand(GameProfile profile, VersionManifes versionManifes)
     private static string BuildLaunchCommand(GameProfile profile, VersionManifes versionManifes)
     {
         List<string> args =
@@ -167,28 +144,20 @@ public class GameLauncher : IGameLauncher
         // 设置natives路径
         string nativesDir = Path.Combine(profile.Information.RootDirectory, "versions", "natives");
         DirectoryUtil.EnsureDirectoryExists(nativesDir);
-        string nativesDir = Path.Combine(profile.Information.RootDirectory, "versions", "natives");
-        DirectoryUtil.EnsureDirectoryExists(nativesDir);
 
         args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}");
-        args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}");
         args.Add($"-Dminecraft.launcher.brand=PCL.Neo");
-        args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
         args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
 
         // 类路径
         args.Add("-cp");
         List<string> classpaths = [];
         if (versionManifes.Libraries != null)
-        if (versionManifes.Libraries != null)
         {
-            foreach (Library library in versionManifes.Libraries)
             foreach (Library library in versionManifes.Libraries)
             {
                 if (library.Downloads?.Artifact?.Path != null)
                 {
-                    classpaths.Add(Path.Combine(profile.Information.RootDirectory, "libraries",
-                        library.Downloads!.Artifact!.Path!)); // 不用担心空格问题
                     classpaths.Add(Path.Combine(profile.Information.RootDirectory, "libraries",
                         library.Downloads!.Artifact!.Path!)); // 不用担心空格问题
                 }
@@ -196,27 +165,21 @@ public class GameLauncher : IGameLauncher
         }
 
         classpaths.Add(Path.Combine(profile.Information.GameDirectory, profile.Options.VersionId));
-        classpaths.Add(Path.Combine(profile.Information.GameDirectory, profile.Options.VersionId));
         args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', classpaths));
 
         // 客户端类型
         string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
-        string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
 
         // 添加额外的JVM参数
         if (profile.Options.ExtraJvmArgs is { Count: > 0 })
-        if (profile.Options.ExtraJvmArgs is { Count: > 0 })
         {
-            args.AddRange(profile.Options.ExtraJvmArgs);
             args.AddRange(profile.Options.ExtraJvmArgs);
         }
 
         // 主类
         args.Add(versionManifes.MainClass);
-        args.Add(versionManifes.MainClass);
 
         // 游戏参数
-        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments))
         if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments))
         {
             // 旧版格式
@@ -229,29 +192,16 @@ public class GameLauncher : IGameLauncher
                 .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
                 .Replace("${auth_uuid}", profile.Options.UUID)
                 .Replace("${auth_access_token}", profile.Options.AccessToken)
-            string gameArgs = versionManifes.MinecraftArguments
-                .Replace("${auth_player_name}", profile.Options.Username)
-                .Replace("${version_name}", profile.Options.VersionId)
-                .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
-                .Replace("${assets_root}",
-                    DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
-                .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
-                .Replace("${auth_uuid}", profile.Options.UUID)
-                .Replace("${auth_access_token}", profile.Options.AccessToken)
                 .Replace("${user_type}", clientType)
-                .Replace("${version_type}", versionManifes.Type);
                 .Replace("${version_type}", versionManifes.Type);
             args.AddRange(gameArgs.Split(' '));
         }
-        else if (versionManifes.Arguments != null)
         else if (versionManifes.Arguments != null)
         {
             // 新版格式
             // 这里简化处理，实际上应该解析Arguments对象并应用规则
             if (versionManifes.Arguments.Game is not null)
-            if (versionManifes.Arguments.Game is not null)
             {
-                foreach (var arg in versionManifes.Arguments.Game)
                 foreach (var arg in versionManifes.Arguments.Game)
                 {
                     if (arg is string strArg)
@@ -265,16 +215,7 @@ public class GameLauncher : IGameLauncher
                             .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
                             .Replace("${auth_uuid}", profile.Options.UUID)
                             .Replace("${auth_access_token}", profile.Options.AccessToken)
-                            .Replace("${auth_player_name}", profile.Options.Username)
-                            .Replace("${version_name}", profile.Options.VersionId)
-                            .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
-                            .Replace("${assets_root}",
-                                DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
-                            .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
-                            .Replace("${auth_uuid}", profile.Options.UUID)
-                            .Replace("${auth_access_token}", profile.Options.AccessToken)
                             .Replace("${user_type}", clientType)
-                            .Replace("${version_type}", versionManifes.Type);
                             .Replace("${version_type}", versionManifes.Type);
 
                         args.Add(processedArg);
@@ -287,21 +228,15 @@ public class GameLauncher : IGameLauncher
             // 如果没有参数格式，则使用默认参数
             args.Add("--username");
             args.Add(profile.Options.Username);
-            args.Add(profile.Options.Username);
             args.Add("--version");
-            args.Add(profile.Options.VersionId);
             args.Add(profile.Options.VersionId);
             args.Add("--gameDir");
             args.Add(DirectoryUtil.QuotePath(profile.Information.GameDirectory));
-            args.Add(DirectoryUtil.QuotePath(profile.Information.GameDirectory));
             args.Add("--assetsDir");
-            args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
             args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
             args.Add("--assetIndex");
             args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
-            args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
             args.Add("--uuid");
-            args.Add(profile.Options.UUID);
             args.Add(profile.Options.UUID);
             args.Add("--accessToken");
             args.Add(profile.Options.AccessToken);
