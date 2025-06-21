@@ -54,11 +54,7 @@ public class GameLauncher : IGameLauncher
         //var gameLogDir = Path.Combine(gameDir, "logs");
         //_gameLogger = new McLogFileLogger(gameLogDir, process);
         //_gameLogger.Start();
-        //var gameLogDir = Path.Combine(gameDir, "logs");
-        //_gameLogger = new McLogFileLogger(gameLogDir, process);
-        //_gameLogger.Start();
 
-        profile.Information.IsRunning = true;
         profile.Information.IsRunning = true;
 
         return process;
@@ -203,7 +199,6 @@ public class GameLauncher : IGameLauncher
             // 新版格式
             // 这里简化处理，实际上应该解析Arguments对象并应用规则
             if (versionManifes.Arguments.Game is not null)
-            if (versionManifes.Arguments.Game is not null)
             {
                 foreach (var arg in versionManifes.Arguments.Game)
                 {
@@ -238,7 +233,6 @@ public class GameLauncher : IGameLauncher
             args.Add("--assetsDir");
             args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
             args.Add("--assetIndex");
-            args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
             args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
             args.Add("--uuid");
             args.Add(profile.Options.UUID);
