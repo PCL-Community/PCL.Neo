@@ -185,7 +185,6 @@ public class GameLauncher
         gameLoader.Start(); // Start the logger
 
         profile.Information.IsRunning = true;
-        profile.Information.IsRunning = true;
 
         return process;
     }
@@ -196,7 +195,6 @@ public class GameLauncher
     private VersionInfo MergeVersionInfo(VersionInfo child, VersionInfo parent)
     {
         // 创建一个新的合并版本，保留子版本的ID和名称
-        var merged = new VersionManifes
         var merged = new VersionManifes
         {
             Id = child.Id,
@@ -299,7 +297,6 @@ public class GameLauncher
         args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}"); // add natives path
         args.Add("-Dminecraft.launcher.brand=PCL.Neo"); // set launcher name
         args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
-        args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
 
         // 类路径
         args.Add("-cp");
@@ -313,18 +310,14 @@ public class GameLauncher
 
         // 客户端类型
         string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
-        string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
 
         // 添加额外的JVM参数
         if (profile.Options.ExtraJvmArgs is { Count: > 0 })
-        if (profile.Options.ExtraJvmArgs is { Count: > 0 })
         {
-            args.AddRange(profile.Options.ExtraJvmArgs);
             args.AddRange(profile.Options.ExtraJvmArgs);
         }
 
         // 主类
-        args.Add(versionManifes.MainClass);
         args.Add(versionManifes.MainClass);
 
         // 游戏参数
@@ -472,18 +465,14 @@ public class GameLauncher
                 .Replace("${auth_access_token}", options.AccessToken)
                 .Replace("${user_type}", clientType)
                 .Replace("${version_type}", versionManifes.Type);
-                .Replace("${version_type}", versionManifes.Type);
             args.AddRange(gameArgs.Split(' '));
         }
-        else if (versionManifes.Arguments != null)
         else if (versionManifes.Arguments != null)
         {
             // 新版格式
             // 这里简化处理，实际上应该解析Arguments对象并应用规则
             if (versionManifes.Arguments.Game is not null)
-            if (versionManifes.Arguments.Game is not null)
             {
-                foreach (var arg in versionManifes.Arguments.Game)
                 foreach (var arg in versionManifes.Arguments.Game)
                 {
                     if (arg is string strArg)
@@ -508,21 +497,15 @@ public class GameLauncher
         {
             args.Add("--username");
             args.Add(profile.Options.Username);
-            args.Add(profile.Options.Username);
             args.Add("--version");
-            args.Add(profile.Options.VersionId);
             args.Add(profile.Options.VersionId);
             args.Add("--gameDir");
             args.Add(DirectoryUtil.QuotePath(profile.Information.GameDirectory));
-            args.Add(DirectoryUtil.QuotePath(profile.Information.GameDirectory));
             args.Add("--assetsDir");
-            args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
             args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
             args.Add("--assetIndex");
             args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
-            args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
             args.Add("--uuid");
-            args.Add(profile.Options.UUID);
             args.Add(profile.Options.UUID);
             args.Add("--accessToken");
             args.Add(profile.Options.AccessToken);
