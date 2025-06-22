@@ -339,7 +339,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var launchOptions = new LaunchOptions
             {
-                VersionId = "1.20.1",
+                VersionId = "1.20.4-Fabric 0.15.11-[轻量通用]",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
                         @"C:\Users\WhiteCAT\Documents\Java\zulu17.48.15-ca-jdk17.0.10-win_x64\bin\"),
@@ -376,9 +376,8 @@ public partial class MainWindowViewModel : ViewModelBase
                     Options = launchOptions,
                     Information = new GameInfo()
                     {
-                        VersionInfo = new VersionManifes(),
-                        GameDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                        RootDirectory =
+                        RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
+                        GameDirectory =
                             @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
                     }
                 }
