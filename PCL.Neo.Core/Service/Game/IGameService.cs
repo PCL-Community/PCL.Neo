@@ -22,22 +22,15 @@ namespace PCL.Neo.Core.Service.Game
         /// <param name="versionId">版本ID</param>
         /// <param name="progressCallback">进度回调</param>
         /// <returns>是否成功</returns>
+        /// <exception cref="ArgumentNullException">Throw if clint download url is null.</exception>
         Task<bool> DownloadVersionAsync(string versionId, IProgress<int>? progressCallback = null);
-
-        /// <summary>
-        /// 检查版本是否已安装
-        /// </summary>
-        /// <param name="versionId">版本ID</param>
-        /// <param name="minecraftDirectory">Minecraft 目录</param>
-        /// <returns>是否已安装</returns>
-        [Obsolete]
-        bool IsVersionInstalled(string versionId, string? minecraftDirectory = null);
 
         /// <summary>
         /// 删除版本
         /// </summary>
         /// <param name="versionId">版本ID</param>
         /// <param name="minecraftDirectory">Minecraft 目录</param>
+        /// <exception cref="Exception">Throw if unable to delete the version directory.</exception>
         void DeleteVersionAsync(string versionId, string? minecraftDirectory = null);
 
         /// <summary>
@@ -45,6 +38,7 @@ namespace PCL.Neo.Core.Service.Game
         /// </summary>
         /// <param name="javaRuntime">Java运行时</param>
         /// <param name="minecraftVersion">Minecraft版本</param>
+        /// <exception cref="ArgumentException">Throw if java version string is invalid.</exception>
         /// <returns>是否兼容</returns>
         bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion);
 

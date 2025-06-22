@@ -154,13 +154,8 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 var response = await Shared.HttpClient.GetStringAsync(VersionManifestUrl);
                 var manifest = JsonSerializer.Deserialize<VersionManifest>(response);
 
-                if (manifest == null || manifest.Versions == null)
-                {
-                    return null;
-                }
-
                 // 查找指定ID的版本
-                var version = manifest.Versions.FirstOrDefault(v => v.Id == versionId);
+                var version = manifest?.Versions?.FirstOrDefault(v => v.Id == versionId);
                 if (version == null)
                 {
                     return null;
