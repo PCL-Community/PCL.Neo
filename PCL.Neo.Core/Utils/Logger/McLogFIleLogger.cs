@@ -8,6 +8,7 @@ public sealed class McLogFileLogger : IDisposable
     private readonly StreamWriter _writer;
     private readonly Process _process;
     private readonly string _logDir;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     public McLogFileLogger(string targetDir, Process process)
     {
@@ -112,11 +113,17 @@ public sealed class McLogFileLogger : IDisposable
         });
     }
 
+    public void Cancel()
+    {
+        _cancellationTokenSource.Cancel();
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {
         _writer.Flush();
         _writer.Close();
         _writer.Dispose();
+        _cancellationTokenSource.Dispose();
     }
 }

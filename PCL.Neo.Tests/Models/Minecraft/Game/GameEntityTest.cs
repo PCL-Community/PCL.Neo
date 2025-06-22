@@ -54,7 +54,6 @@ namespace PCL.Neo.Tests.Models.Minecraft.Game
                     Options = launchOptions,
                     Information = new GameInfo()
                     {
-                        VersionInfo = new VersionManifes(),
                         GameDirectory =
                             @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
                         RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",

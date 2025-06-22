@@ -14,7 +14,7 @@ public sealed record LaunchOptions
     /// Java可执行文件路径
     /// </summary>
     [JsonIgnore]
-    public JavaRuntime? RunnerJava { get; set; } // TODO: replace by nullable. if null, use global java runtime
+    public required JavaRuntime RunnerJava { get; set; }
 
     /// <summary>
     /// 最大内存分配(MB)

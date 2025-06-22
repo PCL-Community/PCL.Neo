@@ -133,6 +133,8 @@ public class GameLauncher
         Directory.CreateDirectory(gameDir);
 
 
+        var javaRuntime = profile.Options.RunnerJava;
+
         var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
                           ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
@@ -145,12 +147,13 @@ public class GameLauncher
 
         var commandArgs = BuildLaunchCommand(profile, versionInfo);
 
+        await File.WriteAllTextAsync(Path.Combine(gameDir, "launch_args.txt"), string.Join(' ', commandArgs));
+
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = profile.Options.RunnerJava.JavaExe,
-                Arguments = commandArgs,
+                FileName = javaRuntime.JavaExe,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -159,6 +162,12 @@ public class GameLauncher
             }
         };
 
+        // 使用 Add 方法来添加命令行参数，因为 ArgumentList 是只读的
+        foreach (var arg in commandArgs)
+        {
+            process.StartInfo.ArgumentList.Add(arg);
+        }
+
         foreach (var env in profile.Options.EnvironmentVariables)
         {
             process.StartInfo.EnvironmentVariables[env.Key] = env.Value;
@@ -166,9 +175,10 @@ public class GameLauncher
 
         process.Start();
 
-        //var gameLogDir = Path.Combine(gameDir, "logs");
-        //_gameLogger = new McLogFileLogger(gameLogDir, process);
-        //_gameLogger.Start();
+        var logFilePath = Path.Combine(gameDir, "logs");
+        var gameLoader = new McLogFileLogger(logFilePath, process);
+
+        gameLoader.Start(); // Start the logger
 
         profile.Information.IsRunning = true;
 
@@ -242,7 +252,9 @@ public class GameLauncher
     /// <summary>
     /// 构建游戏启动命令
     /// </summary>
-    private static string BuildLaunchCommand(GameProfile profile, VersionManifes versionManifes)
+    private static List<string> BuildLaunchCommand(
+        GameProfile profile,
+        VersionManifes versionManifes) // TODO: refactor this method
     {
         var args = new List<string>();
 
@@ -297,7 +309,7 @@ public class GameLauncher
             }
         }
 
-        classpaths.Add(Path.Combine(profile.Information.GameDirectory, profile.Options.VersionId));
+        classpaths.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
         args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', classpaths));
 
         // 客户端类型

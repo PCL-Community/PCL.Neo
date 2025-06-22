@@ -19,12 +19,6 @@ public record GameInfo
     public required string RootDirectory { get; set; }
 
     /// <summary>
-    /// The parsed game json content. Type is <see cref="VersionManifes"/>.
-    /// </summary>
-    [JsonIgnore]
-    public VersionManifes VersionInfo { get; set; }
-
-    /// <summary>
     /// The loader type.
     /// </summary>
     public VersionInfo JsonContent { get; set; }
