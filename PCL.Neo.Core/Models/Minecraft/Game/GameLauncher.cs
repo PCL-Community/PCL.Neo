@@ -1,5 +1,7 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Utils;
+using PCL.Neo.Core.Utils.Logger;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game;
@@ -18,6 +20,8 @@ public class GameLauncher : IGameLauncher
         Directory.CreateDirectory(gameDir);
 
 
+        var javaRuntime = profile.Options.RunnerJava;
+
         var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
                           ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
@@ -30,12 +34,13 @@ public class GameLauncher : IGameLauncher
 
         var commandArgs = BuildLaunchCommand(profile, versionInfo);
 
+        await File.WriteAllTextAsync(Path.Combine(gameDir, "launch_args.txt"), string.Join(' ', commandArgs));
+
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = profile.Options.RunnerJava.JavaExe,
-                Arguments = commandArgs,
+                FileName = javaRuntime.JavaExe,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -44,6 +49,12 @@ public class GameLauncher : IGameLauncher
             }
         };
 
+        // 使用 Add 方法来添加命令行参数，因为 ArgumentList 是只读的
+        foreach (var arg in commandArgs)
+        {
+            process.StartInfo.ArgumentList.Add(arg);
+        }
+
         foreach (var env in profile.Options.EnvironmentVariables)
         {
             process.StartInfo.EnvironmentVariables[env.Key] = env.Value;
@@ -51,9 +62,10 @@ public class GameLauncher : IGameLauncher
 
         process.Start();
 
-        //var gameLogDir = Path.Combine(gameDir, "logs");
-        //_gameLogger = new McLogFileLogger(gameLogDir, process);
-        //_gameLogger.Start();
+        var logFilePath = Path.Combine(gameDir, "logs");
+        var gameLoader = new McLogFileLogger(logFilePath, process);
+
+        gameLoader.Start(); // Start the logger
 
         profile.Information.IsRunning = true;
 
@@ -93,14 +105,13 @@ public class GameLauncher : IGameLauncher
 
         if (child.Libraries != null)
         {
-            foreach (var lib in child.Libraries)
+            foreach (var lib in
+                     from lib in child.Libraries
+                     let exists = libraries.Any(existingLib => existingLib.Name == lib.Name)
+                     where !exists
+                     select lib)
             {
-                // 检查是否已存在
-                var exists = libraries.Any(existingLib => existingLib.Name == lib.Name);
-
-                // 不存在则添加
-                if (!exists)
-                    libraries.Add(lib);
+                libraries.Add(lib);
             }
         }
 
@@ -113,12 +124,12 @@ public class GameLauncher : IGameLauncher
     /// <summary>
     /// 构建游戏启动命令
     /// </summary>
-    private static string BuildLaunchCommand(GameProfile profile, VersionManifes versionManifes)
+    private static List<string> BuildLaunchCommand(
+        GameProfile profile,
+        VersionManifes versionManifes) // TODO: refactor this method
     {
         List<string> args =
         [
-            $"-Xmx{profile.Options.MaxMemoryMB}M",
-            $"-Xms{profile.Options.MinMemoryMB}M", // 标准JVM参数
             $"-Xmx{profile.Options.MaxMemoryMB}M",
             $"-Xms{profile.Options.MinMemoryMB}M", // 标准JVM参数
             "-XX:+UseG1GC",
@@ -146,7 +157,7 @@ public class GameLauncher : IGameLauncher
         DirectoryUtil.EnsureDirectoryExists(nativesDir);
 
         args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}");
-        args.Add($"-Dminecraft.launcher.brand=PCL.Neo");
+        args.Add("-Dminecraft.launcher.brand=PCL.Neo");
         args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
 
         // 类路径
@@ -159,12 +170,12 @@ public class GameLauncher : IGameLauncher
                 if (library.Downloads?.Artifact?.Path != null)
                 {
                     classpaths.Add(Path.Combine(profile.Information.RootDirectory, "libraries",
-                        library.Downloads!.Artifact!.Path!)); // 不用担心空格问题
+                        library.Downloads!.Artifact!.Path)); // 不用担心空格问题
                 }
             }
         }
 
-        classpaths.Add(Path.Combine(profile.Information.GameDirectory, profile.Options.VersionId));
+        classpaths.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
         args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', classpaths));
 
         // 客户端类型
@@ -266,6 +277,6 @@ public class GameLauncher : IGameLauncher
         }
 
         // 拼接所有参数
-        return string.Join(' ', args);
+        return args;
     }
 }

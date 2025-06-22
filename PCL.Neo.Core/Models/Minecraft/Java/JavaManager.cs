@@ -57,31 +57,31 @@ public sealed partial class JavaManager : IJavaManager
     /// <summary>
     /// 获取适合游戏版本的Java
     /// </summary>
-    /// <param name="gameInfo">游戏实体</param>
+    /// <param name="version">游戏实体</param>
     /// <returns>排序后的Java兼容性列表</returns>
-    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameInfo gameInfo)
+    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(VersionManifes version)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {
             return [];
         }
 
-        return JavaSelector.SelectJavaForGame(gameInfo, JavaList);
+        return JavaSelector.SelectJavaForGame(version, JavaList);
     }
 
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
-    /// <param name="gameInfo">游戏实体</param>
+    /// <param name="version">游戏实体</param>
     /// <returns>最佳的Java或null</returns>
-    public JavaRuntime? GetBestJavaForGame(GameInfo gameInfo)
+    public JavaRuntime? GetBestJavaForGame(VersionManifes version)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {
             return null;
         }
 
-        var compatibleJavas = JavaSelector.SelectJavaForGame(gameInfo, JavaList);
+        var compatibleJavas = JavaSelector.SelectJavaForGame(version, JavaList);
         return compatibleJavas.FirstOrDefault()?.Runtime;
     }
     
@@ -112,7 +112,7 @@ public sealed partial class JavaManager : IJavaManager
 
     /// <summary>
     /// 初始化 Java 列表，但除非没有 Java，否则不进行检查。
-    /// <remarks> TODO)) 更换为 Logger.cs 中的 logger </remarks>
+    /// <remarks>更换为 Logger.cs 中的 logger </remarks>
     /// </summary>
     public async Task JavaListInitAsync()
     {

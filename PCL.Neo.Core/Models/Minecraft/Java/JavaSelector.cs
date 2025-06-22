@@ -68,37 +68,38 @@ public static class JavaSelector
     /// <summary>
     /// 为游戏实体选择最合适的Java
     /// </summary>
-    /// <param name="gameInfo">游戏实体</param>
+    /// <param name="version">游戏实体</param>
     /// <param name="availableJavas">可用的Java列表</param>
     /// <returns>排序后的Java兼容性得分列表</returns>
     public static List<JavaCompatibilityScore> SelectJavaForGame(
-        GameInfo gameInfo,
+        VersionManifes version,
         IEnumerable<JavaRuntime> availableJavas)
     {
         // 如果没有可用的Java，返回空列表
-        if (!availableJavas.Any())
+        var availableJava = availableJavas
+            .Where(java => java.Compability == JavaCompability.Yes); // 只选择兼容的Java
+
+        if (!availableJava.Any())
         {
             return [];
         }
 
-
         // 获取游戏推荐的Java版本范围
-        (int minJavaVersion, int maxJavaVersion) = gameInfo.VersionInfo.MatchJavaVersionSpan();
+        (int minJavaVersion, int maxJavaVersion) = version.MatchJavaVersionSpan();
 
         // 如果游戏有明确指定Java版本
-        bool hasSpecificJavaRequirement = gameInfo.VersionInfo.JavaVersion is { MajorVersion: > 0 };
+        bool hasSpecificJavaRequirement = version.JavaVersion is { MajorVersion: > 0 };
 
         int specificJavaVersion =
-            hasSpecificJavaRequirement ? gameInfo.VersionInfo.JavaVersion?.MajorVersion ?? 0 : 0;
+            hasSpecificJavaRequirement ? version.JavaVersion?.MajorVersion ?? 0 : 0;
 
         // 对每个Java评分
-        var results = availableJavas
-            .Where(java => java.Compability == JavaCompability.Yes) // 只选择兼容的Java
-            .Select(java => ScoreJavaForGame(java, minJavaVersion, maxJavaVersion, specificJavaVersion, gameInfo))
+        var result = availableJava.Select(java =>
+                ScoreJavaForGame(java, minJavaVersion, maxJavaVersion, specificJavaVersion))
             .OrderByDescending(score => score.Score)
             .ToList();
 
-        return results;
+        return result;
     }
 
     /// <summary>
@@ -108,8 +109,7 @@ public static class JavaSelector
         JavaRuntime java,
         int minJavaVersion,
         int maxJavaVersion,
-        int specificJavaVersion,
-        GameInfo gameInfo)
+        int specificJavaVersion)
     {
         int score = 0;
         string reason;
