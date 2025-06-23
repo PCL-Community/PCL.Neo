@@ -140,7 +140,7 @@ public partial class HomeViewModel : ViewModelBase
     private async Task ManageVersions()
     {
         // 实现版本管理逻辑
-        _navigationService.Goto<VersionManagerViewModel>();
+        await _navigationService.GoToAsync<VersionManagerViewModel>();
     }
 
     [RelayCommand]
@@ -159,7 +159,7 @@ public partial class HomeViewModel : ViewModelBase
     private async Task NavigateToDownload()
     {
         // 导航到下载页面
-        _navigationService.Goto<DownloadViewModel>();
+        await _navigationService.GoToAsync<DownloadViewModel>();
     }
 
     [RelayCommand]

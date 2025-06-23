@@ -1,13 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Avalonia.Controls;
-using Avalonia.Media;
 using PCL.Neo.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using PCL.Neo.Animations.Easings;
-using PCL.Neo.Animations;
 
 namespace PCL.Neo.Services;
 
@@ -22,14 +18,9 @@ public interface INavigationService
 
     public bool CanGoBack { get; }
 
-    public (ViewModelBase? mainVm, ViewModelBase? subVm) Goto<T>() where T : ViewModelBase;
-    public (TM?, TS?) GoTo<TM, TS>() where TM : ViewModelBase where TS : ViewModelBase;
-
-    public void NavigateTo(ViewModelBase? main, ViewModelBase? sub,
-        NavigationType                    navigationType = NavigationType.Forward);
-
-    public (ViewModelBase? mainVm, ViewModelBase? subVm) GoBack();
-
+    public Task<(ViewModelBase? mainVm, ViewModelBase? subVm)> GoToAsync<T>() where T : ViewModelBase;
+    public Task<(TM?, TS?)> GoToAsync<TM, TS>() where TM : ViewModelBase where TS : ViewModelBase;
+    public Task<(ViewModelBase? mainVm, ViewModelBase? subVm)> GoBackAsync();
     public void ClearHistory();
 }
 
@@ -63,7 +54,7 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
     public event Action<NavigationEventArgs>? Navigated;
 
     // 导航历史记录
-    private readonly LinkedList<(ViewModelBase?, ViewModelBase?)> _navigationHistory = [];
+    private readonly LinkedList<(Type?, Type?)> _navigationHistory = [];
 
     // 最大历史记录数量
     private const int MaxHistoryCount = 30;
@@ -80,7 +71,7 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
     /// <typeparam name="T">要导航到的 ViewModel</typeparam>
     /// <returns>(MainViewModel, SubViewModel)</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public (ViewModelBase? mainVm, ViewModelBase? subVm) Goto<T>() where T : ViewModelBase
+    public async Task<(ViewModelBase? mainVm, ViewModelBase? subVm)> GoToAsync<T>() where T : ViewModelBase
     {
         // T 可为 `MainViewModel` 或 `SubViewModel`
         // 根据 T 上附加的 attribute 判断
@@ -113,7 +104,7 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
             ? CurrentSubViewModel
             : (ViewModelBase)ServiceProvider.GetRequiredService(subVmType);
 
-        NavigateTo(mainVm, subVm);
+        await NavigateToAsync(mainVm, subVm);
 
         return (mainVm, subVm);
     }
@@ -124,7 +115,7 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
     /// <typeparam name="TM">Type of MainViewModel</typeparam>
     /// <typeparam name="TS">Type of SubViewModel</typeparam>
     /// <returns>(MainViewModel, SubViewModel)</returns>
-    public (TM?, TS?) GoTo<TM, TS>() where TM : ViewModelBase where TS : ViewModelBase
+    public async Task<(TM?, TS?)> GoToAsync<TM, TS>() where TM : ViewModelBase where TS : ViewModelBase
     {
         var mainVm = CurrentMainViewModel?.GetType() == typeof(TM)
             ? CurrentMainViewModel as TM
@@ -133,28 +124,32 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
             ? CurrentSubViewModel as TS
             : ServiceProvider.GetRequiredService<TS>();
 
-        NavigateTo(mainVm, subVm);
+        await NavigateToAsync(mainVm, subVm);
 
         return (mainVm, subVm);
     }
 
     /// <summary>
-    /// 导航到 ViewModels
+    /// 导航到指定的 ViewModels 实例
     /// </summary>
     /// <param name="main">MainViewModel</param>
     /// <param name="sub">SubViewModel</param>
     /// <param name="navigationType">导航方向</param>
-    public void NavigateTo(ViewModelBase? main, ViewModelBase? sub,
-        NavigationType                    navigationType = NavigationType.Forward)
+    protected async Task NavigateToAsync(ViewModelBase? main, ViewModelBase? sub,
+        NavigationType                             navigationType = NavigationType.Forward)
     {
         var oldMainVm = CurrentMainViewModel;
-        var oldSubVm = CurrentSubViewModel;
+        var oldSubVm  = CurrentSubViewModel;
 
         Navigating?.Invoke(new NavigationEventArgs(
             oldMainVm, main,
             oldSubVm, sub,
             navigationType));
-        PushHistory(main, sub);
+
+        if (navigationType == NavigationType.Forward)
+            PushHistory(
+                oldMainVm?.GetType() ?? null,
+                oldSubVm?.GetType() ?? null);
 
         CurrentMainViewModel = main;
         CurrentSubViewModel  = sub;
@@ -170,12 +165,12 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
     /// 如没有上一级 则返回当前 ViewModels
     /// </summary>
     /// <returns>(MainViewModel, SubViewModel)</returns>
-    public (ViewModelBase? mainVm, ViewModelBase? subVm) GoBack()
+    public async Task<(ViewModelBase? mainVm, ViewModelBase? subVm)> GoBackAsync()
     {
         if (!TryPopHistory(out var main, out var sub))
             return (CurrentMainViewModel, CurrentSubViewModel);
 
-        NavigateTo(main, sub, NavigationType.Backward);
+        await NavigateToAsync(main, sub, NavigationType.Backward);
         return (main, sub);
     }
 
@@ -189,8 +184,11 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
     /// </summary>
     /// <param name="main"></param>
     /// <param name="sub"></param>
-    private void PushHistory(ViewModelBase? main, ViewModelBase? sub)
+    private void PushHistory(Type? main, Type? sub)
     {
+        if (main is null && sub is null)
+            return;
+
         _navigationHistory.AddFirst((main, sub));
         if (_navigationHistory.Count > MaxHistoryCount)
             _navigationHistory.RemoveLast();
@@ -212,8 +210,12 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
         }
 
         var node = _navigationHistory.First!;
-        main = node.Value.Item1;
-        sub  = node.Value.Item2;
+        main = node.Value.Item1 is not null
+            ? (ViewModelBase)ServiceProvider.GetRequiredService(node.Value.Item1)
+            : null;
+        sub = node.Value.Item2 is not null
+            ? (ViewModelBase)ServiceProvider.GetRequiredService(node.Value.Item2)
+            : null;
         _navigationHistory.RemoveFirst();
         return true;
     }

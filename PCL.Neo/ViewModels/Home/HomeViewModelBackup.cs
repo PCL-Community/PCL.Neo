@@ -21,14 +21,14 @@ namespace PCL.Neo.ViewModels.Home
         private async Task ManageUsers()
         {
             // 导航到用户管理页面
-            _navigationService.Goto<HomeSubViewModel>();
+            await _navigationService.GoToAsync<HomeSubViewModel>();
         }
 
         [RelayCommand]
         private async Task ManageVersions()
         {
             // 导航到版本管理页面
-            _navigationService.Goto<VersionManagerViewModel>();
+            await _navigationService.GoToAsync<VersionManagerViewModel>();
         }
     }
 }

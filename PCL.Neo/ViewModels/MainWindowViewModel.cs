@@ -115,16 +115,16 @@ namespace PCL.Neo.ViewModels
             switch (tag)
             {
                 case 1:
-                    NavigationService.Goto<HomeViewModel>();
+                    await NavigationService.GoToAsync<HomeViewModel>();
                     break;
                 case 2:
-                    NavigationService.Goto<DownloadViewModel>();
+                    await NavigationService.GoToAsync<DownloadViewModel>();
                     break;
                 case 3:
                     // NavigationService.Goto<LinkViewModel>();
                     break;
                 case 4:
-                    NavigationService.Goto<SetupViewModel>();
+                    await NavigationService.GoToAsync<SetupViewModel>();
                     break;
                 case 5:
                     // NavigationService.GoBack<OtherViewModel>();
@@ -138,7 +138,7 @@ namespace PCL.Neo.ViewModels
         [RelayCommand]
         public async Task GoBack()
         {
-            NavigationService.GoBack();
+            NavigationService.GoBackAsync();
             // 更新导航按钮状态
             UpdateNavBtnState();
         }

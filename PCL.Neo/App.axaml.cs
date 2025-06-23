@@ -72,7 +72,7 @@ namespace PCL.Neo
                 DisableAvaloniaDataAnnotationValidation();
                 desktop.MainWindow = new MainWindow { DataContext = vm };
                 // 由于导航改成了异步方法，在构造函数中无法正常导向首页，需要在此处导向
-                Ioc.Default.GetRequiredService<INavigationService>().Goto<HomeViewModel>();
+                Ioc.Default.GetRequiredService<INavigationService>().GoToAsync<HomeViewModel>().Wait(); // TODO: idk if this is appropriate
             }
 
             base.OnFrameworkInitializationCompleted();

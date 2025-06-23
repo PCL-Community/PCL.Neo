@@ -404,7 +404,7 @@ public partial class GameSettingsViewModel : ViewModelBase
             SaveUserSettings();
 
             // 返回上一个页面
-            _navigationService.GoBack();
+            _navigationService.GoBackAsync();
         }
         catch (Exception ex)
         {
@@ -417,7 +417,7 @@ public partial class GameSettingsViewModel : ViewModelBase
     private async Task Return()
     {
         // 返回上一页
-        _navigationService.GoBack();
+        _navigationService.GoBackAsync();
     }
 
     [RelayCommand]
@@ -1229,7 +1229,7 @@ read -n 1 -s";
             System.Diagnostics.Debug.WriteLine($"版本 {VersionId} 已删除");
 
             // 返回上一页
-            _navigationService.GoBack();
+            _navigationService.GoBackAsync();
         }
         catch (Exception ex)
         {

@@ -170,7 +170,7 @@ public partial class HomeSubViewModel : ViewModelBase
     [RelayCommand]
     private async Task NavigateToDownloadMod()
     {
-        _navigationService.Goto<DownloadModViewModel>();
+        await _navigationService.GoToAsync<DownloadModViewModel>();
     }
 
     [RelayCommand]
@@ -181,7 +181,7 @@ public partial class HomeSubViewModel : ViewModelBase
         js.Clear();
         _ = js.Submit(new TestJob1()).RunInNewTask();
         _ = js.Submit(new TestJob1 {IntervalFactor = 2.0}).RunInNewTask();
-        this._navigationService.Goto<JobViewModel>();
+        await this._navigationService.GoToAsync<JobViewModel>();
     }
 
     [RelayCommand]
@@ -356,7 +356,7 @@ public partial class HomeSubViewModel : ViewModelBase
     private async Task ViewGameLogs()
     {
         // 导航到日志查看界面
-        _navigationService.Goto<LogViewModel>();
+        await _navigationService.GoToAsync<LogViewModel>();
     }
 
     [RelayCommand]

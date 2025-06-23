@@ -25,13 +25,13 @@ public partial class DownloadViewModel : ViewModelBase
     [RelayCommand]
     private async Task NavigateToDownloadGame()
     {
-        _navigationService.Goto<DownloadGameViewModel>();
+        await _navigationService.GoToAsync<DownloadGameViewModel>();
     }
 
     [RelayCommand]
     private async Task NavigateToDownloadMod()
     {
-        _navigationService.Goto<DownloadModViewModel>();
+        await _navigationService.GoToAsync<DownloadModViewModel>();
     }
 
     [RelayCommand]

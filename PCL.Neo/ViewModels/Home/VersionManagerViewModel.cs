@@ -281,7 +281,7 @@ public partial class VersionManagerViewModel : ViewModelBase
     public async Task DownloadVersionCommand()
     {
         // 导航到下载页面
-        _navigationService.Goto<Download.DownloadGameViewModel>();
+        await _navigationService.GoToAsync<Download.DownloadGameViewModel>();
     }
 
     [RelayCommand]
