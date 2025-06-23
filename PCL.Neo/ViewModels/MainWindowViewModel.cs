@@ -1,9 +1,11 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using PCL.Neo.Controls.MyMsg;
 using PCL.Neo.Services;
 using PCL.Neo.Helpers;
+using PCL.Neo.Messages;
 using System;
 using System.Threading.Tasks;
 
@@ -62,22 +64,38 @@ namespace PCL.Neo.ViewModels
         public MainWindowViewModel(Window window)
         {
             this._window = window;
+
+            // 启用所有 Messenger 注册事件
+            IsActive = true;
         }
 
         public MainWindowViewModel(INavigationService navigationService)
         {
             NavigationService = navigationService;
-            NavigationService.Navigated += args =>
-            {
-                if (args.IsMainViewModelChanged)
-                    CurrentViewModel    = args.NewMainViewModel;
-                if (args.IsSubViewModelChanged)
-                    CurrentSubViewModel = args.NewSubViewModel;
-                // 更新返回按钮状态
-                CanGoBack = NavigationService.CanGoBack;
-                // 由外部的页面跳转反向触发设置按钮状态
-                UpdateNavBtnState();
-            };
+
+            // 启用所有 Messenger 注册事件
+            IsActive = true;
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+
+            Messenger.Register<MainWindowViewModel, NavigationMessage, Guid>(
+                this, NavigationMessage.Channels.Navigated,
+                (_, m) => OnNavigated(m));
+        }
+
+        public void OnNavigated(NavigationMessage message)
+        {
+            if (message.IsMainViewModelChanged)
+                CurrentViewModel    = message.NewMainViewModel;
+            if (message.IsSubViewModelChanged)
+                CurrentSubViewModel = message.NewSubViewModel;
+            // 更新返回按钮状态
+            CanGoBack = NavigationService.CanGoBack;
+            // 由外部的页面跳转反向触发设置按钮状态
+            UpdateNavBtnState();
         }
 
         [RelayCommand]

@@ -195,7 +195,9 @@ public partial class HomeSubViewModel : ViewModelBase
     private async Task OpenGameSettings()
     {
         // 导航到游戏设置视图
-        _navigationService.NavigateTo(Ioc.Default.GetRequiredService<HomeViewModelBackup>(), _gameSettingsViewModel);
+        // TODO: NavigationService 设计某个可以传特定实例的方法
+
+        // _navigationService.NavigateTo(Ioc.Default.GetRequiredService<HomeViewModelBackup>(), _gameSettingsViewModel);
 
         // 如果版本ID不为空，初始化为当前选中的版本
         if (SelectedGameVersion != null)

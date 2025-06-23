@@ -7,6 +7,8 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using CommunityToolkit.Mvvm.Messaging;
+using PCL.Neo.Messages;
 using SkiaSharp;
 using System.IO;
 
@@ -48,15 +50,30 @@ public partial class HomeViewModel : ViewModelBase
         // 订阅用户更改事件
         _userService.CurrentUserChanged += OnCurrentUserChanged;
 
-        // 订阅子视图模型变化
-        // FIXME: TODO: potential memory leak
-        _navigationService.Navigated += args => CurrentSubViewModel = args.NewSubViewModel;
-
         // 初始化当前用户信息
         if (_userService.CurrentUser != null)
         {
             UpdateCurrentUserInfo(_userService.CurrentUser);
         }
+
+        // 启用所有 Messenger 注册事件
+        IsActive = true;
+    }
+
+    protected override void OnActivated()
+    {
+        base.OnActivated();
+
+        Messenger.Register<HomeViewModel, NavigationMessage, Guid>(
+            this,
+            NavigationMessage.Channels.Navigated,
+            (_, m) => OnNavigated(m));
+    }
+
+    private void OnNavigated(NavigationMessage message)
+    {
+        // 订阅子视图模型变化
+        CurrentSubViewModel = message.NewSubViewModel;
     }
 
     private void OnCurrentUserChanged(UserInfo? user)

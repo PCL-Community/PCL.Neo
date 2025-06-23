@@ -7,10 +7,12 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
+using CommunityToolkit.Mvvm.Messaging;
 using PCL.Neo.Animations;
 using PCL.Neo.Animations.Easings;
 using PCL.Neo.Controls;
 using PCL.Neo.Helpers;
+using PCL.Neo.Messages;
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels;
 using System;
@@ -79,31 +81,24 @@ public partial class MainWindow : Window
             if (_leftNavigationControlVisual != null)
             {
                 _compositor = _leftNavigationControlVisual.Compositor;
-
-                // 订阅导航事件
-                this.Loaded += (_, _) =>
-                {
-                    if (DataContext is MainWindowViewModel viewModel)
-                    {
-                        viewModel.NavigationService.Navigated += OnNavigated;
-                    }
-                };
-
-                this.Unloaded += (_, _) =>
-                {
-                    if (DataContext is MainWindowViewModel viewModel)
-                    {
-                        viewModel.NavigationService.Navigated -= OnNavigated;
-                    }
-                };
             }
         };
 
         GridRoot.Opacity = 0; // 在此处初始化透明度，不然将闪现
-        this.Loaded += (_, _) => AnimationIn();
+        this.Loaded += (_, _) =>
+        {
+            // 订阅导航事件
+            WeakReferenceMessenger.Default.Register<NavigationMessage, Guid>(
+                this, NavigationMessage.Channels.Navigated,
+                (_, m) => OnNavigated(m));
+
+            AnimationIn();
+        };
+        // 取消订阅导航事件
+        this.Unloaded += (_, _) => WeakReferenceMessenger.Default.Unregister<NavigationMessage>(this);
     }
 
-    private void OnNavigated(NavigationEventArgs e)
+    private void OnNavigated(NavigationMessage e)
     {
         if (_compositor == null || _leftNavigationControlVisual == null || _rightNavigationControlVisual == null)
             return;
