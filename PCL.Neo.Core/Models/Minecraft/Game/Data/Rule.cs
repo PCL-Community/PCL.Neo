@@ -13,6 +13,8 @@ public partial class Rule
 
     [JsonPropertyName("version")] public string? Version { get; set; }
 
+    [JsonPropertyName("version")] public string? Version { get; set; }
+
     public bool Allow => Action == "allow";
 }
 
