@@ -11,6 +11,8 @@ public partial class Rule
     [JsonPropertyName("os")]
     public OsRule? Os { get; set; }
 
+    [JsonPropertyName("version")] public string? Version { get; set; }
+
     public bool Allow => Action == "allow";
 }
 

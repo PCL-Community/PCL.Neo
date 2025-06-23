@@ -1,8 +1,9 @@
+using PCL.Neo.Core.Models.Minecraft.Game.Data.GaJvArguments;
 using System.Text.Json.Serialization;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
-public record Arguments
+public sealed record Arguments
 {
     [JsonPropertyName("game")]
     public List<object>? Game { get; set; } = new();

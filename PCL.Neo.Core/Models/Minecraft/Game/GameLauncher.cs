@@ -252,6 +252,7 @@ public class GameLauncher
     /// <summary>
     /// 构建游戏启动命令
     /// </summary>
+    /// <exception cref="DirectoryNotFoundException">Throw if directory not found.</exception>
     private static List<string> BuildLaunchCommand(
         GameProfile profile,
         VersionManifes versionManifes) // TODO: refactor this method
@@ -325,7 +326,7 @@ public class GameLauncher
         args.Add(versionManifes.MainClass);
 
         // 游戏参数
-        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments))
+        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments)) // old version
         {
             // 旧版格式
             var gameArgs = versionInfo.MinecraftArguments
@@ -362,14 +363,12 @@ public class GameLauncher
                             .Replace("${user_type}", clientType)
                             .Replace("${version_type}", versionManifes.Type);
 
-                        args.Add(processedArg);
-                    }
-                }
-            }
+            //        args.Add(processedArg);
+            //    }
+            //}
         }
         else
         {
-            // 如果没有参数格式，则使用默认参数
             args.Add("--username");
             args.Add(profile.Options.Username);
             args.Add("--version");
