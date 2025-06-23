@@ -124,6 +124,7 @@ public class GameLauncher : IGameLauncher
     /// <summary>
     /// 构建游戏启动命令
     /// </summary>
+    /// <exception cref="DirectoryNotFoundException">Throw if directory not found.</exception>
     private static List<string> BuildLaunchCommand(
         GameProfile profile,
         VersionManifes versionManifes) // TODO: refactor this method
@@ -138,6 +139,8 @@ public class GameLauncher : IGameLauncher
             "-XX:+UnlockExperimentalVMOptions",
             "-XX:+DisableExplicitGC",
             "-XX:+AlwaysPreTouch",
+            "-XX:MetaspaceSize=256m",
+            "-XX:MaxMetaspaceSize=256m",
             "-XX:G1NewSizePercent=30",
             "-XX:G1MaxNewSizePercent=40",
             "-XX:G1HeapRegionSize=8M",
@@ -154,7 +157,10 @@ public class GameLauncher : IGameLauncher
 
         // 设置natives路径
         string nativesDir = Path.Combine(profile.Information.RootDirectory, "versions", "natives");
-        DirectoryUtil.EnsureDirectoryExists(nativesDir);
+        if (!Directory.Exists(nativesDir))
+        {
+            throw new DirectoryNotFoundException($"Native directory not found: {nativesDir}");
+        }
 
         args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}");
         args.Add("-Dminecraft.launcher.brand=PCL.Neo");
@@ -162,21 +168,11 @@ public class GameLauncher : IGameLauncher
 
         // 类路径
         args.Add("-cp");
-        List<string> classpaths = [];
-        if (versionManifes.Libraries != null)
-        {
-            foreach (Library library in versionManifes.Libraries)
-            {
-                if (library.Downloads?.Artifact?.Path != null)
-                {
-                    classpaths.Add(Path.Combine(profile.Information.RootDirectory, "libraries",
-                        library.Downloads!.Artifact!.Path)); // 不用担心空格问题
-                }
-            }
-        }
+        ArgumentNullException.ThrowIfNull(versionManifes.Libraries); // ensure libraries is not null
+        var libCommand = BuildLibrariesCommand(versionManifes.Libraries);
 
-        classpaths.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
-        args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', classpaths));
+        libCommand.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
+        args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', libCommand));
 
         // 客户端类型
         string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
@@ -191,7 +187,7 @@ public class GameLauncher : IGameLauncher
         args.Add(versionManifes.MainClass);
 
         // 游戏参数
-        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments))
+        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments)) // old version
         {
             // 旧版格式
             string gameArgs = versionManifes.MinecraftArguments
@@ -207,36 +203,32 @@ public class GameLauncher : IGameLauncher
                 .Replace("${version_type}", versionManifes.Type);
             args.AddRange(gameArgs.Split(' '));
         }
-        else if (versionManifes.Arguments != null)
+        else if (versionManifes.Arguments != null) // new version
         {
-            // 新版格式
-            // 这里简化处理，实际上应该解析Arguments对象并应用规则
-            if (versionManifes.Arguments.Game is not null)
-            {
-                foreach (var arg in versionManifes.Arguments.Game)
-                {
-                    if (arg is string strArg)
-                    {
-                        string processedArg = strArg
-                            .Replace("${auth_player_name}", profile.Options.Username)
-                            .Replace("${version_name}", profile.Options.VersionId)
-                            .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
-                            .Replace("${assets_root}",
-                                DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
-                            .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
-                            .Replace("${auth_uuid}", profile.Options.UUID)
-                            .Replace("${auth_access_token}", profile.Options.AccessToken)
-                            .Replace("${user_type}", clientType)
-                            .Replace("${version_type}", versionManifes.Type);
 
-                        args.Add(processedArg);
-                    }
-                }
-            }
+
+            //foreach (var arg in versionManifes.Arguments.Game)
+            //{
+            //    if (arg is string strArg)
+            //    {
+            //        string processedArg = strArg
+            //            .Replace("${auth_player_name}", profile.Options.Username)
+            //            .Replace("${version_name}", profile.Options.VersionId)
+            //            .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
+            //            .Replace("${assets_root}",
+            //                DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
+            //            .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
+            //            .Replace("${auth_uuid}", profile.Options.UUID)
+            //            .Replace("${auth_access_token}", profile.Options.AccessToken)
+            //            .Replace("${user_type}", clientType)
+            //            .Replace("${version_type}", versionManifes.Type);
+
+            //        args.Add(processedArg);
+            //    }
+            //}
         }
         else
         {
-            // 如果没有参数格式，则使用默认参数
             args.Add("--username");
             args.Add(profile.Options.Username);
             args.Add("--version");
@@ -278,5 +270,105 @@ public class GameLauncher : IGameLauncher
 
         // 拼接所有参数
         return args;
+    }
+
+    public static bool ShouldAddLibraryBasedOnRules(List<Rule>? rulesList, string currentOsName)
+    {
+        // "os属性可能不存在，这个时候默认直接添加" (Interpreted as: if rulesList is null or empty, default add)
+        if (rulesList is null || rulesList.Count == 0)
+        {
+            return true;
+        }
+
+        bool permitAdd = true; // Default to allow, unless a rule explicitly disallows
+
+        foreach (var rule in rulesList)
+        {
+            if (string.IsNullOrEmpty(rule.Action)) // Basic validation
+            {
+                continue; // Skip malformed rules
+            }
+
+            string action = rule.Action; // Ensure action comparison is case-insensitive
+            string? ruleOsName = null;
+
+            if (rule.Os != null && !string.IsNullOrEmpty(rule.Os.Name))
+            {
+                ruleOsName = rule.Os.Name; // Ensure OS name comparison is case-insensitive
+            }
+
+            if (action == "allow")
+            {
+                if (ruleOsName == null)
+                {
+                    // Rule: { "action": "allow" } (os attribute missing)
+                    // "os属性可能不存在，这个时候默认直接添加" - this rule tends to allow.
+                    // It doesn't change permitAdd from true to false.
+                }
+                else
+                {
+                    // Rule: { "action": "allow", "os": { "name": "specific_os" } }
+                    // "如果action为allow，那就说明除os.name指定的系统外其余的全都不添加"
+                    // This means: only allow if current_os == specific_os; otherwise, this rule causes disallow.
+                    if (currentOsName != ruleOsName)
+                    {
+                        permitAdd = false;
+                        break; // This rule explicitly states not to add for the current OS.
+                    }
+                }
+            }
+            else if (action == "disallow")
+            {
+                if (ruleOsName == null)
+                {
+                    // Rule: { "action": "disallow" } (os attribute missing)
+                    // This means disallow for all systems.
+                    permitAdd = false;
+                    break; // This rule explicitly states not to add.
+                }
+                else
+                {
+                    // Rule: { "action": "disallow", "os": { "name": "specific_os" } }
+                    // "如果action为disallow，那就说明除os.name指定的系统外其余的全都添加"
+                    // This means: disallow only if current_os == specific_os; otherwise, this rule allows.
+                    if (currentOsName == ruleOsName)
+                    {
+                        permitAdd = false;
+                        break; // This rule explicitly states not to add for the current OS.
+                    }
+                }
+            }
+            // else: If action is not "allow" or "disallow", or action is missing, ignore the rule.
+            //       You might want to add logging or error handling for unknown actions.
+        }
+
+        return permitAdd;
+    }
+
+    private static ICollection<string> BuildLibrariesCommand(IEnumerable<Library> lib)
+    {
+        ICollection<string> commands = [];
+
+        var currentOs = Const.Os.ToString().ToLowerInvariant();
+        var classifiersNatives = "natives" + currentOs;
+
+        foreach (Library library in lib)
+        {
+            if (ShouldAddLibraryBasedOnRules(library.Rules, currentOs))
+            {
+                commands.Add(library.Downloads?.Artifact?.Path!);
+                if (library.Downloads?.Classifiers is not null)
+                {
+                    var classifier = library.Downloads.Classifiers
+                        .FirstOrDefault(c => c.Key.Equals(classifiersNatives, StringComparison.OrdinalIgnoreCase));
+                    if (classifier.Value != null)
+                    {
+                        commands.Add(classifier.Value.Path);
+                    }
+                }
+            }
+        }
+
+        return commands;
     }
 }
