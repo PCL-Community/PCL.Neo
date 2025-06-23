@@ -1,5 +1,4 @@
 using PCL.Neo.Core.Download;
-using PCL.Neo.Core.Models;
 using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Models.Minecraft.Mod;
 using System;

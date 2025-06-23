@@ -51,9 +51,9 @@
                             Name="ShapeTitleLogo"
                             Stretch="Fill"
                             Stroke="White"
-                            StrokeThickness="1.9"
+                            StrokeThickness="2.2"
                             UseLayoutRounding="False"
-                            Width="53" />
+                            Width="39" />
                         <TextBlock
                             FontSize="17"
                             Foreground="White"
@@ -149,6 +149,11 @@
                         Name="NavBackgroundBorder"
                         ZIndex="2">
                         <Grid>
+                            <Image
+                                IsHitTestVisible="False"
+                                Name="ImgTitle"
+                                RenderOptions.BitmapInterpolationMode="LowQuality"
+                                Stretch="UniformToFill" />
                             <StackPanel
                                 Height="27"
                                 HorizontalAlignment="Center"
@@ -231,7 +236,7 @@
                         ColumnDefinitions="Auto, *"
                         Grid.Row="1"
                         Name="PanMain">
-                        <!-- Width overridden in code behind -->
+                        <!--  Width overridden in code behind  -->
                         <Border
                             Background="{DynamicResource ColorBrushBackgroundTransparentSidebar}"
                             BoxShadow="0 0 5 0 DarkGray"
@@ -243,7 +248,10 @@
                             ZIndex="1">
                             <Border.Transitions>
                                 <Transitions>
-                                    <DoubleTransition Property="Width" Duration="0:0:0.3" Easing="CubicEaseOut" />
+                                    <DoubleTransition
+                                        Duration="0:0:0.3"
+                                        Easing="CubicEaseOut"
+                                        Property="Width" />
                                 </Transitions>
                             </Border.Transitions>
                         </Border>

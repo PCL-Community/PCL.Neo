@@ -33,19 +33,19 @@ public class JavaRuntime
     /// <summary>
     /// 具体的 Java 信息数据结构
     /// </summary>
-    private class JavaInfo
+    private record JavaInfo
     {
-        public string Version { get; set; } = string.Empty;
-        public int SlugVersion { get; set; } = 0;
+        public string Version     { get; set; } = string.Empty;
+        public int    SlugVersion { get; set; } = 0;
 
         public ExeArchitectureUtils.ExeArchitecture Architecture { get; set; } =
             ExeArchitectureUtils.ExeArchitecture.Unknown;
 
-        public bool IsJre { get; set; }
-        public JavaCompability Compability { get; set; } = JavaCompability.Unknown;
-        public required string JavaExe { get; init; }
-        public required string JavaWExe { get; init; }
-        public string? Implementor { get; set; }
+        public          bool            IsJre       { get; init; }
+        public          JavaCompability Compability { get; set; } = JavaCompability.Unknown;
+        public required string          JavaExe     { get; init; }
+        public required string          JavaWExe    { get; init; }
+        public          string?         Implementor { get; set; }
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public class JavaRuntime
             string runJavaOutput;
             try
             {
-                runJavaOutput = await GetRunJavaOutputAsync(javaExe);
+                runJavaOutput = await GetRunJavaOutputAsync(javaExe).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -150,9 +150,9 @@ public class JavaRuntime
     /// <summary>
     /// 刷新 Java 实体的信息
     /// </summary>
-    public async Task<bool> RefreshInfo()
+    public async Task<bool> RefreshInfoAsync()
     {
-        _javaInfo = await JavaInfoInitAsync(DirectoryPath);
+        _javaInfo = await JavaInfoInitAsync(DirectoryPath).ConfigureAwait(false);
         return _javaInfo.Compability != JavaCompability.Error;
     }
 
@@ -176,7 +176,7 @@ public class JavaRuntime
         // --version     将产品版本输出到输出流并退出
         // 但是格式不一样
         javaProcess.Start();
-        await javaProcess.WaitForExitAsync();
+        await javaProcess.WaitForExitAsync().ConfigureAwait(false);
         var output = await javaProcess.StandardError.ReadToEndAsync();
         return output;
     }
@@ -190,7 +190,10 @@ public class JavaRuntime
     private static ValueTuple<string?, string, ExeArchitectureUtils.ExeArchitecture> ReadReleaseFile(string releaseFile)
     {
         if (!File.Exists(releaseFile))
+        {
             throw new FileNotFoundException("Release file not found.", releaseFile);
+        }
+
         string implementor = string.Empty;
         string version = string.Empty;
         var osArch = ExeArchitectureUtils.ExeArchitecture.Unknown;
@@ -212,9 +215,12 @@ public class JavaRuntime
                 };
             }
 
-            if (!string.IsNullOrEmpty(implementor) && !string.IsNullOrEmpty(version) &&
-                osArch is not ExeArchitectureUtils.ExeArchitecture.Unknown)
+            if (!string.IsNullOrEmpty(implementor)
+                && !string.IsNullOrEmpty(version)
+                && osArch is not ExeArchitectureUtils.ExeArchitecture.Unknown)
+            {
                 break;
+            }
         }
         return (implementor, version, osArch);
     }

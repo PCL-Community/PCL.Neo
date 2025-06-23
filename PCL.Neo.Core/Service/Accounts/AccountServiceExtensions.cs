@@ -34,28 +34,32 @@ namespace PCL.Neo.Core.Service.Accounts
         public static void UseAccountExceptionHandling()
         {
             // 设置全局未处理异常处理器
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) => 
+            AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             {
-                if (e.ExceptionObject is Exception ex)
+                if (e.ExceptionObject is not Exception ex)
                 {
-                    try
+                    return;
+                }
+
+                try
+                {
+                    // 使用我们的日志扩展方法
+                    var service = new object(); // 临时对象，用于调用扩展方法
+
+                    if (ex is YggdrasilAuthException yggEx)
                     {
-                        // 使用我们的日志扩展方法
-                        var service = new object(); // 临时对象，用于调用扩展方法
-                        
-                        if (ex is YggdrasilAuthException yggEx)
-                        {
-                            service.LogYggdrasilError($"未处理的外置登录异常: {yggEx.Message}\n服务器: {yggEx.ServerUrl}\n错误类型: {yggEx.ErrorType}\n错误内容: {yggEx.ErrorContent}", yggEx);
-                        }
-                        else
-                        {
-                            service.LogAccountError($"未处理的账户系统异常: {ex.Message}", ex);
-                        }
+                        service.LogYggdrasilError(
+                            $"未处理的外置登录异常: {yggEx.Message}\n服务器: {yggEx.ServerUrl}\n错误类型: {yggEx.ErrorType}\n错误内容: {yggEx.ErrorContent}",
+                            yggEx);
                     }
-                    catch
+                    else
                     {
-                        // 如果日志记录失败，确保不会引发新异常
+                        service.LogAccountError($"未处理的账户系统异常: {ex.Message}", ex);
                     }
+                }
+                catch
+                {
+                    // 如果日志记录失败，确保不会引发新异常
                 }
             };
         }

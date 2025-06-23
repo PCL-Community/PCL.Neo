@@ -1,5 +1,6 @@
 using PCL.Neo.Core.Service.Accounts.Exceptions;
 using PCL.Neo.Core.Service.Accounts.OAuthService;
+using PCL.Neo.Core.Service.Accounts.OAuthService.Exceptions;
 using PCL.Neo.Core.Service.Accounts.Storage;
 using PCL.Neo.Core.Utils;
 using System.Diagnostics;
@@ -78,7 +79,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
     /// <inheritdoc />
     public async Task<Result<DeviceCodeData.DeviceCodeInfo, HttpError>> RequestDeviceCodeAsync()
     {
-        var content = new FormUrlEncodedContent(OAuthData.FormUrlReqData.DeviceCodeData)
+        var content = new FormUrlEncodedContent(OAuthData.FormUrlReqData.DeviceCodeData.Value)
         {
             Headers = { ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded") }
         };
@@ -86,7 +87,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         try
         {
             var temp = await Net.SendHttpRequestAsync<DeviceCodeData.DeviceCodeInfo>(HttpMethod.Post,
-                OAuthData.RequestUrls.DeviceCode, content).ConfigureAwait(false);
+                OAuthData.RequestUrls.DeviceCode.Value, content).ConfigureAwait(false);
             var result = new DeviceCodeData.DeviceCodeInfo(temp.DeviceCode, temp.UserCode, temp.VerificationUri,
                 temp.Interval);
             return Result<DeviceCodeData.DeviceCodeInfo, HttpError>.Ok(result);
@@ -113,7 +114,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         string deviceCode, int interval)
     {
         var tempInterval = interval;
-        var content = new Dictionary<string, string>(OAuthData.FormUrlReqData.UserAuthStateData)
+        var content = new Dictionary<string, string>(OAuthData.FormUrlReqData.UserAuthStateData.Value)
         {
             ["device_code"] = deviceCode
         };
@@ -131,7 +132,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
 
                 var tempResult =
                     await Net.SendHttpRequestAsync<OAuthData.ResponseData.UserAuthStateResponse>(HttpMethod.Post,
-                        OAuthData.RequestUrls.TokenUri, msg).ConfigureAwait(false);
+                        OAuthData.RequestUrls.TokenUri.Value, msg).ConfigureAwait(false);
 
                 // handle response
                 if (!string.IsNullOrEmpty(tempResult.Error))
@@ -184,18 +185,18 @@ public class MicrosoftAuthService : IMicrosoftAuthService
     }
 
     /// <inheritdoc />
-    public async Task<Result<string, MinecraftInfo.NotHaveGameException>> GetUserMinecraftAccessTokenAsync(
+    public async Task<Result<string, NotHaveGameException>> GetUserMinecraftAccessTokenAsync(
         string accessToken)
     {
         try
         {
             var minecraftToken = await OAuth.GetMinecraftTokenAsync(accessToken).ConfigureAwait(false);
-            return Result<string, MinecraftInfo.NotHaveGameException>.Ok(minecraftToken);
+            return Result<string, NotHaveGameException>.Ok(minecraftToken);
         }
-        catch (MinecraftInfo.NotHaveGameException e)
+        catch (NotHaveGameException e)
         {
-            return Result<string, MinecraftInfo.NotHaveGameException>.Fail(
-                new MinecraftInfo.NotHaveGameException(e.Message));
+            return Result<string, NotHaveGameException>.Fail(
+                new NotHaveGameException(e.Message));
         }
     }
 

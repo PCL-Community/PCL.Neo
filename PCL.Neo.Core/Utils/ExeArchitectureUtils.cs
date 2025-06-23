@@ -113,7 +113,7 @@ public static class ExeArchitectureUtils
 
     private static ExeArchitecture ReadMachOHeader(string filePath)
     {
-        using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        using var fs     = new FileStream(filePath, FileMode.Open, FileAccess.Read);
         using var reader = new BinaryReader(fs);
 
         uint magic = reader.ReadUInt32();
@@ -157,21 +157,21 @@ public static class ExeArchitectureUtils
 
     public static JavaCompability GetJavaCompability(this ExeArchitecture arch)
     {
-        if (arch.ToString() == SystemUtils.Architecture.ToString()) return JavaCompability.Yes;
+        if (arch.ToString() == SystemUtils.Architecture.ToString())
+        {
+            return JavaCompability.Yes;
+        }
         else
-            switch (SystemUtils.Os)
+            return SystemUtils.Os switch
             {
-                case SystemUtils.RunningOs.Windows when SystemUtils.Architecture is Architecture.X64 or Architecture.Arm64:
-                    return JavaCompability.UnderTranslation;
-                case SystemUtils.RunningOs.MacOs when SystemUtils.Architecture is Architecture.Arm64 && arch is ExeArchitecture.X64:
-                    return JavaCompability.UnderTranslation;
-                case SystemUtils.RunningOs.MacOs when arch is ExeArchitecture.FatFile:
-                    return JavaCompability.Yes;
-                case SystemUtils.RunningOs.Linux:
-                    return JavaCompability.No;
-                case SystemUtils.RunningOs.Unknown:
-                default:
-                    return JavaCompability.Unknown;
-            }
+                SystemUtils.RunningOs.Windows when SystemUtils.Architecture is Architecture.X64 or Architecture.Arm64 =>
+                    JavaCompability.UnderTranslation,
+                SystemUtils.RunningOs.MacOs when SystemUtils.Architecture is Architecture.Arm64 &&
+                                                 arch is ExeArchitecture.X64 => JavaCompability.UnderTranslation,
+                SystemUtils.RunningOs.MacOs when arch is ExeArchitecture.FatFile => JavaCompability.Yes,
+                SystemUtils.RunningOs.Linux => JavaCompability.No,
+                SystemUtils.RunningOs.Unknown => JavaCompability.Unknown,
+                _ => JavaCompability.Unknown
+            };
     }
 }

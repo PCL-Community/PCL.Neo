@@ -64,7 +64,7 @@ namespace PCL.Neo
             Ioc.Default.ConfigureServices(ConfigureServices());
 
             var vm = Ioc.Default.GetRequiredService<MainWindowViewModel>();
-            Task.Run(Ioc.Default.GetRequiredService<IJavaManager>().JavaListInit);
+            Task.Run(Ioc.Default.GetRequiredService<IJavaManager>().JavaListInitAsync);
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit.

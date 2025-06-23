@@ -1,5 +1,10 @@
+using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Utils;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PCL.Neo.Core.Models.Minecraft.Java;
 
@@ -15,6 +20,11 @@ public sealed partial class JavaManager : IJavaManager
     private bool _isBusy = false;
 
     public List<JavaRuntime> JavaList { get; private set; } = [];
+    
+    /// <summary>
+    /// Java验证结果字典
+    /// </summary>
+    private readonly Dictionary<string, JavaVerifier.JavaVerifyResult> _javaVerifyResults = new();
 
     private DefaultJavaRuntimeCombine? _defaultJavaRuntimes;
 
@@ -48,15 +58,71 @@ public sealed partial class JavaManager : IJavaManager
             return (_defaultJavaRuntimes?.Java8, _defaultJavaRuntimes?.Java17, _defaultJavaRuntimes?.Java21);
         }
     }
-
+    
+    /// <summary>
+    /// 获取适合游戏版本的Java
+    /// </summary>
+    /// <param name="gameEntity">游戏实体</param>
+    /// <returns>排序后的Java兼容性列表</returns>
+    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameEntityInfo gameEntity)
+    {
+        if (!IsInitialized || JavaList.Count == 0)
+        {
+            return new List<JavaSelector.JavaCompatibilityScore>();
+        }
+        
+        return JavaSelector.SelectJavaForGame(gameEntity, JavaList);
+    }
+    
+    /// <summary>
+    /// 获取最适合游戏版本的Java
+    /// </summary>
+    /// <param name="gameEntity">游戏实体</param>
+    /// <returns>最佳的Java或null</returns>
+    public JavaRuntime? GetBestJavaForGame(GameEntityInfo gameEntity)
+    {
+        if (!IsInitialized || JavaList.Count == 0)
+        {
+            return null;
+        }
+        
+        var compatibleJavas = JavaSelector.SelectJavaForGame(gameEntity, JavaList);
+        return compatibleJavas.FirstOrDefault()?.Runtime;
+    }
+    
+    /// <summary>
+    /// 获取Java的验证结果
+    /// </summary>
+    /// <param name="java">要验证的Java</param>
+    /// <returns>验证结果</returns>
+    public async Task<JavaVerifier.JavaVerifyResult> GetJavaVerificationAsync(JavaRuntime java)
+    {
+        if (_javaVerifyResults.TryGetValue(java.DirectoryPath, out var result))
+        {
+            return result;
+        }
+        
+        var verifyResult = await JavaVerifier.VerifyJavaAsync(java.JavaExe);
+        _javaVerifyResults[java.DirectoryPath] = verifyResult;
+        return verifyResult;
+    }
+    
+    /// <summary>
+    /// 清除验证结果缓存
+    /// </summary>
+    public void ClearVerificationCache()
+    {
+        _javaVerifyResults.Clear();
+    }
 
     /// <summary>
     /// 初始化 Java 列表，但除非没有 Java，否则不进行检查。
     /// <remarks> TODO)) 更换为 Logger.cs 中的 logger </remarks>
     /// </summary>
-    public async Task JavaListInit()
+    public async Task JavaListInitAsync()
     {
         if (IsInitialized || _isBusy) return;
+        _isBusy = true;
         JavaList = [];
         try
         {
@@ -75,8 +141,11 @@ public sealed partial class JavaManager : IJavaManager
             if (JavaList.Count == 0)
             {
                 Console.WriteLine("[Java] 初始化未找到可用的 Java，将自动触发搜索");
-                JavaList = (await SearchJava()).ToList();
+                JavaList = (await SearchJavaAsync()).ToList();
                 Console.Write($"[Java] 搜索完成 ");
+                
+                // 验证找到的Java
+                await VerifyAllJavaRuntimes();
             }
             else
             {
@@ -84,12 +153,14 @@ public sealed partial class JavaManager : IJavaManager
             }
 
             IsInitialized = true;
+            _isBusy = false;
             TestOutput();
         }
         catch (Exception e)
         {
             Console.WriteLine("初始化 Java 失败");
             IsInitialized = false;
+            _isBusy = false;
             throw;
         }
     }
@@ -110,6 +181,10 @@ public sealed partial class JavaManager : IJavaManager
             JavaList.Add(entity);
             Console.WriteLine("已成功添加！");
             _defaultJavaRuntimes = null;
+            
+            // 验证新添加的Java
+            await GetJavaVerificationAsync(entity);
+            
             return (entity, false);
         }
 
@@ -126,16 +201,23 @@ public sealed partial class JavaManager : IJavaManager
         // 对于用户手动导入的 Java，保留并重新检查可用性
         var oldManualEntities = JavaList.FindAll(entity => entity.IsUserImport);
         JavaList.Clear();
-        var searchedEntities = (await SearchJava()).ToList();
+        var searchedEntities = (await SearchJavaAsync()).ToList();
         newEntities.AddRange(searchedEntities);
         foreach (var oldRuntime in oldManualEntities.Where(entity =>
                      searchedEntities.All(javaEntity => javaEntity.DirectoryPath != entity.DirectoryPath)))
-            if (await oldRuntime.RefreshInfo())
+            if (await oldRuntime.RefreshInfoAsync())
                 newEntities.Add(oldRuntime);
             else
                 Console.WriteLine($"[Java] 用户导入的 Java 已不可用，已自动剔除：{oldRuntime.DirectoryPath}");
         JavaList = newEntities;
         Console.WriteLine($"[Java] 刷新 Java 完成，现在共有 {JavaList.Count} 个Java");
+        
+        // 清除验证结果缓存
+        ClearVerificationCache();
+        
+        // 重新验证所有Java
+        await VerifyAllJavaRuntimes();
+        
         if (JavaList.Count == 0)
         {
             // TODO)) 提示用户未找到已安装的 java，是否自动下载合适版本，然后再下载
@@ -153,14 +235,54 @@ public sealed partial class JavaManager : IJavaManager
             {
                 var runtime = await JavaRuntime.CreateJavaEntityAsync(fetchedJavaDir, true);
                 JavaList.Add(runtime!);
+                
+                // 验证下载的Java
+                await GetJavaVerificationAsync(runtime!);
             }
         }
         _defaultJavaRuntimes = null;
         _isBusy = false;
         TestOutput();
     }
+    
+    /// <summary>
+    /// 验证所有的Java运行时
+    /// </summary>
+    private async Task VerifyAllJavaRuntimes()
+    {
+        if (JavaList.Count == 0) return;
+        
+        Console.WriteLine("[Java] 正在验证已发现的Java...");
+        
+        // 只验证前5个Java，避免过多验证操作
+        var javasToVerify = JavaList.Take(5);
+        var tasks = javasToVerify.Select(async java => 
+        {
+            try
+            {
+                var result = await JavaVerifier.VerifyJavaAsync(java.JavaExe);
+                _javaVerifyResults[java.DirectoryPath] = result;
+                
+                if (!result.IsGenuine)
+                {
+                    Console.WriteLine($"[Java] 警告: 位于 {java.DirectoryPath} 的Java可能不是正版: {result.FailReason}");
+                }
+                else
+                {
+                    Console.WriteLine($"[Java] 验证通过: {java.DirectoryPath} - {JavaVerifier.GetVendorFriendlyName(result.Vendor)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Java] 验证失败: {java.DirectoryPath} - {ex.Message}");
+            }
+        });
+        
+        await Task.WhenAll(tasks);
+        Console.WriteLine("[Java] Java验证完成");
+    }
 
-    private static async Task<IEnumerable<JavaRuntime>> SearchJava()
+    private static async Task<IEnumerable<JavaRuntime>> SearchJavaAsync()
     {
         return SystemUtils.Os switch
         {
@@ -183,6 +305,13 @@ public sealed partial class JavaManager : IJavaManager
             Console.WriteLine("发行商：" + javaEntity.Implementor);
             Console.WriteLine("版本：" + javaEntity.Version);
             Console.WriteLine("数字版本：" + javaEntity.SlugVersion);
+            
+            // 如果有验证结果，输出验证信息
+            if (_javaVerifyResults.TryGetValue(javaEntity.DirectoryPath, out var verifyResult))
+            {
+                Console.WriteLine($"验证结果：{(verifyResult.IsGenuine ? "正版" : "可疑")}");
+                Console.WriteLine($"厂商：{JavaVerifier.GetVendorFriendlyName(verifyResult.Vendor)}");
+            }
         }
     }
 }

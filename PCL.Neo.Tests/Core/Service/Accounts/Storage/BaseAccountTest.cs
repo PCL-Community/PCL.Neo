@@ -65,18 +65,18 @@ namespace PCL.Neo.Tests.Core.Service.Accounts.Storage
             {
                 Uuid = Guid.NewGuid()
                     .ToString(),
-                UserName = "YggdrasilUser789",
+                UserName      = "YggdrasilUser789",
                 McAccessToken = "yggdrasil_access_token",
-                ClientToken = "yggdrasil_client_token",
-                ServerUrl = "https://authserver.example.com",
-                Skins = [],
+                ClientToken   = "yggdrasil_client_token",
+                ServerUrl     = "https://authserver.example.com",
+                Skins         = [],
                 Capes =
                 [
                     new Cape("cape_ygg_id",
                         AccountState.Active,
                         new Uri("http://yggdrasil.example.com/cape1"),
                         "MyYggCape")
-                ]
+                ],
             };
             accounts.Add(yggdrasilAccount);
 

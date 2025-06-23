@@ -14,15 +14,15 @@ namespace PCL.Neo.Core.Service.Profiles
     /// </summary>
     public class ProfileService : IProfileService
     {
-        private readonly IAccountService _accountService;
-        private readonly string _profilesFilePath;
-        private readonly string _profileTemplatesFilePath;
+        private readonly IAccountService       _accountService;
+        private readonly string                _profilesFilePath;
+        private readonly string                _profileTemplatesFilePath;
         private readonly JsonSerializerOptions _jsonOptions;
-        
-        private List<GameProfile> _cachedProfiles = new();
-        private List<GameProfile> _cachedTemplates = new();
-        private bool _isLoaded = false;
-        
+
+        private List<GameProfile> _cachedProfiles  = [];
+        private List<GameProfile> _cachedTemplates = [];
+        private bool              _isLoaded        = false;
+
         public ProfileService(IAccountService accountService)
         {
             _accountService = accountService;
@@ -45,10 +45,10 @@ namespace PCL.Neo.Core.Service.Profiles
         private async Task EnsureLoadedAsync()
         {
             if (_isLoaded) return;
-            
-            await LoadProfilesAsync();
-            await LoadTemplatesAsync();
-            
+
+            await LoadProfilesAsync().ConfigureAwait(false);
+            await LoadTemplatesAsync().ConfigureAwait(false);
+
             _isLoaded = true;
         }
         
@@ -58,7 +58,7 @@ namespace PCL.Neo.Core.Service.Profiles
             if (!File.Exists(_profilesFilePath))
             {
                 _cachedProfiles = CreateDefaultProfiles();
-                await SaveProfilesAsync();
+                await SaveProfilesAsync().ConfigureAwait(false);
                 return;
             }
             
@@ -71,7 +71,7 @@ namespace PCL.Neo.Core.Service.Profiles
             {
                 Console.WriteLine($"加载档案文件失败: {ex.Message}");
                 _cachedProfiles = CreateDefaultProfiles();
-                await SaveProfilesAsync();
+                await SaveProfilesAsync().ConfigureAwait(false);
             }
         }
         
@@ -104,7 +104,7 @@ namespace PCL.Neo.Core.Service.Profiles
             try
             {
                 var json = JsonSerializer.Serialize(_cachedProfiles, _jsonOptions);
-                await File.WriteAllTextAsync(_profilesFilePath, json);
+                await File.WriteAllTextAsync(_profilesFilePath, json).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -119,7 +119,7 @@ namespace PCL.Neo.Core.Service.Profiles
             try
             {
                 var json = JsonSerializer.Serialize(_cachedTemplates, _jsonOptions);
-                await File.WriteAllTextAsync(_profileTemplatesFilePath, json);
+                await File.WriteAllTextAsync(_profileTemplatesFilePath, json).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -131,53 +131,55 @@ namespace PCL.Neo.Core.Service.Profiles
         // 创建默认档案
         private List<GameProfile> CreateDefaultProfiles()
         {
-            return new List<GameProfile>
-            {
+            return
+            [
                 new GameProfile
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "默认档案",
+                    Id          = Guid.NewGuid().ToString(),
+                    Name        = "默认档案",
                     Description = "PCL.Neo默认游戏档案",
                     GameVersion = "release"
                 }
-            };
+            ];
         }
         
         // 创建默认模板
         private List<GameProfile> CreateDefaultTemplates()
         {
-            return new List<GameProfile>
-            {
+            return
+            [
                 new GameProfile
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "原版最新版",
+                    Id          = Guid.NewGuid().ToString(),
+                    Name        = "原版最新版",
                     Description = "Minecraft最新稳定版",
                     GameVersion = "release",
-                    IsPreset = true
+                    IsPreset    = true
                 },
+
                 new GameProfile
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "Forge模组开发",
-                    Description = "适合Forge模组开发的环境配置",
-                    GameVersion = "1.20.1",
-                    GameType = "Forge",
-                    JavaMemoryMB = 4096,
-                    IsPreset = true
+                    Id           = Guid.NewGuid().ToString(),
+                    Name         = "Forge模组开发",
+                    Description  = "适合Forge模组开发的环境配置",
+                    GameVersion  = "1.20.1",
+                    GameType     = "Forge",
+                    JavaMemoryMb = 4096,
+                    IsPreset     = true
                 },
+
                 new GameProfile
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "高性能游戏",
-                    Description = "针对高性能电脑优化的配置",
-                    GameVersion = "release",
-                    JavaMemoryMB = 8192,
+                    Id             = Guid.NewGuid().ToString(),
+                    Name           = "高性能游戏",
+                    Description    = "针对高性能电脑优化的配置",
+                    GameVersion    = "release",
+                    JavaMemoryMb   = 8192,
                     GameResolution = "1920x1080",
-                    FullScreen = true,
-                    IsPreset = true
+                    FullScreen     = true,
+                    IsPreset       = true
                 }
-            };
+            ];
         }
         
         /// <inheritdoc />

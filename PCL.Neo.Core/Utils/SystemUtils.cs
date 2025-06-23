@@ -32,6 +32,7 @@ public static class SystemUtils
             RunningOs.Windows => "windows",
             RunningOs.Linux => "linux",
             RunningOs.MacOs => "macos",
+            RunningOs.Unknown => "unknow", // TODO: not konw is this right
             _ => throw new ArgumentOutOfRangeException(nameof(os), os, null)
         };
     }
@@ -87,7 +88,7 @@ public static class SystemUtils
     /// <summary>
     /// 获取系统最大可用内存 (MB)
     /// </summary>
-    public static int SystemMaxMemoryMB
+    public static int SystemMaxMemoryMb
     {
         get
         {

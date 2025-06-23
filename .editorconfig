@@ -9,18 +9,6 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# ReSharper properties
-resharper_csharp_int_align_comments = true
-resharper_int_align_assignments = true
-resharper_int_align_fields = true
-resharper_int_align_methods = true
-resharper_int_align_parameters = true
-resharper_int_align_properties = true
-resharper_int_align_variables = true
-resharper_place_accessorholder_attribute_on_same_line = false
-resharper_place_field_attribute_on_same_line = false
-resharper_treat_case_statement_with_break_as_simple = false
-
 # c# 文件
 [*.cs]
 

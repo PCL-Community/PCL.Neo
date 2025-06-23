@@ -45,7 +45,7 @@
             <SolidColorBrush x:Key="ColorBrushWhite">#ffffff</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushTransparent">#00ffffff</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushSemiTransparent">#01eaf2fe</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrushBackgroundTransparentSidebar">#d2ffffff</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrushBackgroundTransparentSidebar">#f1ffffff</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushToolTip">#e5ffffff</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushMsgBox">#fbfbfb</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushMsgBoxText">#5c5c5c</SolidColorBrush>

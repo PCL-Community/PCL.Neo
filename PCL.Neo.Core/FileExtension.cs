@@ -20,8 +20,10 @@ public static class FileExtension
     {
         using var sha1Provider = System.Security.Cryptography.SHA1.Create();
         fileStream.Position = 0; // 重置文件流位置
-        var computedHash = await sha1Provider.ComputeHashAsync(fileStream);
+
+        var computedHash       = await sha1Provider.ComputeHashAsync(fileStream).ConfigureAwait(false);
         var computedHashString = Convert.ToHexStringLower(computedHash);
+
         return string.Equals(computedHashString, sha1, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -33,12 +35,19 @@ public static class FileExtension
     [SupportedOSPlatform(nameof(OSPlatform.Linux))]
     public static void SetFileExecutableUnix(this string path)
     {
-        if (SystemUtils.Os is SystemUtils.RunningOs.Windows) return;
+        // check is system windows
+        if (SystemUtils.Os is SystemUtils.RunningOs.Windows)
+        {
+            return;
+        }
+
         try
         {
             var currentMode = File.GetUnixFileMode(path);
-            var newMode = currentMode | UnixFileMode.UserExecute | UnixFileMode.GroupExecute |
-                          UnixFileMode.OtherExecute;
+            var newMode = currentMode
+                          | UnixFileMode.UserExecute
+                          | UnixFileMode.GroupExecute
+                          | UnixFileMode.OtherExecute;
             File.SetUnixFileMode(path, newMode);
         }
         catch (Exception e)
@@ -54,14 +63,18 @@ public static class FileExtension
     /// <param name="inStream">被压缩的文件流</param>
     /// <param name="outputFile">输出文件路径</param>
     /// <returns>解压后的文件流</returns>
-    public static FileStream? DecompressLZMA(this FileStream inStream, string outputFile)
+    public static FileStream? DecompressLzma(this FileStream inStream, string outputFile)
     {
         inStream.Position = 0;
-        var outStream = new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite);
-        byte[] decodeProperties = new byte[5];
-        int n = inStream.Read(decodeProperties, 0, 5);
-        Debug.Assert(n == 5);
+
+        var outStream        = new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite);
+        var decodeProperties = new byte[5];
+        var debugPos         = inStream.Read(decodeProperties, 0, 5);
+
+        Debug.Assert(debugPos == 5);
+
         SevenZip.Compression.LZMA.Decoder decoder = new();
+
         decoder.SetDecoderProperties(decodeProperties);
         long outSize = 0;
         for (int i = 0; i < 8; i++)
@@ -77,8 +90,10 @@ public static class FileExtension
         }
 
         long compressedSize = inStream.Length - inStream.Position;
+
         decoder.Code(inStream, outStream, compressedSize, outSize, null);
         inStream.Close();
+
         return outStream;
     }
 }

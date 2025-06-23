@@ -21,8 +21,11 @@ public class YggdrasilAuthService : IYggdrasilAuthService
     };
 
     /// <inheritdoc />
-    public async Task<YggdrasilAccount> AuthenticateAsync(string serverUrl, string username, string password,
-        int                                                      timeoutMs = 10000)
+    public async Task<YggdrasilAccount> AuthenticateAsync(
+        string serverUrl,
+        string username,
+        string password,
+        int    timeoutMs = 10000)
     {
         if (string.IsNullOrEmpty(serverUrl))
             throw new ArgumentException("服务器URL不能为空", nameof(serverUrl));
@@ -188,7 +191,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
         if (string.IsNullOrEmpty(account.ClientToken))
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
 
-        var baseUrl         = account.ServerUrl.TrimEnd('/');
+        var baseUrl         = account.ServerUrl;
         var refreshEndpoint = $"{baseUrl}/authserver/refresh";
 
         this.LogYggdrasilInfo($"开始刷新外置登录令牌: {account.UserName} @ {account.ServerUrl}");
@@ -295,18 +298,26 @@ public class YggdrasilAuthService : IYggdrasilAuthService
     public async Task<bool> ValidateAsync(YggdrasilAccount account, int timeoutMs = 5000)
     {
         if (account == null)
+        {
             throw new ArgumentNullException(nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.ServerUrl))
+        {
             throw new ArgumentException("账户没有服务器URL信息", nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.McAccessToken))
+        {
             throw new ArgumentException("账户没有访问令牌", nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.ClientToken))
+        {
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
+        }
 
-        var baseUrl          = account.ServerUrl.TrimEnd('/');
+        var baseUrl          = account.ServerUrl;
         var validateEndpoint = $"{baseUrl}/authserver/validate";
 
         this.LogYggdrasilDebug($"验证外置登录令牌: {account.UserName} @ {account.ServerUrl}");
@@ -349,18 +360,26 @@ public class YggdrasilAuthService : IYggdrasilAuthService
     public async Task SignOutAsync(YggdrasilAccount account, int timeoutMs = 5000)
     {
         if (account == null)
+        {
             throw new ArgumentNullException(nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.ServerUrl))
+        {
             throw new ArgumentException("账户没有服务器URL信息", nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.McAccessToken))
+        {
             throw new ArgumentException("账户没有访问令牌", nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.ClientToken))
+        {
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
+        }
 
-        var baseUrl         = account.ServerUrl.TrimEnd('/');
+        var baseUrl         = account.ServerUrl;
         var signoutEndpoint = $"{baseUrl}/authserver/signout";
 
         this.LogYggdrasilInfo($"注销外置登录: {account.UserName} @ {account.ServerUrl}");
@@ -368,7 +387,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
         // 构建注销请求
         var signoutRequest = new
         {
-            username = account.UserName, password = string.Empty // 注销时需要提供密码，但我们没有存储密码，这里需要用户重新输入
+            username = account.UserName, password = string.Empty // TODO: 注销时需要提供密码，但我们没有存储密码，这里需要用户重新输入
         };
 
         // 由于需要密码，这里实际上不完整
@@ -380,18 +399,26 @@ public class YggdrasilAuthService : IYggdrasilAuthService
     public async Task InvalidateAsync(YggdrasilAccount account, int timeoutMs = 5000)
     {
         if (account == null)
+        {
             throw new ArgumentNullException(nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.ServerUrl))
+        {
             throw new ArgumentException("账户没有服务器URL信息", nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.McAccessToken))
+        {
             throw new ArgumentException("账户没有访问令牌", nameof(account));
+        }
 
         if (string.IsNullOrEmpty(account.ClientToken))
+        {
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
+        }
 
-        var baseUrl            = account.ServerUrl.TrimEnd('/');
+        var baseUrl            = account.ServerUrl;
         var invalidateEndpoint = $"{baseUrl}/authserver/invalidate";
 
         this.LogYggdrasilInfo($"使外置登录令牌失效: {account.UserName} @ {account.ServerUrl}");

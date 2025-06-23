@@ -29,22 +29,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.2.8" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.8" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.2.8" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.8" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.8" />
+    <PackageReference Include="Avalonia" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.1" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.2.8">
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.1">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.2.7.1" />
     <PackageReference Include="DotNet.Bundle" Version="0.9.13" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageReference Include="LZMA-SDK" Version="22.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.5" />
       <PackageReference Include="System.Reactive" Version="6.0.1" />
       <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
+      <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.0.10" />
   </ItemGroup>
 
   <ItemGroup>
@@ -71,6 +73,10 @@
       <DependentUpon>DownloadModView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\MainPage\" />
+    <Folder Include="Views\SubPage\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PCL.Neo.Core\PCL.Neo.Core.csproj" />

@@ -46,12 +46,12 @@ namespace PCL.Neo.Core.Service.Accounts
     /// <summary>
     /// 为账户服务提供日志记录扩展方法
     /// </summary>
-    public static class ILoggingExtensions
+    public static class LoggingExtensions
     {
         private const string AccountServicePrefix = "[账户服务] ";
-        private const string AuthServicePrefix = "[认证服务] ";
-        private const string YggdrasilPrefix = "[外置登录] ";
-        private const string MicrosoftPrefix = "[微软认证] ";
+        private const string AuthServicePrefix    = "[认证服务] ";
+        private const string YggdrasilPrefix      = "[外置登录] ";
+        private const string MicrosoftPrefix      = "[微软认证] ";
         private const string ProfileServicePrefix = "[档案服务] ";
 
         /// <summary>

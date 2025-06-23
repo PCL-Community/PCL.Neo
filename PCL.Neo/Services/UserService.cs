@@ -4,6 +4,7 @@ using PCL.Neo.Core.Service.Accounts.Storage;
 using PCL.Neo.Models.User;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace PCL.Neo.Services
     public class UserService
     {
         private readonly IAccountService _accountService;
-        private readonly List<UserInfo> _users = new();
+        private readonly List<UserInfo>  _users = [];
 
         /// <summary>
         /// 当前用户改变事件
@@ -30,7 +31,7 @@ namespace PCL.Neo.Services
         /// <summary>
         /// 用户列表
         /// </summary>
-        public IReadOnlyList<UserInfo> Users => _users;
+        public IReadOnlyList<UserInfo> Users => _users.AsReadOnly();
 
         public UserService(IAccountService accountService)
         {
@@ -75,14 +76,7 @@ namespace PCL.Neo.Services
 
         private void OnCurrentAccountChanged(BaseAccount? account)
         {
-            if (account != null)
-            {
-                CurrentUser = _users.FirstOrDefault(u => u.Uuid == account.Uuid);
-            }
-            else
-            {
-                CurrentUser = null;
-            }
+            CurrentUser = account != null ? _users.FirstOrDefault(u => u.Uuid == account.Uuid) : null;
 
             CurrentUserChanged?.Invoke(CurrentUser);
         }
@@ -92,9 +86,7 @@ namespace PCL.Neo.Services
         /// </summary>
         public async Task SwitchUser(UserInfo user)
         {
-            if (user == null) return;
-
-            await _accountService.SetSelectedAccountAsync(user.Account.Uuid);
+            await _accountService.SetSelectedAccountAsync(user.Account.Uuid).ConfigureAwait(false);
             // 更新当前用户
             CurrentUser = user;
             CurrentUserChanged?.Invoke(CurrentUser);

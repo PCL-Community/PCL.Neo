@@ -135,22 +135,22 @@ public partial class LogViewModel : ViewModelBase
     
     private async Task ExportLogsToFileAsync(string filePath)
     {
-        try 
+        try
         {
             // 尝试使用GameLauncher的导出功能
-            await _gameLauncher.ExportGameLogsAsync(filePath);
+            _gameLauncher.ExportGameLogsAsync(filePath);
         }
-        catch 
+        catch
         {
             // 如果失败，则使用当前视图模型中的日志条目导出
             var logs = new StringBuilder();
-            
+
             // 添加标题和时间
             logs.AppendLine("==================== PCL.Neo 游戏日志 ====================");
             logs.AppendLine($"导出时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             logs.AppendLine("=======================================================");
             logs.AppendLine();
-            
+
             // 添加日志条目
             foreach (var entry in LogEntries)
             {
@@ -160,7 +160,7 @@ public partial class LogViewModel : ViewModelBase
                     logs.AppendLine($"{entry.Timestamp:yyyy-MM-dd HH:mm:ss} {prefix} {entry.Message}");
                 }
             }
-            
+
             await File.WriteAllTextAsync(filePath, logs.ToString());
         }
     }

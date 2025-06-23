@@ -1,21 +1,24 @@
-using System;
-using System.Collections.Generic;
-
 namespace PCL.Neo.Core.Service.Accounts.Storage
 {
-    public record YggdrasilAccount : BaseAccount
+    public record YggdrasilAccount() : BaseAccount(UserTypeConstants.Yggdrasil)
     {
         // Yggdrasil账户特有属性
-        public required string McAccessToken { get; init; }
-        public required string ClientToken { get; init; }
-        public required string ServerUrl { get; init; }
-        public string ServerName { get; init; } = string.Empty;
-        public DateTime? ExpiresAt { get; init; }
-        
-        public YggdrasilAccount() : base(UserTypeConstants.Yggdrasil)
+        public required  string McAccessToken { get; init; }
+        public required  string ClientToken   { get; init; }
+        private readonly string _serverUrl;
+
+        public required string ServerUrl
         {
+            get => _serverUrl;
+            init
+            {
+                _serverUrl = value.TrimEnd('/');
+            }
         }
-        
+
+        public string    ServerName { get; init; } = string.Empty;
+        public DateTime? ExpiresAt  { get; init; }
+
         // 检查账户是否过期
         public override bool IsExpired()
         {

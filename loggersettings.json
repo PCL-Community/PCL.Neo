@@ -1,0 +1,49 @@
+{
+  "Serilog": {
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            {
+              "Name": "Console",
+              "Args": {
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            {
+              "Name": "File",
+              "Args": {
+                "path": "logs/log-.log",
+                "rollingInterval": "Day",
+                "retainedFileCountLimit": 10,
+                "rollOnFileSizeLimit": true,
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                "shared": true,
+                "fileSizeLimitBytes": 10485760,
+                "buffered": false,
+                "flushToDiskInterval": "0.00:00:05"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "Enrich": [
+      "FromLogContext",
+      "WithMachineName",
+      "WithThreadId"
+    ],
+    "Properties": {
+      "Application": "PCL.Neo"
+    }
+  }
+}

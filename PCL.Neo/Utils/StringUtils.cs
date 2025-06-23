@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace PCL.Neo.Utils;
 
@@ -212,54 +210,5 @@ public static class StringUtils
         if (str.StartsWith("{")) str = "{}" + str;
         return str.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("'", "&apos;")
             .Replace("\"", "&quot;").Replace("\r\n", "&#xa;");
-    }
-
-    /// <summary>
-    /// 搜索字符串中的所有正则匹配项。
-    /// </summary>
-    public static List<string> RegexSearch(string str, string regex, RegexOptions options = RegexOptions.None)
-    {
-        try
-        {
-            return Regex.Matches(str, regex, options).Select(m => m.Value).ToList();
-        }
-        catch (Exception)
-        {
-            // TODO Log(ex, "正则匹配全部项出错");
-            return [];
-        }
-    }
-
-    /// <summary>
-    /// 获取字符串中的第一个正则匹配项，若无匹配则返回 Nothing。
-    /// </summary>
-    public static string? RegexSeek(string str, string regex, RegexOptions options = RegexOptions.None)
-    {
-        try
-        {
-            var maech = Regex.Match(str, regex, options);
-            return maech.Success ? maech.Value : null;
-        }
-        catch (Exception)
-        {
-            //TODO Log(ex, "正则匹配第一项出错");
-            return null;
-        }
-    }
-    
-    /// <summary>
-    /// 检查字符串是否匹配某正则模式。
-    /// </summary>
-    public static bool RegexCheck(string str, string regex, RegexOptions options = RegexOptions.None)
-    {
-        try
-        {
-            return Regex.IsMatch(str, regex, options);
-        }
-        catch (Exception)
-        {
-            //TODO Log(ex, "正则检查出错");
-            return false;
-        }
     }
 }

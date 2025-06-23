@@ -11,7 +11,7 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft
         public async Task Test()
         {
             JavaManager javaInstance = new();
-            await javaInstance.JavaListInit();
+            await javaInstance.JavaListInitAsync();
             var runtimes = javaInstance.DefaultJavaRuntimes;
             Console.WriteLine("runtimes:" + runtimes.Java8?.Version + ' ' + runtimes.Java17?.Version + ' ' + runtimes.Java21?.Version);
         }

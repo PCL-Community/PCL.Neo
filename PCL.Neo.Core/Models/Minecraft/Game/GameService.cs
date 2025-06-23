@@ -128,7 +128,7 @@ public class GameService
         foreach (var asset in assetsIndex.Objects)
         {
             var hash = asset.Value.Hash;
-            var prefix = hash.Substring(0, 2);
+            var prefix = hash[..2];
             var assetObjectDir = Path.Combine(objectsDir, prefix);
             var assetObjectPath = Path.Combine(assetObjectDir, hash);
 
@@ -210,7 +210,7 @@ public class GameService
     /// <summary>
     /// 评估规则是否适用于当前系统
     /// </summary>
-    private bool EvaluateRules(List<Rule> rules)
+    private static bool EvaluateRules(List<Rule> rules)
     {
         bool allow = true;
 
@@ -246,7 +246,7 @@ public class GameService
     /// <summary>
     /// 删除版本
     /// </summary>
-    public async Task DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
+    public static async Task DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
     {
         string directory = minecraftDirectory ?? DefaultGameDirectory;
         string versionDir = Path.Combine(directory, "versions", versionId);

@@ -48,7 +48,7 @@ public partial class MinecraftInfo
 
         var response = await Net.SendHttpRequestAsync<OAuthData.ResponseData.MinecraftAccessTokenResponse>(
             HttpMethod.Post,
-            OAuthData.RequestUrls.MinecraftAccessTokenUri,
+            OAuthData.RequestUrls.MinecraftAccessTokenUri.Value,
             jsonContent);
 
         return response.AccessToken;
@@ -58,7 +58,7 @@ public partial class MinecraftInfo
     {
         var response = await Net.SendHttpRequestAsync<OAuthData.ResponseData.CheckHaveGameResponse>(
             HttpMethod.Get,
-            OAuthData.RequestUrls.CheckHasMc,
+            OAuthData.RequestUrls.CheckHasMc.Value,
             bearerToken: accessToken);
 
         return response.Items.Any(it => !string.IsNullOrEmpty(it.Signature));
@@ -68,6 +68,6 @@ public partial class MinecraftInfo
         GetPlayerUuidAsync(string accessToken) =>
         await Net.SendHttpRequestAsync<OAuthData.ResponseData.MinecraftPlayerUuidResponse>(
             HttpMethod.Get,
-            OAuthData.RequestUrls.PlayerUuidUri,
+            OAuthData.RequestUrls.PlayerUuidUri.Value,
             bearerToken: accessToken);
 }

@@ -121,7 +121,7 @@ public sealed partial class JavaManager
                     {
                         await using var lzmaFs = await DownloadReceipt.FastDownloadAsStreamAsync(urlLzma,
                             localFilePath + ".lzma", sha1Lzma, cancellationToken);
-                        await using var fs = lzmaFs.DecompressLZMA(localFilePath);
+                        await using var fs = lzmaFs.DecompressLzma(localFilePath);
                         if (fs is null)
                         {
                             Console.WriteLine("outStream 为空");

@@ -1,3 +1,4 @@
+using PCL.Neo.Core.Service.Accounts.OAuthService.Exceptions;
 using PCL.Neo.Core.Utils;
 using System.Diagnostics.CodeAnalysis;
 
@@ -9,14 +10,14 @@ public static class OAuth
 {
     public static async Task<OAuthData.ResponseData.AccessTokenResponse> RefreshTokenAsync(string refreshToken)
     {
-        var authTokenData = new Dictionary<string, string>(OAuthData.FormUrlReqData.RefreshTokenData)
+        var authTokenData = new Dictionary<string, string>(OAuthData.FormUrlReqData.RefreshTokenData.Value)
         {
             ["refresh_token"] = refreshToken
         };
 
         return await Net.SendHttpRequestAsync<OAuthData.ResponseData.AccessTokenResponse>(
             HttpMethod.Post,
-            OAuthData.RequestUrls.TokenUri,
+            OAuthData.RequestUrls.TokenUri.Value,
             new FormUrlEncodedContent(authTokenData));
     }
 
@@ -31,7 +32,7 @@ public static class OAuth
 
         return await Net.SendHttpRequestAsync<OAuthData.ResponseData.XboxResponse>(
             HttpMethod.Post,
-            OAuthData.RequestUrls.XboxLiveAuth,
+            OAuthData.RequestUrls.XboxLiveAuth.Value,
             jsonContent);
     }
 
@@ -43,7 +44,7 @@ public static class OAuth
 
         var response = await Net.SendHttpRequestAsync<OAuthData.ResponseData.XboxResponse>(
             HttpMethod.Post,
-            OAuthData.RequestUrls.XstsAuth,
+            OAuthData.RequestUrls.XstsAuth.Value,
             jsonContent);
 
         return response.Token;
@@ -58,7 +59,7 @@ public static class OAuth
 
         if (!await MinecraftInfo.IsHaveGameAsync(minecraftAccessToken))
         {
-            throw new MinecraftInfo.NotHaveGameException("Logged-in user does not own any game!");
+            throw new NotHaveGameException("Logged-in user does not own any game!");
         }
 
         return minecraftAccessToken;

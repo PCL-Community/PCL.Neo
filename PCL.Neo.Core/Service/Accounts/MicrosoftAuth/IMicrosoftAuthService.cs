@@ -1,5 +1,5 @@
 using PCL.Neo.Core.Service.Accounts.Exceptions;
-using PCL.Neo.Core.Service.Accounts.OAuthService;
+using PCL.Neo.Core.Service.Accounts.OAuthService.Exceptions;
 using PCL.Neo.Core.Utils;
 
 namespace PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
@@ -32,7 +32,7 @@ public interface IMicrosoftAuthService
     /// </summary>
     /// <param name="accessToken">通行Token</param>
     /// <returns>玩家信息</returns>
-    Task<Result<string, MinecraftInfo.NotHaveGameException>> GetUserMinecraftAccessTokenAsync(string accessToken);
+    Task<Result<string, NotHaveGameException>> GetUserMinecraftAccessTokenAsync(string accessToken);
 
     /// <summary>
     /// 获取玩家的账户信息
