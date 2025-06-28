@@ -1,12 +1,13 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data.GaJvArguments;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
+namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
 
 /// <summary>
 /// Converts a JSON string or array of strings to a List.
 /// </summary>
+/// <exception cref="JsonException">Throw if the JSON is not an array or if deserialization fails.</exception>
 public class StringOrStringListConverter : JsonConverter<List<string>>
 {
     /// <inheritdoc/>
@@ -16,7 +17,7 @@ public class StringOrStringListConverter : JsonConverter<List<string>>
         {
             JsonTokenType.String => [reader.GetString()!],
             JsonTokenType.StartArray => JsonSerializer.Deserialize<List<string>>(ref reader, options) ??
-                                        new List<string>(),
+                                        [],
             _ => throw new JsonException("Expected JSON string or array of strings.")
         };
     }
@@ -33,6 +34,7 @@ public class StringOrStringListConverter : JsonConverter<List<string>>
 /// <summary>
 /// Converts a JSON element to either StringArgument or RuledArgument.
 /// </summary>
+/// <exception cref="JsonException">Throw if the JSON is not an array or if deserialization fails.</exception>
 public class ArgumentElementConverter : JsonConverter<ArgumentElement>
 {
     /// <inheritdoc/>
@@ -48,6 +50,7 @@ public class ArgumentElementConverter : JsonConverter<ArgumentElement>
     }
 
     /// <inheritdoc/>
+    /// <exception cref="JsonException">Throw if the JSON is not an array or if deserialization fails.</exception>
     public override void Write(Utf8JsonWriter writer, ArgumentElement value, JsonSerializerOptions options)
     {
         switch (value)
@@ -68,23 +71,25 @@ public class ArgumentElementConverter : JsonConverter<ArgumentElement>
 /// <summary>
 /// Converts a JSON array to a List, using ArgumentElementConverter for each item.
 /// </summary>
+/// <exception cref="JsonException">Throw if the JSON is not an array or if deserialization fails.</exception>
 public class ListOfArgumentElementConverter : JsonConverter<List<ArgumentElement>>
 {
     /// <inheritdoc/>
     public override List<ArgumentElement> Read(ref Utf8JsonReader reader, Type typeToConvert,
         JsonSerializerOptions options)
     {
+        var elementConverter = (JsonConverter<ArgumentElement>)options.GetConverter(typeof(ArgumentElement));
+
         if (reader.TokenType != JsonTokenType.StartArray)
         {
-            throw new JsonException("Expected start of JSON array for argument list.");
+            var singleElement = elementConverter.Read(ref reader, typeof(ArgumentElement), options);
+            return singleElement != null ? [singleElement] : [];
         }
 
         var list = new List<ArgumentElement>();
         // Get an instance of the ArgumentElementConverter.
         // It's safer to ask options for it in case it's registered with specific settings,
         // or fall back to a new instance.
-        var elementConverter = (ArgumentElementConverter?)options.GetConverter(typeof(ArgumentElement))
-                               ?? new ArgumentElementConverter();
 
         while (reader.Read())
         {
@@ -93,7 +98,12 @@ public class ListOfArgumentElementConverter : JsonConverter<List<ArgumentElement
                 return list;
             }
 
-            list.Add(elementConverter.Read(ref reader, typeof(ArgumentElement), options));
+            var element = elementConverter.Read(ref reader, typeof(ArgumentElement), options);
+
+            if (element != null)
+            {
+                list.Add(element);
+            }
         }
 
         throw new JsonException("Unexpected end of JSON while reading argument list.");

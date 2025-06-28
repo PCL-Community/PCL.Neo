@@ -1,6 +1,4 @@
-using System;
-
-namespace PCL.Neo.ViewModels.Game;
+namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 /// <summary>
 /// 常规游戏版本的版本号，后续可能会拓展到模组版本

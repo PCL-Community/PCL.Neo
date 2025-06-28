@@ -1,6 +1,6 @@
 using PCL.Neo.Core.Download;
 using PCL.Neo.Core.Models.Minecraft.Game;
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils;
 using System.Text.Json;
@@ -236,7 +236,7 @@ public class GameService(IJavaManager javaManager) : IGameService
             }
 
             if (matches)
-                allow = rule.Allow;
+                allow = rule.Action == "allow";
         }
 
         return allow;

@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Utils;
 
 namespace PCL.Neo.Core.Models.Minecraft.Java;
@@ -149,7 +149,7 @@ public sealed partial class JavaManager : IJavaManager
             _isBusy = false;
             TestOutput();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Console.WriteLine("初始化 Java 失败");
             IsInitialized = false;

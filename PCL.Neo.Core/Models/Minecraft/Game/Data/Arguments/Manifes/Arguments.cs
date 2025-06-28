@@ -1,7 +1,6 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data.GaJvArguments;
 using System.Text.Json.Serialization;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
+namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 
 public sealed record Arguments
 {

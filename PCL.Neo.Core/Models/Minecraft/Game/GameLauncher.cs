@@ -1,4 +1,6 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Utils;
 using PCL.Neo.Core.Utils.Logger;
 using System.Diagnostics;
@@ -147,7 +149,9 @@ public class GameLauncher
 
         var commandArgs = BuildLaunchCommand(profile, versionInfo);
 
-        await File.WriteAllTextAsync(Path.Combine(gameDir, "launch_args.txt"), string.Join(' ', commandArgs));
+#if DEBUG
+        await File.WriteAllTextAsync(Path.Combine(gameDir, "launch_args.txt"), string.Join('\n', commandArgs));
+#endif
 
         var process = new Process
         {
@@ -253,7 +257,7 @@ public class GameLauncher
     /// 构建游戏启动命令
     /// </summary>
     /// <exception cref="DirectoryNotFoundException">Throw if directory not found.</exception>
-    private static List<string> BuildLaunchCommand(
+    private static ICollection<string> BuildLaunchCommand(
         GameProfile profile,
         VersionManifes versionManifes) // TODO: refactor this method
     {
@@ -390,14 +394,7 @@ public class GameLauncher
         }
 
         // 窗口大小
-        if (!profile.Options.FullScreen)
-        {
-            args.Add("--width");
-            args.Add(profile.Options.WindowWidth.ToString());
-            args.Add("--height");
-            args.Add(profile.Options.WindowHeight.ToString());
-        }
-        else
+        if (profile.Options.FullScreen)
         {
             args.Add("--fullscreen");
         }
