@@ -1,8 +1,4 @@
-<<<<<<< HEAD:PCL.Neo.Core/Models/Minecraft/Game/Data/GameEntity.cs
 using System.Diagnostics;
-=======
-using System.Text.Json.Serialization;
->>>>>>> 17b9b08 (refactor(game service): refactor game service. big commit!):PCL.Neo.Core/Models/Minecraft/Game/Data/GameInfo.cs
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 

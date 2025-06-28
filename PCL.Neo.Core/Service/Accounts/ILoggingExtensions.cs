@@ -1,14 +1,14 @@
-namespace PCL.Neo.Core.Service.Accounts;
-
-/// <summary>
-/// 日志级别
-/// </summary>
-public enum LogLevel
+namespace PCL.Neo.Core.Service.Accounts
 {
     /// <summary>
-    /// 不提示，只记录日志。
+    /// 日志级别
     /// </summary>
-    Normal = 0,
+    public enum LogLevel
+    {
+        /// <summary>
+        /// 不提示，只记录日志。
+        /// </summary>
+        Normal = 0,
 
     /// <summary>
     /// 只提示开发者。
