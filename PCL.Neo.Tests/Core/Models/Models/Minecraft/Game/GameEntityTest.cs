@@ -32,7 +32,16 @@ namespace PCL.Neo.Tests.Core.Models.Models.Minecraft.Game
                 IsOfflineMode = true,
 
                 // 添加额外的JVM参数
-                ExtraJvmArgs = [],
+                ExtraJvmArgs =
+                [
+                    "-Dfile.encoding=COMPAT",
+                    "-Dstderr.encoding=UTF-8",
+                    "-Dstdout.encoding=UTF-8",
+                    "-Djdk.lang.Process.allowAmbiguousCommands=true",
+                    "-Dfml.ignoreInvalidMinecraftCertificates=True",
+                    "-Dfml.ignorePatchDiscrepancies=True",
+                    "-Doolloo.jlw.tmpdir=\"C:\\Users\\WhiteCAT\\Desktop\\Games\\PCL2\\PCL\""
+                ],
 
                 // 添加额外的游戏参数
                 ExtraGameArgs = [],

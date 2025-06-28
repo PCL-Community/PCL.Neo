@@ -5,16 +5,18 @@ using System.Threading.Tasks;
 
 namespace PCL.Neo.Tests.Models.Configuration;
 
-[TestFixture]
-[TestOf(typeof(ConfigurationManager))]
-public class ConfigurationManagerTest
+namespace PCL.Neo.Tests.Core.Models.Models.Configuration
 {
-    [ConfigurationInfo("testConfig.json")]
-    public class TestConfiguration
+    [TestFixture]
+    [TestOf(typeof(ConfigurationManager))]
+    public class ConfigurationManagerTest
     {
-        public string Name { get; set; } = "TestConfig";
-        public int Value { get; set; } = 42;
-    }
+        [ConfigurationInfo("testConfig.json")]
+        public class TestConfiguration
+        {
+            public string Name { get; set; } = "TestConfig";
+            public int Value { get; set; } = 42;
+        }
 
 
     [Test]
