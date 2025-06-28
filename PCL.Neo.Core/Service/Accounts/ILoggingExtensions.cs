@@ -1,5 +1,3 @@
-using System;
-
 namespace PCL.Neo.Core.Service.Accounts
 {
     /// <summary>

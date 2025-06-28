@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Utils;
 
 namespace PCL.Neo.Core.Models.Minecraft.Java;
@@ -138,7 +138,7 @@ public sealed partial class JavaManager : IJavaManager
                 Console.WriteLine("[Java] 初始化未找到可用的 Java，将自动触发搜索");
                 JavaList = (await SearchJavaAsync()).ToList();
                 Console.Write($"[Java] 搜索完成 ");
-                
+
                 // 验证找到的Java
                 await VerifyAllJavaRuntimes();
             }
@@ -151,7 +151,7 @@ public sealed partial class JavaManager : IJavaManager
             _isBusy = false;
             TestOutput();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Console.WriteLine("初始化 Java 失败");
             IsInitialized = false;

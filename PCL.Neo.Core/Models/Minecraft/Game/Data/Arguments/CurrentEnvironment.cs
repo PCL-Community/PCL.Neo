@@ -1,20 +1,18 @@
 using System.Runtime.InteropServices;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game.Data
+namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments
 {
     public record CurrentEnvironment(
         string OsName,
         string OsVersion,
-        string OsArch,
-        FeatureCunstomKv ActiveFeatures)
+        string OsArch)
     {
         public string OsName { get; } = OsName;
         public string OsVersion { get; } = OsVersion;
         public string OsArch { get; } = OsArch;
-        public FeatureCunstomKv ActiveFeatures { get; } = ActiveFeatures;
 
         // Factory method to get current system environment
-        public static CurrentEnvironment GetCurrent(FeatureCunstomKv activeFeatures)
+        public static CurrentEnvironment GetCurrent()
         {
             string osName = Const.Os switch
             {
@@ -34,7 +32,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data
                 _ => RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant()
             };
 
-            return new CurrentEnvironment(osName, Environment.OSVersion.Version.ToString(), osArch, activeFeatures);
+            return new CurrentEnvironment(osName, Environment.OSVersion.Version.ToString(), osArch);
         }
     }
 }

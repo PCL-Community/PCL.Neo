@@ -1,5 +1,4 @@
 using PCL.Neo.Core.Service.Accounts.Storage;
-using PCL.Neo.Core.Service.Accounts.IYggdrasilAuth.Data;
 
 namespace PCL.Neo.Core.Service.Accounts.IYggdrasilAuth
 {
