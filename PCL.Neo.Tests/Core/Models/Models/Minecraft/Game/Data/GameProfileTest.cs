@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace PCL.Neo.Tests.Models.Minecraft.Game.Data
+namespace PCL.Neo.Tests.Core.Models.Models.Minecraft.Game.Data
 {
     [TestFixture]
     [TestOf(typeof(GameProfile))]
