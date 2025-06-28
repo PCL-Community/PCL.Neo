@@ -44,9 +44,16 @@ public static class ArgumentProcessor
         return true;
     }
 
-    private static bool CheckFeaturesRule(Dictionary<string, JsonElement> ruleFeature, ArgumentsAdapter adapter) =>
-        adapter.Features.FeatureCustomValue.TryGetValue(ruleFeature.First().Key, out bool value) &&
-        value; // only use the first feature
+    private static bool CheckFeaturesRule(Dictionary<string, JsonElement>? ruleFeature, ArgumentsAdapter adapter)
+    {
+        if (ruleFeature is null)
+        {
+            return true;
+        }
+
+        return adapter.Features.FeatureCustomValue.TryGetValue(ruleFeature.First().Key, out bool value) && value;
+        // only use the first feature
+    }
 
     private static bool AreRulesSatisfied(List<Rule> rulesList, ArgumentsAdapter adapter)
     {
@@ -61,11 +68,11 @@ public static class ArgumentProcessor
         {
             if (string.IsNullOrEmpty(rule.Action)) continue; // Skip malformed rules
 
-            bool osConditionsMet = CheckOsRule(rule.Os);
-            bool featureConditionsMet = rule.Features == null || CheckFeaturesRule(rule.Features.Feature, adapter);
+            var osConditionsMet = CheckOsRule(rule.Os);
+            var featureConditionsMet = rule.Features == null || CheckFeaturesRule(rule.Features.Feature, adapter);
 
             // For a rule to apply its conditions, ALL its specified conditions (OS and Feature) must be met.
-            bool ruleCriteriaMet = osConditionsMet && featureConditionsMet;
+            var ruleCriteriaMet = osConditionsMet && featureConditionsMet;
 
             if (rule.Action.Equals("allow", StringComparison.OrdinalIgnoreCase))
             {
@@ -95,6 +102,22 @@ public static class ArgumentProcessor
         return overallPermission;
     }
 
+    private static bool ReplaceArgument(string argument, ArgumentsAdapter adapter, out string result)
+    {
+        if (argument[0] == '$')
+        {
+            result = adapter.Arguments.TryGetValue(argument, out var value)
+                ? value
+                : throw new ArgumentException($"Argument not found in Arguments: {argument}");
+            return true;
+        }
+        else
+        {
+            result = argument;
+            return false;
+        }
+    }
+
     /// <summary>
     /// Process customed properties.
     /// </summary>
@@ -104,25 +127,24 @@ public static class ArgumentProcessor
     /// <exception cref="ArgumentException">Throw if arguments was not found.</exception>
     private static string ArgumentStrProcesser(string argument, ArgumentsAdapter adapter)
     {
-        if (argument[0] == '$')
+        var jvmArg = argument.Split('=');
+        if (jvmArg.Length == 2)
         {
-            return adapter.Arguments.TryGetValue(argument, out var value)
-                ? value
-                : throw new ArgumentException($"Argument not found in Arguments: {argument}");
+            var argKey = jvmArg[1];
+
+            return ReplaceArgument(argKey, adapter, out string result) ? argument.Replace(jvmArg[1], result) : argument;
         }
         else
         {
-            return argument;
+            return ReplaceArgument(argument, adapter, out string result) ? result : argument;
         }
     }
 
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<ArgumentElement> argumentElements,
-        GameProfile profile)
+        ArgumentsAdapter adapter)
     {
         Collection<string> finalArgs = [];
-
-        var adapter = new ArgumentsAdapter(profile.Information, profile.Options);
 
         foreach (var element in argumentElements)
         {
@@ -148,9 +170,8 @@ public static class ArgumentProcessor
 
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<string> argumentElements,
-        GameProfile profile)
+        ArgumentsAdapter adapter)
     {
-        var adapter = new ArgumentsAdapter(profile.Information, profile.Options);
         Collection<string> finalArgs = [];
 
         foreach (var item in argumentElements)

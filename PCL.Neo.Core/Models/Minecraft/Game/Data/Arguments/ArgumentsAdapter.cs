@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
 
-internal class ArgumentsAdapter
+public class ArgumentsAdapter
 {
     public Dictionary<string, string> Arguments { get; } = new();
     public CustomFeatures Features { get; } = new();
@@ -34,7 +34,7 @@ internal class ArgumentsAdapter
         return versionManifes;
     }
 
-    public ArgumentsAdapter(GameInfo info, LaunchOptions options)
+    public ArgumentsAdapter(GameInfo info, LaunchOptions options, Dictionary<string, string> extraOptions)
     {
         ArgumentNullException.ThrowIfNull(info);
         ArgumentNullException.ThrowIfNull(options);
@@ -50,11 +50,12 @@ internal class ArgumentsAdapter
         Arguments.Add("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy");
         Arguments.Add("${auth_uuid}", options.UUID);
         Arguments.Add("${auth_access_token}", options.AccessToken);
-        Arguments.Add("${clientid}", string.Empty); // TODO: unknow arguments
-        Arguments.Add("${auth_xuid}", string.Empty); // TODO: unknow arguments
+        Arguments.Add("${clientid}", "unkonw"); // TODO: unknow arguments
+        Arguments.Add("${auth_xuid}", "unknow"); // TODO: unknow arguments
         Arguments.Add("${user_type}", options.IsOfflineMode ? "legacy" : "msa");
         Arguments.Add("${version_type}", versionManifes.Type);
         Arguments.Add("${classpath}", info.ClassPath);
+        Arguments.AddRange(extraOptions);
 
         // window arguemnts
         if (options.FullScreen == false)

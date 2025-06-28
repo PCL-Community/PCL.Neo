@@ -18,10 +18,6 @@ public class GameEntity : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        if (GameProcess is not null && !GameProcess.HasExited)
-        {
-            GameProcess.Kill();
-            GameProcess.Dispose();
-        }
+        GameProcess?.Dispose();
     }
 }
