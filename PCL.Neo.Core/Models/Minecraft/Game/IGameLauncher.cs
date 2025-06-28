@@ -11,7 +11,7 @@ public interface IGameLauncher
     /// <summary>
     /// 启动游戏
     /// </summary>
-    /// <param name="options">启动参数</param>
+    /// <param name="profile">启动参数</param>
     /// <returns>游戏进程</returns>
     Task<Process> LaunchAsync(GameProfile profile);
 }

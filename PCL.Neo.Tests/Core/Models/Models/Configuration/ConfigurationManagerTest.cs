@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace PCL.Neo.Tests.Models.Configuration
+namespace PCL.Neo.Tests.Core.Models.Models.Configuration
 {
     [TestFixture]
     [TestOf(typeof(ConfigurationManager))]

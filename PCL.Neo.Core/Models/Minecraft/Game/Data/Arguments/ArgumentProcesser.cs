@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
 
-public static class ArgumentProcessor
+public static partial class ArgumentProcessor
 {
     private static readonly CurrentEnvironment Environment = CurrentEnvironment.GetCurrent();
 
@@ -102,14 +102,13 @@ public static class ArgumentProcessor
         return overallPermission;
     }
 
-    private static bool ReplaceArgument(string argument, ArgumentsAdapter adapter, out string result)
+    private static bool TryGetTargetArgument(string argument, ArgumentsAdapter adapter, out string? result)
     {
         if (argument[0] == '$')
         {
-            result = adapter.Arguments.TryGetValue(argument, out var value)
-                ? value
-                : throw new ArgumentException($"Argument not found in Arguments: {argument}");
-            return true;
+            var isSuccess = adapter.Arguments.TryGetValue(argument, out var value);
+            result = value;
+            return isSuccess;
         }
         else
         {
@@ -127,17 +126,22 @@ public static class ArgumentProcessor
     /// <exception cref="ArgumentException">Throw if arguments was not found.</exception>
     private static string ArgumentStrProcesser(string argument, ArgumentsAdapter adapter)
     {
-        var jvmArg = argument.Split('=');
-        if (jvmArg.Length == 2)
+        var regexMatchResult = ArgumentMatchPattern().Matches(argument);
+        if (regexMatchResult.Count > 0)
         {
-            var argKey = jvmArg[1];
+            var replacePattern = regexMatchResult.Select(it => it.Value).ToArray().Distinct();
+            foreach (var it in replacePattern)
+            {
+                if (!TryGetTargetArgument(it, adapter, out var value))
+                {
+                    throw new ArgumentException($"Argument '{it}' not found in Arguments");
+                }
 
-            return ReplaceArgument(argKey, adapter, out string result) ? argument.Replace(jvmArg[1], result) : argument;
+                argument = argument.Replace(it, value);
+            }
         }
-        else
-        {
-            return ReplaceArgument(argument, adapter, out string result) ? result : argument;
-        }
+
+        return argument;
     }
 
     public static ICollection<string> GetEffectiveArguments(
@@ -193,4 +197,7 @@ public static class ArgumentProcessor
 
         return finalArgs;
     }
+
+    [GeneratedRegex(@"\$\{[^}]+\}")]
+    private static partial Regex ArgumentMatchPattern();
 }

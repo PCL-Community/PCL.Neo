@@ -55,9 +55,10 @@ public class ArgumentsAdapter
         Arguments.Add("${user_type}", options.IsOfflineMode ? "legacy" : "msa");
         Arguments.Add("${version_type}", versionManifes.Type);
         Arguments.Add("${classpath}", info.ClassPath);
+        Arguments.Add("${classpath_separator}", Const.Os == Const.RunningOs.Windows ? ";" : ":");
         Arguments.AddRange(extraOptions);
 
-        // window arguemnts
+        // window arguments
         if (options.FullScreen == false)
         {
             Features.HasCustomResolution = true;
