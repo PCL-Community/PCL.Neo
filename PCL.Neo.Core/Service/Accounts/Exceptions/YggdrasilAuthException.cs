@@ -1,4 +1,3 @@
-using System;
 using System.Net;
 
 namespace PCL.Neo.Core.Service.Accounts.Exceptions

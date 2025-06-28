@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace PCL.Neo.Core.Service.Accounts.Storage
 {
     public record MsaAccount : BaseAccount

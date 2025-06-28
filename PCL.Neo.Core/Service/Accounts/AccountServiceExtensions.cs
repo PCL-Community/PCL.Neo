@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PCL.Neo.Core.Service.Accounts.Exceptions;
 using PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 using PCL.Neo.Core.Service.Profiles;
-using System;
 
 namespace PCL.Neo.Core.Service.Accounts
 {

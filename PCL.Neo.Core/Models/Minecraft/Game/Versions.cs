@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using System.Text.Json;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game
@@ -118,8 +118,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
                 try
                 {
                     var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
-                    var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
 
                     if (versionInfo != null)
                     {

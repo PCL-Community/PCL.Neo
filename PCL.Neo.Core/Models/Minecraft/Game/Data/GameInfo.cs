@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 public record GameInfo
@@ -13,6 +11,11 @@ public record GameInfo
     /// Gane version path.
     /// </summary>
     public required string RootDirectory { get; set; }
+
+    /// <summary>
+    /// Game class path.
+    /// </summary>
+    public string ClassPath { get; set; } = string.Empty;
 
     /// <summary>
     /// The loader type.

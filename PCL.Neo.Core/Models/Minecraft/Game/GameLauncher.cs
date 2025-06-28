@@ -1,4 +1,6 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Utils;
 using PCL.Neo.Core.Utils.Logger;
 using System.Collections.ObjectModel;
@@ -34,7 +36,9 @@ public class GameLauncher : IGameLauncher
 
         var commandArgs = BuildLaunchCommand(profile, versionInfo);
 
-        await File.WriteAllTextAsync(Path.Combine(gameDir, "launch_args.txt"), string.Join(' ', commandArgs));
+#if DEBUG
+        await File.WriteAllTextAsync(Path.Combine(gameDir, "launch_args.txt"), string.Join('\n', commandArgs));
+#endif
 
         var process = new Process
         {
@@ -125,15 +129,15 @@ public class GameLauncher : IGameLauncher
     /// 构建游戏启动命令
     /// </summary>
     /// <exception cref="DirectoryNotFoundException">Throw if directory not found.</exception>
-    private static List<string> BuildLaunchCommand(
+    private static ICollection<string> BuildLaunchCommand(
         GameProfile profile,
         VersionManifes versionManifes) // TODO: refactor this method
     {
-        List<string> args =
+        Collection<string> args =
         [
             $"-Xmx{profile.Options.MaxMemoryMB}M",
             $"-Xms{profile.Options.MinMemoryMB}M", // 标准JVM参数
-            "-XX:+UseG1GC",
+            "-XX:+UseG1GC", // give up default arguments
             "-XX:+ParallelRefProcEnabled",
             "-XX:MaxGCPauseMillis=200",
             "-XX:+UnlockExperimentalVMOptions",
@@ -162,17 +166,19 @@ public class GameLauncher : IGameLauncher
             throw new DirectoryNotFoundException($"Native directory not found: {nativesDir}");
         }
 
-        args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}");
-        args.Add("-Dminecraft.launcher.brand=PCL.Neo");
+        args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}"); // add natives path
+        args.Add("-Dminecraft.launcher.brand=PCL.Neo"); // set launcher name
         args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
 
         // 类路径
         args.Add("-cp");
         ArgumentNullException.ThrowIfNull(versionManifes.Libraries); // ensure libraries is not null
-        var libCommand = BuildLibrariesCommand(versionManifes.Libraries);
+        var libCommand = BuildLibrariesCommand(versionManifes.Libraries, profile.Information.RootDirectory);
 
         libCommand.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
-        args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', libCommand));
+        var classPath = string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':',
+            libCommand.Where(it => !string.IsNullOrEmpty(it)));
+        profile.Information.ClassPath = classPath;
 
         // 客户端类型
         string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
@@ -190,44 +196,20 @@ public class GameLauncher : IGameLauncher
         if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments)) // old version
         {
             // 旧版格式
-            string gameArgs = versionManifes.MinecraftArguments
-                .Replace("${auth_player_name}", profile.Options.Username)
-                .Replace("${version_name}", profile.Options.VersionId)
-                .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
-                .Replace("${assets_root}",
-                    DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
-                .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
-                .Replace("${auth_uuid}", profile.Options.UUID)
-                .Replace("${auth_access_token}", profile.Options.AccessToken)
-                .Replace("${user_type}", clientType)
-                .Replace("${version_type}", versionManifes.Type);
-            args.AddRange(gameArgs.Split(' '));
+            var argumetns = versionManifes.MinecraftArguments.Split(' ');
+            var bestArgu = ArgumentProcessor.GetEffectiveArguments(argumetns, profile);
+
+            args.AddRange(bestArgu);
         }
-        else if (versionManifes.Arguments != null) // new version
+        else if (versionManifes.Arguments is not null) // new version
         {
+            var gameBestArgu = ArgumentProcessor.GetEffectiveArguments(versionManifes.Arguments.Game, profile);
+            var jvmBestArgu = ArgumentProcessor.GetEffectiveArguments(versionManifes.Arguments.Jvm, profile);
 
-
-            //foreach (var arg in versionManifes.Arguments.Game)
-            //{
-            //    if (arg is string strArg)
-            //    {
-            //        string processedArg = strArg
-            //            .Replace("${auth_player_name}", profile.Options.Username)
-            //            .Replace("${version_name}", profile.Options.VersionId)
-            //            .Replace("${game_directory}", DirectoryUtil.QuotePath(profile.Information.GameDirectory))
-            //            .Replace("${assets_root}",
-            //                DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")))
-            //            .Replace("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy")
-            //            .Replace("${auth_uuid}", profile.Options.UUID)
-            //            .Replace("${auth_access_token}", profile.Options.AccessToken)
-            //            .Replace("${user_type}", clientType)
-            //            .Replace("${version_type}", versionManifes.Type);
-
-            //        args.Add(processedArg);
-            //    }
-            //}
+            args.AddRange(gameBestArgu);
+            args.AddRange(jvmBestArgu);
         }
-        else
+        else // default arguments
         {
             args.Add("--username");
             args.Add(profile.Options.Username);
@@ -250,14 +232,7 @@ public class GameLauncher : IGameLauncher
         }
 
         // 窗口大小
-        if (!profile.Options.FullScreen)
-        {
-            args.Add("--width");
-            args.Add(profile.Options.WindowWidth.ToString());
-            args.Add("--height");
-            args.Add(profile.Options.WindowHeight.ToString());
-        }
-        else
+        if (profile.Options.FullScreen)
         {
             args.Add("--fullscreen");
         }
@@ -272,7 +247,7 @@ public class GameLauncher : IGameLauncher
         return args;
     }
 
-    public static bool ShouldAddLibraryBasedOnRules(List<Rule>? rulesList, string currentOsName)
+    private static bool ShouldAddLibraryBasedOnRules(List<Rule>? rulesList, string currentOsName)
     {
         // "os属性可能不存在，这个时候默认直接添加" (Interpreted as: if rulesList is null or empty, default add)
         if (rulesList is null || rulesList.Count == 0)
@@ -345,7 +320,7 @@ public class GameLauncher : IGameLauncher
         return permitAdd;
     }
 
-    private static ICollection<string> BuildLibrariesCommand(IEnumerable<Library> lib)
+    private static ICollection<string> BuildLibrariesCommand(IEnumerable<Library> lib, string micreaftDir)
     {
         ICollection<string> commands = [];
 
@@ -356,14 +331,18 @@ public class GameLauncher : IGameLauncher
         {
             if (ShouldAddLibraryBasedOnRules(library.Rules, currentOs))
             {
-                commands.Add(library.Downloads?.Artifact?.Path!);
+                var realLibPath =
+                    Path.Combine(micreaftDir, "libraries",
+                        library.Downloads?.Artifact?.Path!); // TODO: handle fabric and other loads specific libraries
+                commands.Add(realLibPath);
                 if (library.Downloads?.Classifiers is not null)
                 {
                     var classifier = library.Downloads.Classifiers
                         .FirstOrDefault(c => c.Key.Equals(classifiersNatives, StringComparison.OrdinalIgnoreCase));
-                    if (classifier.Value != null)
+                    if (classifier.Value is not null)
                     {
-                        commands.Add(classifier.Value.Path);
+                        var realNaPath = Path.Combine(micreaftDir, "libraries", classifier.Value.Path);
+                        commands.Add(realNaPath);
                     }
                 }
             }

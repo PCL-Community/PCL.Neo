@@ -7,11 +7,7 @@ public class GameEntity : IDisposable
 {
     public required GameProfile Profile { get; init; }
     private IGameLauncher Launcher { get; } = new GameLauncher();
-    private Process GameProcess { get; set; }
-
-    public GameEntity()
-    {
-    }
+    private Process? GameProcess { get; set; }
 
     public async Task<bool> StartGame()
     {
@@ -22,11 +18,10 @@ public class GameEntity : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        if (!GameProcess.HasExited)
+        if (GameProcess is not null && !GameProcess.HasExited)
         {
             GameProcess.Kill();
+            GameProcess.Dispose();
         }
-
-        GameProcess.Dispose();
     }
 }

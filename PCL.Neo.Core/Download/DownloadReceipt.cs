@@ -1,7 +1,4 @@
 using PCL.Neo.Core.Utils;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Security.Cryptography;
 
 namespace PCL.Neo.Core.Download;
 

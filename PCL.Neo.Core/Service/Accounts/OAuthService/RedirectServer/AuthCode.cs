@@ -1,5 +1,3 @@
-using PCL.Neo.Core.Service.Accounts;
-
 namespace PCL.Neo.Core.Service.Accounts.OAuthService.RedirectServer;
 
 public class AuthCode : IObserver<RedirectAuthCode>

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace PCL.Neo.Core.Models.Configuration.Data;
 
 /// <summary>
