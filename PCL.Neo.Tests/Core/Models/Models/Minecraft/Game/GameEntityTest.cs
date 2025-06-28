@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PCL.Neo.Tests.Models.Minecraft.Game
+namespace PCL.Neo.Tests.Core.Models.Models.Minecraft.Game
 {
     [TestFixture]
     [TestOf(typeof(GameEntity))]
@@ -17,10 +17,10 @@ namespace PCL.Neo.Tests.Models.Minecraft.Game
         {
             var launchOptions = new LaunchOptions
             {
-                VersionId = "1.20.4-Fabric 0.15.11-[轻量通用]",
+                VersionId = "Create",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
-                        @"C:\Users\WhiteCAT\Documents\Java\zulu17.48.15-ca-jdk17.0.10-win_x64\bin\"),
+                        @"C:\Users\WhiteCAT\Documents\Java\zulu17.58.21-ca-jdk17.0.15-win_x64\bin"),
                 MaxMemoryMB = 4096,
                 MinMemoryMB = 512, // 最小内存设为最大内存的1/4，但不低于512MB
                 Username = "Steve",
@@ -64,7 +64,7 @@ namespace PCL.Neo.Tests.Models.Minecraft.Game
                     Information = new GameInfo()
                     {
                         GameDirectory =
-                            @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
+                            @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
                         RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
                     }
                 }

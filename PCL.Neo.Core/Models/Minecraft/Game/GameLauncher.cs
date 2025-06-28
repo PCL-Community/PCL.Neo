@@ -13,13 +13,22 @@ public class GameLauncher : IGameLauncher
     /// <summary>
     /// 启动游戏
     /// </summary>
+    /// <exception cref="DirectoryNotFoundException">Throw if game directory not found.</exception>
     public async Task<Process> LaunchAsync(GameProfile profile)
     {
         string mcDir = profile.Information.RootDirectory;
         string gameDir = profile.Information.GameDirectory;
 
-        Directory.CreateDirectory(mcDir);
-        Directory.CreateDirectory(gameDir);
+        // ensure directories exist
+        if (Directory.Exists(mcDir) == false)
+        {
+            throw new DirectoryNotFoundException($"Minecraft root directory not found. {mcDir}");
+        }
+
+        if (Directory.Exists(gameDir) == false)
+        {
+            throw new DirectoryNotFoundException($"Minecraft game directory not found. {gameDir}");
+        }
 
 
         var javaRuntime = profile.Options.RunnerJava;
@@ -259,22 +268,16 @@ public class GameLauncher : IGameLauncher
     {
         var args = new Collection<string>();
 
-
-        // 类路径
-        ArgumentNullException.ThrowIfNull(versionManifes.Libraries); // ensure libraries is not null
-        var libCommand = BuildLibrariesCommand(versionManifes.Libraries, profile.Information.RootDirectory);
-
-        libCommand.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
-        var classPath = string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':',
-            libCommand.Where(it => !string.IsNullOrEmpty(it)));
-        profile.Information.ClassPath = classPath;
-
         // lo4j logger configuration file
         if (versionManifes.Logging is not null)
         {
             var loggingInfo = versionManifes.Logging.Client;
-            args.Add(
-                $"-Dlog4j.configurationFile={DirectoryUtil.ForceQuotePath(Path.Combine(profile.Information.GameDirectory, loggingInfo.File.Id))}");
+            var logPath = Path.Combine(profile.Information.GameDirectory, loggingInfo.File.Id);
+
+            if (File.Exists(logPath))
+            {
+                args.Add($"-Dlog4j.configurationFile={DirectoryUtil.ForceQuotePath(logPath)}");
+            }
         }
 
         // 添加额外的JVM参数
@@ -363,12 +366,14 @@ public class GameLauncher : IGameLauncher
         GameProfile profile,
         VersionManifes versionManifes) // TODO: refactor this method
     {
-        // 设置natives路径
-        string nativesDir = Path.Combine(
+        // set natives path and libPath
+        var nativesDir = Path.Combine(
             profile.Information.RootDirectory,
             "versions",
             profile.Options.VersionId,
             "natives");
+
+        var libPath = Path.Combine(profile.Information.RootDirectory, "libraries");
 
         if (!Directory.Exists(nativesDir)) // ensure natives directory exists
         {
@@ -380,8 +385,22 @@ public class GameLauncher : IGameLauncher
         {
             { "${natives_directory}", DirectoryUtil.ForceQuotePath(nativesDir) },
             { "${launcher_name}", "PCL.Neo" },
-            { "${launcher_version}", "1.0.0" } // TODO: load version from configuration
+            { "${launcher_version}", "1.0.0" }, // TODO: load version from configuration
+            { "${library_directory}", libPath }
         };
+
+        // 类路径
+        ArgumentNullException.ThrowIfNull(versionManifes.Libraries); // ensure libraries is not null
+        var libCommand = BuildLibrariesCommand(versionManifes.Libraries, profile.Information.RootDirectory);
+
+        // add version jar to classpath
+        libCommand.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
+        var classPath = string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':',
+            libCommand.Where(it => !string.IsNullOrEmpty(it)));
+
+        // set class path
+        profile.Information.ClassPath = classPath;
+
         var adapter = new ArgumentsAdapter(profile.Information, profile.Options, extraOptions);
 
         Collection<string> args =
@@ -398,8 +417,11 @@ public class GameLauncher : IGameLauncher
 
         // java wrapper
         // use temp java wrapper from pcl2
+#warning "Replace JavaWrapper path with Neo's"
+        var javaWrapperPath = @"C:\Users\WhiteCAT\Desktop\java_launch_wrapper-1.4.3.jar";
+
         args.Add("-jar");
-        args.Add(@"C:\Users\WhiteCAT\Desktop\Games\PCL2\PCL\JavaWrapper.jar"); // TODO: replace with neo's path
+        args.Add(javaWrapperPath); // TODO: replace with neo's path
 
         // 主类
         args.Add(versionManifes.MainClass);

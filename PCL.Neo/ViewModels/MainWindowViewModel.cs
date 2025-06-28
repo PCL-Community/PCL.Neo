@@ -234,10 +234,10 @@ namespace PCL.Neo.ViewModels
         {
             var launchOptions = new LaunchOptions
             {
-                VersionId = "1.20.4-Fabric 0.15.11-[轻量通用]",
+                VersionId = "Create",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
-                        @"C:\Users\WhiteCAT\Documents\Java\jdk-17\bin"),
+                        @"C:\Users\WhiteCAT\Documents\Java\zulu17.58.21-ca-jdk17.0.15-win_x64\bin"),
                 MaxMemoryMB = 4096,
                 MinMemoryMB = 512, // 最小内存设为最大内存的1/4，但不低于512MB
                 Username = "Steve",
@@ -251,14 +251,12 @@ namespace PCL.Neo.ViewModels
                 // 添加额外的JVM参数
                 ExtraJvmArgs =
                 [
-                    "-Dfile.encoding=UTF-8",
+                    "-Dfile.encoding=COMPAT",
                     "-Dstderr.encoding=UTF-8",
                     "-Dstdout.encoding=UTF-8",
                     "-Djdk.lang.Process.allowAmbiguousCommands=true",
                     "-Dfml.ignoreInvalidMinecraftCertificates=True",
                     "-Dfml.ignorePatchDiscrepancies=True",
-                    "-Dlog4j2.formatMsgNoLookups=true",
-                    "-XX:-OmitStackTraceInFastThrow",
                     "-Doolloo.jlw.tmpdir=\"C:\\Users\\WhiteCAT\\Desktop\\Games\\PCL2\\PCL\""
                 ],
 
@@ -282,9 +280,9 @@ namespace PCL.Neo.ViewModels
                     Options = launchOptions,
                     Information = new GameInfo()
                     {
-                        RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
                         GameDirectory =
-                            @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
+                            @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
+                        RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
                     }
                 }
             };
