@@ -5,6 +5,7 @@ using System.Text.Json;
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
 
 public class ArgumentsAdapter
+public class ArgumentsAdapter
 {
     public Dictionary<string, string> Arguments { get; } = new();
     public CustomFeatures Features { get; } = new();
@@ -35,6 +36,7 @@ public class ArgumentsAdapter
     }
 
     public ArgumentsAdapter(GameInfo info, LaunchOptions options, Dictionary<string, string> extraOptions)
+    public ArgumentsAdapter(GameInfo info, LaunchOptions options, Dictionary<string, string> extraOptions)
     {
         ArgumentNullException.ThrowIfNull(info);
         ArgumentNullException.ThrowIfNull(options);
@@ -50,12 +52,11 @@ public class ArgumentsAdapter
         Arguments.Add("${assets_index_name}", versionManifes.AssetIndex?.Id ?? "legacy");
         Arguments.Add("${auth_uuid}", options.UUID);
         Arguments.Add("${auth_access_token}", options.AccessToken);
-        Arguments.Add("${clientid}", string.Empty); // TODO: unknow arguments
-        Arguments.Add("${auth_xuid}", string.Empty); // TODO: unknow arguments
+        Arguments.Add("${clientid}", "unkonw"); // TODO: unknow arguments
+        Arguments.Add("${auth_xuid}", "unknow"); // TODO: unknow arguments
         Arguments.Add("${user_type}", options.IsOfflineMode ? "legacy" : "msa");
         Arguments.Add("${version_type}", versionManifes.Type);
         Arguments.Add("${classpath}", info.ClassPath);
-        Arguments.Add("${classpath_separator}", Const.Os == Const.RunningOs.Windows ? ";" : ":");
         Arguments.AddRange(extraOptions);
 
         // window arguments

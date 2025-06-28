@@ -137,7 +137,7 @@ public class GameLauncher
 
         var javaRuntime = profile.Options.RunnerJava;
 
-        var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
+        var versionInfo = await Versions.GetVersionByIdAsync(gameDir, profile.Options.VersionId)
                           ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
         if (!string.IsNullOrEmpty(versionInfo.InheritsFrom))
@@ -161,7 +161,7 @@ public class GameLauncher
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = false,
+                CreateNoWindow = true,
                 WorkingDirectory = gameDir
             }
         };
@@ -253,53 +253,142 @@ public class GameLauncher
         return merged;
     }
 
-    /// <summary>
-    /// 构建游戏启动命令
-    /// </summary>
-    /// <exception cref="DirectoryNotFoundException">Throw if directory not found.</exception>
-    private static ICollection<string> BuildLaunchCommand(
-        GameProfile profile,
-        VersionManifes versionManifes) // TODO: refactor this method
+    private static bool ShouldAddLibraryBasedOnRules(List<Rule>? rulesList, string currentOsName)
     {
-        Collection<string> args =
-        [
-            $"-Xmx{profile.Options.MaxMemoryMB}M",
-            $"-Xms{profile.Options.MinMemoryMB}M", // 标准JVM参数
-            "-XX:+UseG1GC", // give up default arguments
-            "-XX:+ParallelRefProcEnabled",
-            "-XX:MaxGCPauseMillis=200",
-            "-XX:+UnlockExperimentalVMOptions",
-            "-XX:+DisableExplicitGC",
-            "-XX:+AlwaysPreTouch",
-            "-XX:MetaspaceSize=256m",
-            "-XX:MaxMetaspaceSize=256m",
-            "-XX:G1NewSizePercent=30",
-            "-XX:G1MaxNewSizePercent=40",
-            "-XX:G1HeapRegionSize=8M",
-            "-XX:G1ReservePercent=20",
-            "-XX:G1HeapWastePercent=5",
-            "-XX:G1MixedGCCountTarget=4",
-            "-XX:InitiatingHeapOccupancyPercent=15",
-            "-XX:G1MixedGCLiveThresholdPercent=90",
-            "-XX:G1RSetUpdatingPauseTimePercent=5",
-            "-XX:SurvivorRatio=32",
-            "-XX:+PerfDisableSharedMem",
-            "-XX:MaxTenuringThreshold=1"
-        ];
-
-        // 设置natives路径
-        string nativesDir = Path.Combine(profile.Information.RootDirectory, "versions", "natives");
-        if (!Directory.Exists(nativesDir))
+        // "os属性可能不存在，这个时候默认直接添加" (Interpreted as: if rulesList is null or empty, default add)
+        if (rulesList is null || rulesList.Count == 0)
         {
-            throw new DirectoryNotFoundException($"Native directory not found: {nativesDir}");
+            return true;
         }
 
-        args.Add($"-Djava.library.path={DirectoryUtil.QuotePath(nativesDir)}"); // add natives path
-        args.Add("-Dminecraft.launcher.brand=PCL.Neo"); // set launcher name
-        args.Add($"-Dminecraft.launcher.version=1.0.0"); // TODO: load version from configuration
+        bool permitAdd = true; // Default to allow, unless a rule explicitly disallows
+
+        foreach (var rule in rulesList)
+        {
+            if (string.IsNullOrEmpty(rule.Action)) // Basic validation
+            {
+                continue; // Skip malformed rules
+            }
+
+            string action = rule.Action; // Ensure action comparison is case-insensitive
+            string? ruleOsName = null;
+
+            if (rule.Os != null && !string.IsNullOrEmpty(rule.Os.Name))
+            {
+                ruleOsName = rule.Os.Name; // Ensure OS name comparison is case-insensitive
+            }
+
+            if (action == "allow")
+            {
+                if (ruleOsName == null)
+                {
+                    // Rule: { "action": "allow" } (os attribute missing)
+                    // "os属性可能不存在，这个时候默认直接添加" - this rule tends to allow.
+                    // It doesn't change permitAdd from true to false.
+                }
+                else
+                {
+                    // Rule: { "action": "allow", "os": { "name": "specific_os" } }
+                    // "如果action为allow，那就说明除os.name指定的系统外其余的全都不添加"
+                    // This means: only allow if current_os == specific_os; otherwise, this rule causes disallow.
+                    if (currentOsName != ruleOsName)
+                    {
+                        permitAdd = false;
+                        break; // This rule explicitly states not to add for the current OS.
+                    }
+                }
+            }
+            else if (action == "disallow")
+            {
+                if (ruleOsName == null)
+                {
+                    // Rule: { "action": "disallow" } (os attribute missing)
+                    // This means disallow for all systems.
+                    permitAdd = false;
+                    break; // This rule explicitly states not to add.
+                }
+                else
+                {
+                    // Rule: { "action": "disallow", "os": { "name": "specific_os" } }
+                    // "如果action为disallow，那就说明除os.name指定的系统外其余的全都添加"
+                    // This means: disallow only if current_os == specific_os; otherwise, this rule allows.
+                    if (currentOsName == ruleOsName)
+                    {
+                        permitAdd = false;
+                        break; // This rule explicitly states not to add for the current OS.
+                    }
+                }
+            }
+            // else: If action is not "allow" or "disallow", or action is missing, ignore the rule.
+            //       You might want to add logging or error handling for unknown actions.
+        }
+
+        return permitAdd;
+    }
+
+    private static string GetLibraryPath(Library library, string rootDir)
+    {
+        if (library.Downloads is not null)
+        {
+            var artifactPath = library.Downloads.Artifact?.Path;
+
+            ArgumentNullException.ThrowIfNull(artifactPath);
+
+            return Path.Combine(rootDir, "libraries", artifactPath);
+        }
+        else
+        {
+            var nameSpilited = library.Name.Split(':');
+
+            if (nameSpilited.Length != 3) // ensure library name is valid
+            {
+                throw new ArgumentException("Library name is invalid.", nameof(nameSpilited));
+            }
+
+            var prePath = nameSpilited[0].Replace('.', Const.Sep); // e.g. org/ow2/asm
+            var finalPath = $"{prePath}{Const.Sep}{nameSpilited[1]}{Const.Sep}{nameSpilited[2]}";
+
+            return Path.Combine(rootDir, "libraries", finalPath, $"{nameSpilited[1]}-{nameSpilited[2]}.jar");
+        }
+    }
+
+    private static ICollection<string> BuildLibrariesCommand(IEnumerable<Library> lib, string minecraftDir)
+    {
+        ICollection<string> commands = [];
+
+        var currentOs = Const.Os.ToString().ToLowerInvariant();
+        var classifiersNatives = "natives" + currentOs;
+
+        foreach (Library library in lib)
+        {
+            if (ShouldAddLibraryBasedOnRules(library.Rules, currentOs))
+            {
+                var realLibPath = GetLibraryPath(library, minecraftDir);
+                commands.Add(realLibPath);
+
+                if (library.Downloads?.Classifiers is not null)
+                {
+                    var classifier = library.Downloads.Classifiers
+                        .FirstOrDefault(c => c.Key.Equals(classifiersNatives, StringComparison.OrdinalIgnoreCase));
+                    if (classifier.Value is not null)
+                    {
+                        var realNaPath = Path.Combine(minecraftDir, "libraries", classifier.Value.Path);
+                        commands.Add(realNaPath);
+                    }
+                }
+            }
+        }
+
+        return commands;
+    }
+
+    private static ICollection<string> GenerateJvmArguments(GameProfile profile, VersionManifes versionManifes,
+        ArgumentsAdapter adapter)
+    {
+        var args = new Collection<string>();
+
 
         // 类路径
-        args.Add("-cp");
         ArgumentNullException.ThrowIfNull(versionManifes.Libraries); // ensure libraries is not null
         var libCommand = BuildLibrariesCommand(versionManifes.Libraries, profile.Information.RootDirectory);
 
@@ -308,8 +397,13 @@ public class GameLauncher
             libCommand.Where(it => !string.IsNullOrEmpty(it)));
         profile.Information.ClassPath = classPath;
 
-        // 客户端类型
-        string clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
+        // lo4j logger configuration file
+        if (versionManifes.Logging is not null)
+        {
+            var loggingInfo = versionManifes.Logging.Client;
+            args.Add(
+                $"-Dlog4j.configurationFile={DirectoryUtil.ForceQuotePath(Path.Combine(profile.Information.GameDirectory, loggingInfo.File.Id))}");
+        }
 
         // 添加额外的JVM参数
         if (profile.Options.ExtraJvmArgs is { Count: > 0 })
@@ -317,28 +411,43 @@ public class GameLauncher
             args.AddRange(profile.Options.ExtraJvmArgs);
         }
 
-        // 主类
-        args.Add(versionManifes.MainClass);
+        if (versionManifes.Arguments is not null)
+        {
+            var jvmBestArgu =
+                ArgumentProcessor.GetEffectiveArguments(versionManifes.Arguments.Jvm, adapter);
 
-        // 游戏参数
+            args.AddRange(jvmBestArgu);
+        }
+
+        return args;
+    }
+
+    private static ICollection<string> GenerateGameArguments(GameProfile profile, VersionManifes versionManifes,
+        ArgumentsAdapter adapter)
+    {
+        var args = new Collection<string>();
+
         if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments)) // old version
         {
             // 旧版格式
             var argumetns = versionManifes.MinecraftArguments.Split(' ');
-            var bestArgu = ArgumentProcessor.GetEffectiveArguments(argumetns, profile);
+            var bestArgu = ArgumentProcessor.GetEffectiveArguments(argumetns, adapter);
+
 
             args.AddRange(bestArgu);
         }
         else if (versionManifes.Arguments is not null) // new version
         {
-            var gameBestArgu = ArgumentProcessor.GetEffectiveArguments(versionManifes.Arguments.Game, profile);
-            var jvmBestArgu = ArgumentProcessor.GetEffectiveArguments(versionManifes.Arguments.Jvm, profile);
+            var gameBestArgu =
+                ArgumentProcessor.GetEffectiveArguments(versionManifes.Arguments.Game, adapter);
 
             args.AddRange(gameBestArgu);
-            args.AddRange(jvmBestArgu);
         }
         else // default arguments
         {
+            // 客户端类型
+            var clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
+
             args.Add("--username");
             args.Add(profile.Options.Username);
             args.Add("--version");
@@ -371,7 +480,6 @@ public class GameLauncher
             args.AddRange(profile.Options.ExtraGameArgs);
         }
 
-        // 拼接所有参数
         return args;
     }
 
@@ -383,182 +491,50 @@ public class GameLauncher
         GameProfile profile,
         VersionManifes versionManifes) // TODO: refactor this method
     {
-        var args = new List<string>();
-
-
-        // JVM参数
-        args.Add($"-Xmx{options.MaxMemoryMB}M");
-        args.Add($"-Xms{options.MinMemoryMB}M");
-
-
-        // 标准JVM参数
-        args.Add("-XX:+UseG1GC");
-        args.Add("-XX:+ParallelRefProcEnabled");
-        args.Add("-XX:MaxGCPauseMillis=200");
-        args.Add("-XX:+UnlockExperimentalVMOptions");
-        args.Add("-XX:+DisableExplicitGC");
-        args.Add("-XX:+AlwaysPreTouch");
-        args.Add("-XX:G1NewSizePercent=30");
-        args.Add("-XX:G1MaxNewSizePercent=40");
-        args.Add("-XX:G1HeapRegionSize=8M");
-        args.Add("-XX:G1ReservePercent=20");
-        args.Add("-XX:G1HeapWastePercent=5");
-        args.Add("-XX:G1MixedGCCountTarget=4");
-        args.Add("-XX:InitiatingHeapOccupancyPercent=15");
-        args.Add("-XX:G1MixedGCLiveThresholdPercent=90");
-        args.Add("-XX:G1RSetUpdatingPauseTimePercent=5");
-        args.Add("-XX:SurvivorRatio=32");
-        args.Add("-XX:+PerfDisableSharedMem");
-        args.Add("-XX:MaxTenuringThreshold=1");
-
-
         // 设置natives路径
-        var nativesDir = Path.Combine(options.MinecraftRootDirectory, "versions", options.VersionId, "natives");
-        EnsureDirectoryExists(nativesDir);
+        string nativesDir = Path.Combine(
+            profile.Information.RootDirectory,
+            "versions",
+            profile.Options.VersionId,
+            "natives");
 
-        args.Add($"-Djava.library.path={QuotePath(nativesDir)}");
-        args.Add("-Dminecraft.launcher.brand=PCL.Neo");
-        args.Add("-Dminecraft.launcher.version=1.0.0");
-
-
-        // 类路径
-        args.Add("-cp");
-        List<string> classpaths = new();
-        if (versionInfo.Libraries != null)
+        if (!Directory.Exists(nativesDir)) // ensure natives directory exists
         {
-            foreach (var library in versionInfo.Libraries)
-            {
-                if (library.Downloads?.Artifact?.Path != null)
-                {
-                    classpaths.Add(Path.Combine(options.MinecraftRootDirectory, "libraries",
-                        library.Downloads!.Artifact!.Path!)); // 不用担心空格问题
-                }
-            }
+            Directory.CreateDirectory(nativesDir);
         }
 
-        classpaths.Add(Path.Combine(profile.Information.GameDirectory, $"{profile.Options.VersionId}.jar"));
-        args.Add(string.Join(SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':', classpaths));
 
-        // 客户端类型
-        var clientType = options.IsOfflineMode ? "legacy" : "mojang";
-
-        // 添加额外的JVM参数
-        if (options.ExtraJvmArgs != null && options.ExtraJvmArgs.Count > 0)
+        var extraOptions = new Dictionary<string, string>
         {
-            args.AddRange(profile.Options.ExtraJvmArgs);
-        }
+            { "${natives_directory}", DirectoryUtil.ForceQuotePath(nativesDir) },
+            { "${launcher_name}", "PCL.Neo" },
+            { "${launcher_version}", "1.0.0" } // TODO: load version from configuration
+        };
+        var adapter = new ArgumentsAdapter(profile.Information, profile.Options, extraOptions);
+
+        Collection<string> args =
+        [
+            $"-Xmx{profile.Options.MaxMemoryMB}M",
+            $"-Xms{profile.Options.MinMemoryMB}M", // 标准JVM参数
+            "-XX:+UseG1GC",
+            "-XX:-UseAdaptiveSizePolicy"
+        ];
+
+        // jvm arguments
+        var jvmArgs = GenerateJvmArguments(profile, versionManifes, adapter);
+        args.AddRange(jvmArgs);
+
+        // java wrapper
+        // use temp java wrapper from pcl2
+        args.Add("-jar");
+        args.Add(@"C:\Users\WhiteCAT\Desktop\Games\PCL2\PCL\JavaWrapper.jar"); // TODO: replace with neo's path
 
         // 主类
         args.Add(versionManifes.MainClass);
 
-        // 游戏参数
-        if (!string.IsNullOrEmpty(versionManifes.MinecraftArguments)) // old version
-        {
-            // 旧版格式
-            var gameArgs = versionInfo.MinecraftArguments
-                .Replace("${auth_player_name}", options.Username)
-                .Replace("${version_name}", options.VersionId)
-                .Replace("${game_directory}", QuotePath(options.GameDirectory))
-                .Replace("${assets_root}", QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")))
-                .Replace("${assets_index_name}", versionInfo.AssetIndex?.Id ?? "legacy")
-                .Replace("${auth_uuid}", options.UUID)
-                .Replace("${auth_access_token}", options.AccessToken)
-                .Replace("${user_type}", clientType)
-                .Replace("${version_type}", versionManifes.Type);
-            args.AddRange(gameArgs.Split(' '));
-        }
-        else if (versionManifes.Arguments != null)
-        {
-            // 新版格式
-            // 这里简化处理，实际上应该解析Arguments对象并应用规则
-            if (versionManifes.Arguments.Game is not null)
-            {
-                foreach (var arg in versionManifes.Arguments.Game)
-                {
-                    if (arg is string strArg)
-                    {
-                        var processedArg = strArg
-                            .Replace("${auth_player_name}", options.Username)
-                            .Replace("${version_name}", options.VersionId)
-                            .Replace("${game_directory}", QuotePath(options.GameDirectory))
-                            .Replace("${assets_root}",
-                                QuotePath(Path.Combine(options.MinecraftRootDirectory, "assets")))
-                            .Replace("${assets_index_name}", versionInfo.AssetIndex?.Id ?? "legacy")
-                            .Replace("${auth_uuid}", options.UUID)
-                            .Replace("${auth_access_token}", options.AccessToken)
-                            .Replace("${user_type}", clientType)
-                            .Replace("${version_type}", versionManifes.Type);
+        var gameArgs = GenerateGameArguments(profile, versionManifes, adapter);
+        args.AddRange(gameArgs);
 
-            //        args.Add(processedArg);
-            //    }
-            //}
-        }
-        else
-        {
-            args.Add("--username");
-            args.Add(profile.Options.Username);
-            args.Add("--version");
-            args.Add(profile.Options.VersionId);
-            args.Add("--gameDir");
-            args.Add(DirectoryUtil.QuotePath(profile.Information.GameDirectory));
-            args.Add("--assetsDir");
-            args.Add(DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")));
-            args.Add("--assetIndex");
-            args.Add(versionManifes.AssetIndex?.Id ?? "legacy");
-            args.Add("--uuid");
-            args.Add(profile.Options.UUID);
-            args.Add("--accessToken");
-            args.Add(profile.Options.AccessToken);
-            args.Add("--userType");
-            args.Add(clientType);
-            args.Add("--versionType");
-            args.Add(versionManifes.Type);
-        }
-
-        // 窗口大小
-        if (profile.Options.FullScreen)
-        {
-            args.Add("--fullscreen");
-        }
-
-        // 添加额外的游戏参数
-        if (profile.Options.ExtraGameArgs is { Count: > 0 })
-        {
-            args.AddRange(profile.Options.ExtraGameArgs);
-        }
-
-        // 拼接所有参数
-        return string.Join(' ', args);
-    }
-
-    /// <summary>
-    /// 确保目录存在
-    /// </summary>
-    private static void EnsureDirectoryExists(string path)
-    {
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-    }
-
-    /// <summary>
-    /// 为路径加上引号（如果包含空格）
-    /// </summary>
-    private static string QuotePath(string path)
-    {
-        // 统一路径分隔符为当前系统的分隔符
-        path = path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
-
-        // 如果路径包含空格，则加上引号
-        return path.Contains(' ') ? $"\"{path}\"" : path;
-    }
-
-    /// <summary>
-    /// 导出游戏日志
-    /// </summary>
-    public void ExportGameLogsAsync(string filePath)
-    {
-        _gameLogger.Export(filePath);
+        return args;
     }
 }

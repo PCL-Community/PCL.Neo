@@ -342,7 +342,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 VersionId = "1.20.4-Fabric 0.15.11-[轻量通用]",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
-                        @"C:\Users\WhiteCAT\Documents\Java\zulu17.48.15-ca-jdk17.0.10-win_x64\bin\"),
+                        @"C:\Users\WhiteCAT\Documents\Java\jdk-17\bin"),
                 MaxMemoryMB = 4096,
                 MinMemoryMB = 512, // 最小内存设为最大内存的1/4，但不低于512MB
                 Username = "Steve",
@@ -354,7 +354,18 @@ public partial class MainWindowViewModel : ViewModelBase
                 IsOfflineMode = true,
 
                 // 添加额外的JVM参数
-                ExtraJvmArgs = [],
+                ExtraJvmArgs =
+                [
+                    "-Dfile.encoding=UTF-8",
+                    "-Dstderr.encoding=UTF-8",
+                    "-Dstdout.encoding=UTF-8",
+                    "-Djdk.lang.Process.allowAmbiguousCommands=true",
+                    "-Dfml.ignoreInvalidMinecraftCertificates=True",
+                    "-Dfml.ignorePatchDiscrepancies=True",
+                    "-Dlog4j2.formatMsgNoLookups=true",
+                    "-XX:-OmitStackTraceInFastThrow",
+                    "-Doolloo.jlw.tmpdir=\"C:\\Users\\WhiteCAT\\Desktop\\Games\\PCL2\\PCL\""
+                ],
 
                 // 添加额外的游戏参数
                 ExtraGameArgs = [],

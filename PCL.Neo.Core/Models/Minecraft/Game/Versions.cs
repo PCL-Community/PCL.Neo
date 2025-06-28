@@ -122,13 +122,12 @@ public static class Versions
         };
     }
 
-    /// <summary>
-    /// 通过ID获取特定版本信息
-    /// </summary>
-    public static async Task<VersionInfo?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
-    {
-        var versionDir = Path.Combine(minecraftDirectory, "versions", versionId);
-        var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
+        /// <summary>
+        /// 通过ID获取特定版本信息
+        /// </summary>
+        public static async Task<VersionManifes?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
+        {
+            var versionJsonPath = Path.Combine(minecraftDirectory, $"{versionId}.json");
 
         if (File.Exists(versionJsonPath))
         {

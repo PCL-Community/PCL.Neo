@@ -7,9 +7,6 @@ internal static class DirectoryUtil
     /// </summary>
     public static string QuotePath(string path)
     {
-        // 统一路径分隔符为当前系统的分隔符
-        path = path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
-
         // 如果路径包含空格，则加上引号
         return path.Contains(' ') ? $"\"{path}\"" : path;
     }
