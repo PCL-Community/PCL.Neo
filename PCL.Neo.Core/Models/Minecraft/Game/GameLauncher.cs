@@ -137,7 +137,7 @@ public class GameLauncher
 
         var javaRuntime = profile.Options.RunnerJava;
 
-        var versionInfo = await Versions.GetVersionByIdAsync(mcDir, profile.Options.VersionId)
+        var versionInfo = await Versions.GetVersionByIdAsync(gameDir, profile.Options.VersionId)
                           ?? throw new Exception($"找不到版本 {profile.Options.VersionId}");
 
         if (!string.IsNullOrEmpty(versionInfo.InheritsFrom))
@@ -161,7 +161,7 @@ public class GameLauncher
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = false,
+                CreateNoWindow = true,
                 WorkingDirectory = gameDir
             }
         };
