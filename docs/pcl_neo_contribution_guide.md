@@ -115,6 +115,9 @@ PCL.Neo/
 ### 代码质量要求
 
 #### 1. 异常处理
+如果需要忽略异常请使用`try-catch`块捕获后在需要忽略的部分使用注释说明
+不要随意捕获异常，没有必要的捕获请删除
+如果需要日志记录请使用`Utils`中的`Logger`，并将异常也传入`Logger`的参数中
 ```csharp
 // 好的示例
 public async Task<Process> LaunchAsync(GameProfile profile)
@@ -130,9 +133,27 @@ public async Task<Process> LaunchAsync(GameProfile profile)
 
     // ... 其他逻辑
 }
+
+public int Foo()
+{
+    try
+    {
+        // do stuff...
+    }
+    catch (IOException ex)
+    {
+        Logger.Error("Catched exception.", ex);
+        // do stuff...
+    }
+    catch (Exception)
+    {
+        // 忽略异常
+    }
+}
 ```
 
 #### 2. 空值检查
+将所有的有关空值的Warning视为Error，正确地处理空值，谨防`NullRefreenceEexception`
 ```csharp
 // 使用 null 条件运算符和 ArgumentNullException.ThrowIfNull
 ArgumentNullException.ThrowIfNull(versionManifes.Libraries);
@@ -142,6 +163,7 @@ var assetIndex = versionManifes.AssetIndex?.Id ?? "legacy";
 ```
 
 #### 3. 资源管理
+应使用`IDisposable`进行资源释放，尽量减少`Finalizer`的使用
 ```csharp
 // 使用 using 语句确保资源释放
 using var fileStream = new FileStream(path, FileMode.Open);
@@ -167,8 +189,9 @@ public async Task<VersionManifes> GetVersionAsync(string versionId)
 ```
 
 ### 注释规范
-
+对于注释请使用`//+空格+内容`的形式
 #### 1. XML 文档注释
+对于公开的方法请添加XML注释以便于后续使用，如果方法有抛出异常请使用`exception`块说明
 ```csharp
 /// <summary>
 /// 启动游戏
@@ -183,6 +206,7 @@ public async Task<Process> LaunchAsync(GameProfile profile)
 ```
 
 #### 2. 行内注释
+如果是为完成的部分请添加`// TODO`块，便于IDE智能查找
 ```csharp
 // 确保目录存在
 if (!Directory.Exists(mcDir))
@@ -195,7 +219,8 @@ var launcherVersion = "1.0.0";
 ```
 
 ## 测试规范
-
+测试使用NUnit 4.3.2框架
+PCL.Neo.Core中的测试代码请放到Core文件夹中
 ### 单元测试要求
 
 1. **测试覆盖率**: 核心业务逻辑测试覆盖率应达到 80% 以上
@@ -327,4 +352,5 @@ var process = await launcher.LaunchAsync(profile);
 - Closes #123
 - Relates to #456
 
-感谢你对 PCL.Neo 项目的贡献！
+```
+最后，感谢你对 PCL.Neo 项目的贡献！欢迎多多提交PR！
