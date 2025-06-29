@@ -127,7 +127,8 @@ public static class Versions
         /// </summary>
         public static async Task<VersionManifes?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
         {
-            var versionJsonPath = Path.Combine(minecraftDirectory, $"{versionId}.json");
+            var versionDir = Path.Combine(minecraftDirectory, "versions", versionId);
+            var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
 
         if (File.Exists(versionJsonPath))
         {

@@ -44,16 +44,9 @@ public static partial class ArgumentProcessor
         return true;
     }
 
-    private static bool CheckFeaturesRule(Dictionary<string, JsonElement>? ruleFeature, ArgumentsAdapter adapter)
-    {
-        if (ruleFeature is null)
-        {
-            return true;
-        }
-
-        return adapter.Features.FeatureCustomValue.TryGetValue(ruleFeature.First().Key, out bool value) && value;
-        // only use the first feature
-    }
+    private static bool CheckFeaturesRule(Dictionary<string, JsonElement> ruleFeature, ArgumentsAdapter adapter) =>
+        adapter.Features.FeatureCustomValue.TryGetValue(ruleFeature.First().Key, out bool value) &&
+        value; // only use the first feature
 
     private static bool AreRulesSatisfied(List<Rule> rulesList, ArgumentsAdapter adapter)
     {
@@ -68,11 +61,11 @@ public static partial class ArgumentProcessor
         {
             if (string.IsNullOrEmpty(rule.Action)) continue; // Skip malformed rules
 
-            var osConditionsMet = CheckOsRule(rule.Os);
-            var featureConditionsMet = rule.Features == null || CheckFeaturesRule(rule.Features.Feature, adapter);
+            bool osConditionsMet = CheckOsRule(rule.Os);
+            bool featureConditionsMet = rule.Features == null || CheckFeaturesRule(rule.Features.Feature, adapter);
 
             // For a rule to apply its conditions, ALL its specified conditions (OS and Feature) must be met.
-            var ruleCriteriaMet = osConditionsMet && featureConditionsMet;
+            bool ruleCriteriaMet = osConditionsMet && featureConditionsMet;
 
             if (rule.Action.Equals("allow", StringComparison.OrdinalIgnoreCase))
             {
@@ -146,10 +139,11 @@ public static partial class ArgumentProcessor
 
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<ArgumentElement> argumentElements,
-        ArgumentsAdapter adapter)
-        ArgumentsAdapter adapter)
+        GameProfile profile)
     {
         Collection<string> finalArgs = [];
+
+        var adapter = new ArgumentsAdapter(profile.Information, profile.Options);
 
         foreach (var element in argumentElements)
         {
@@ -175,9 +169,9 @@ public static partial class ArgumentProcessor
 
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<string> argumentElements,
-        ArgumentsAdapter adapter)
-        ArgumentsAdapter adapter)
+        GameProfile profile)
     {
+        var adapter = new ArgumentsAdapter(profile.Information, profile.Options);
         Collection<string> finalArgs = [];
 
         foreach (var item in argumentElements)
