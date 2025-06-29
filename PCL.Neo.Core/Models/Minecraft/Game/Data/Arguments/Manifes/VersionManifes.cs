@@ -33,33 +33,11 @@ public record VersionManifes
 
     [JsonPropertyName("javaVersion")] public JavaVersionInfo? JavaVersion { get; set; }
 
-    [JsonPropertyName("logging")] public LoggingInfo? Logging { get; set; }
-
     /// <summary>
     /// 存储原始的JSON数据
     /// </summary>
     [JsonIgnore]
     public string? JsonOriginData { get; set; }
-}
-
-public record LoggingInfo
-{
-    public record ClientInfo
-    {
-        public record FileInfo
-        {
-            [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
-            [JsonPropertyName("sha1")] public string Sha1 { get; set; } = string.Empty;
-            [JsonPropertyName("size")] public int Size { get; set; }
-            [JsonPropertyName("url")] public string Url { get; set; } = string.Empty;
-        }
-
-        [JsonPropertyName("argument")] public required string Argument { get; set; } = string.Empty;
-        [JsonPropertyName("file")] public required FileInfo File { get; set; }
-        [JsonPropertyName("type")] public required string Type { get; set; } = string.Empty;
-    }
-
-    [JsonPropertyName("client")] public required ClientInfo Client { get; set; }
 }
 
 public record AssetIndexInfo
