@@ -139,11 +139,9 @@ public static partial class ArgumentProcessor
 
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<ArgumentElement> argumentElements,
-        GameProfile profile)
+        ArgumentsAdapter adapter)
     {
         Collection<string> finalArgs = [];
-
-        var adapter = new ArgumentsAdapter(profile.Information, profile.Options);
 
         foreach (var element in argumentElements)
         {
@@ -169,9 +167,8 @@ public static partial class ArgumentProcessor
 
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<string> argumentElements,
-        GameProfile profile)
+        ArgumentsAdapter adapter)
     {
-        var adapter = new ArgumentsAdapter(profile.Information, profile.Options);
         Collection<string> finalArgs = [];
 
         foreach (var item in argumentElements)

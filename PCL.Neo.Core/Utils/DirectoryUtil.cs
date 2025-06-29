@@ -14,6 +14,11 @@ internal static class DirectoryUtil
         return path.Contains(' ') ? $"\"{path}\"" : path;
     }
 
+    public static string ForceQuotePath(string path)
+    {
+        return $"\"{path}\"";
+    }
+
     /// <summary>
     /// 确保目录存在
     /// </summary>
