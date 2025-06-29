@@ -113,7 +113,7 @@ public class GameLauncher : IGameLauncher
         // 合并库文件（子版本优先）
         var libraries = new List<Library>();
 
-        if (parent.Libraries != null)
+            if (parent.Libraries != null)
                 libraries.AddRange(parent.Libraries);
 
         if (child.Libraries != null)
