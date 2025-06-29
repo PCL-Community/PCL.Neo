@@ -3,7 +3,7 @@ using System;
 
 namespace PCL.Neo.ViewModels.Job;
 
-[SubViewModelOf(typeof(JobViewModel))]
+[SubViewModel(typeof(JobViewModel))]
 public class JobSubViewModel : ViewModelBase
 {
     public JobService JobService { get; }

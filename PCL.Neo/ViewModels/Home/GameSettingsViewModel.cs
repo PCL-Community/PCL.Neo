@@ -41,7 +41,7 @@ public class VersionComponent
     public bool IsClickable { get; set; } = false;
 }
 
-[SubViewModelOf(typeof(HomeViewModelBackup))]
+[SubViewModel(typeof(HomeViewModelBackup))]
 public partial class GameSettingsViewModel : ViewModelBase
 {
     private readonly INavigationService _navigationService;
@@ -252,7 +252,7 @@ public partial class GameSettingsViewModel : ViewModelBase
         UpdateContentView();
 
         // 设置默认Java路径
-        JavaPath = _gameService.DefaultJavaRuntimes.Java21.JavaWExe;
+        JavaPath = _gameService.DefaultJavaRuntimes.Java21?.JavaWExe ?? string.Empty;
 
         // 设置默认游戏目录
         GameDirectory = GameService.DefaultGameDirectory;
@@ -404,7 +404,7 @@ public partial class GameSettingsViewModel : ViewModelBase
             SaveUserSettings();
 
             // 返回上一个页面
-            await _navigationService.GoBackAsync();
+            _navigationService.GoBackAsync();
         }
         catch (Exception ex)
         {
@@ -417,7 +417,7 @@ public partial class GameSettingsViewModel : ViewModelBase
     private async Task Return()
     {
         // 返回上一页
-        await _navigationService.GoBackAsync();
+        _navigationService.GoBackAsync();
     }
 
     [RelayCommand]
@@ -1229,7 +1229,7 @@ read -n 1 -s";
             System.Diagnostics.Debug.WriteLine($"版本 {VersionId} 已删除");
 
             // 返回上一页
-            await _navigationService.GoBackAsync();
+            _navigationService.GoBackAsync();
         }
         catch (Exception ex)
         {

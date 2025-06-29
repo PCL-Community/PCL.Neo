@@ -1,9 +1,11 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using PCL.Neo.Controls.MyMsg;
 using PCL.Neo.Services;
 using PCL.Neo.Helpers;
+using PCL.Neo.Messages;
 using System;
 using System.Threading.Tasks;
 
@@ -62,20 +64,38 @@ namespace PCL.Neo.ViewModels
         public MainWindowViewModel(Window window)
         {
             this._window = window;
+
+            // 启用所有 Messenger 注册事件
+            IsActive = true;
         }
 
         public MainWindowViewModel(INavigationService navigationService)
         {
             NavigationService = navigationService;
-            NavigationService.CurrentViewModelChanged += vm =>
-            {
-                CurrentViewModel = vm;
-                // 更新返回按钮状态
-                CanGoBack = NavigationService.CanGoBack;
-                // 由外部的页面跳转反向触发设置按钮状态
-                UpdateNavBtnState();
-            };
-            NavigationService.CurrentSubViewModelChanged += vm => CurrentSubViewModel = vm;
+
+            // 启用所有 Messenger 注册事件
+            IsActive = true;
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+
+            Messenger.Register<MainWindowViewModel, NavigationMessage, Guid>(
+                this, NavigationMessage.Channels.Navigated,
+                (_, m) => OnNavigated(m));
+        }
+
+        public void OnNavigated(NavigationMessage message)
+        {
+            if (message.IsMainViewModelChanged)
+                CurrentViewModel    = message.NewMainViewModel;
+            if (message.IsSubViewModelChanged)
+                CurrentSubViewModel = message.NewSubViewModel;
+            // 更新返回按钮状态
+            CanGoBack = NavigationService.CanGoBack;
+            // 由外部的页面跳转反向触发设置按钮状态
+            UpdateNavBtnState();
         }
 
         [RelayCommand]
@@ -113,19 +133,19 @@ namespace PCL.Neo.ViewModels
             switch (tag)
             {
                 case 1:
-                    await NavigationService.GotoAsync<HomeViewModel>();
+                    await NavigationService.GoToAsync<HomeViewModel>();
                     break;
                 case 2:
-                    await NavigationService.GotoAsync<DownloadViewModel>();
+                    await NavigationService.GoToAsync<DownloadViewModel>();
                     break;
                 case 3:
-                    // NavigationService.GotoAsync<LinkViewModel>();
+                    // NavigationService.Goto<LinkViewModel>();
                     break;
                 case 4:
-                    await NavigationService.GotoAsync<SetupViewModel>();
+                    await NavigationService.GoToAsync<SetupViewModel>();
                     break;
                 case 5:
-                    // await NavigationService.GoBackAsync<OtherViewModel>();
+                    // NavigationService.GoBack<OtherViewModel>();
                     break;
                 default:
                     Console.WriteLine("Unknown tag");
@@ -136,7 +156,7 @@ namespace PCL.Neo.ViewModels
         [RelayCommand]
         public async Task GoBack()
         {
-            await NavigationService.GoBackAsync();
+            NavigationService.GoBackAsync();
             // 更新导航按钮状态
             UpdateNavBtnState();
         }

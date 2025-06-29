@@ -1,6 +1,6 @@
 namespace PCL.Neo.ViewModels.Download;
 
-[SubViewModelOf(typeof(DownloadViewModel))]
+[SubViewModel(typeof(DownloadViewModel))]
 public class DownloadGameViewModel : ViewModelBase
 {
 

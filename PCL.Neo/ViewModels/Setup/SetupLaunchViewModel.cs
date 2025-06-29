@@ -16,7 +16,7 @@ public record JavaUiInfo(JavaRuntime Runtime)
     public string Path => Runtime.DirectoryPath;
 }
 
-[SubViewModelOf(typeof(SetupViewModel))]
+[SubViewModel(typeof(SetupViewModel))]
 public partial class SetupLaunchViewModel : ViewModelBase
 {
     private readonly IJavaManager _javaManager;

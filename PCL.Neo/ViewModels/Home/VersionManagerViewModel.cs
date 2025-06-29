@@ -35,7 +35,7 @@ public class VersionItem
     public VersionInfo VersionInfo { get; set; } = null!;
 }
 
-[SubViewModelOf(typeof(HomeViewModelBackup))]
+[SubViewModel(typeof(HomeViewModelBackup))]
 public partial class VersionManagerViewModel : ViewModelBase
 {
     private readonly INavigationService _navigationService;
@@ -281,7 +281,7 @@ public partial class VersionManagerViewModel : ViewModelBase
     public async Task DownloadVersionCommand()
     {
         // 导航到下载页面
-        await _navigationService.GotoAsync<PCL.Neo.ViewModels.Download.DownloadGameViewModel>();
+        await _navigationService.GoToAsync<Download.DownloadGameViewModel>();
     }
 
     [RelayCommand]

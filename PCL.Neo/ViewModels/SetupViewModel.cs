@@ -2,7 +2,7 @@ using PCL.Neo.ViewModels.Setup;
 
 namespace PCL.Neo.ViewModels;
 
-[DefaultSubViewModel(typeof(SetupLaunchViewModel))]
+[MainViewModel(typeof(SetupLaunchViewModel))]
 public class SetupViewModel : ViewModelBase
 {
 

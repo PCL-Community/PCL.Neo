@@ -5,7 +5,7 @@ using System.Timers;
 
 namespace PCL.Neo.ViewModels;
 
-[DefaultSubViewModel(typeof(JobSubViewModel))]
+[MainViewModel(typeof(JobSubViewModel))]
 public class JobViewModel : ViewModelBase
 {
     private JobService JobService { get; }
