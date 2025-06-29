@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
 
-internal class ArgumentsAdapter
+public class ArgumentsAdapter
 {
     public Dictionary<string, string> Arguments { get; } = new();
     public CustomFeatures Features { get; } = new();
@@ -34,7 +34,7 @@ internal class ArgumentsAdapter
         return versionManifes;
     }
 
-    public ArgumentsAdapter(GameInfo info, LaunchOptions options)
+    public ArgumentsAdapter(GameInfo info, LaunchOptions options, Dictionary<string, string> extraOptions)
     {
         ArgumentNullException.ThrowIfNull(info);
         ArgumentNullException.ThrowIfNull(options);
