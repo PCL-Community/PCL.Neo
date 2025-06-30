@@ -12,51 +12,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer>
         <StackPanel Orientation="Vertical">
-            <pc:MyButton
-                ColorType="Normal"
-                Height="50"
-                Margin="10"
-                Text="普通按钮" />
-            <pc:MyButton
-                Click="Button_OnClick"
-                ColorType="Highlight"
-                Height="50"
-                Margin="10"
-                Text="高亮按钮" />
-            <pc:MyButton
-                Click="Button2_OnClick"
-                ColorType="Red"
-                Height="50"
-                Margin="10"
-                Text="红色按钮" />
-            <pc:MyButton Height="50" Margin="10">
-                <Run Text="PCL.Neo 也支持了" />
-                <Run
-                    FontWeight="Bold"
-                    Foreground="#ff4c4c"
-                    Text="Inline 富文本！" />
-                <LineBreak />
-                <Run Text="为什么这里有个" />
-                <InlineUIContainer>
-                    <Image Source="avares://PCL.Neo/Assets/Icon.ico" Width="20" />
-                </InlineUIContainer>
-                <Run Text="图标？" />
-            </pc:MyButton>
-            <pc:MyLoading
-                Height="150"
-                Name="TestLoading"
-                Width="150" />
-            <pc:MyButton
-                Command="{Binding NavigateToDownloadModCommand}"
-                Height="50"
-                Margin="10"
-                Text="跳转到 Download Mod" />
-            <pc:MyButton
-                Command="{Binding NavigateToJobCommand}"
-                Height="50"
-                Margin="10"
-                Text="跳转到 Job" />
-            <pc:MyCard Margin="10" />
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>
