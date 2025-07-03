@@ -108,16 +108,16 @@ namespace PCL.Neo.Core.Models.Minecraft.Game
         /// <summary>
         /// 通过ID获取特定版本信息
         /// </summary>
-        public static async Task<VersionManifes?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
+        public static async Task<VersionManifes?> GetVersionByIdAsync(string rootDir, string versionId)
         {
-            var versionDir = Path.Combine(minecraftDirectory, "versions", versionId);
-            var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
+            var gameDir = Path.Combine(rootDir, "versions", versionId); // get version dir
+            var jsonPath = Path.Combine(gameDir, $"{versionId}.json");
 
-            if (File.Exists(versionJsonPath))
+            if (File.Exists(jsonPath))
             {
                 try
                 {
-                    var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
+                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
                     var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
 
                     if (versionInfo != null)

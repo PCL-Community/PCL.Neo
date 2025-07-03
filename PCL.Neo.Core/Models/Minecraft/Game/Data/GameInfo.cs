@@ -13,11 +13,6 @@ public record GameInfo
     public required string RootDirectory { get; set; }
 
     /// <summary>
-    /// Game class path.
-    /// </summary>
-    public string ClassPath { get; set; } = string.Empty;
-
-    /// <summary>
     /// The loader type.
     /// </summary>
     public ModLoader Loader { get; set; } = ModLoader.None;
