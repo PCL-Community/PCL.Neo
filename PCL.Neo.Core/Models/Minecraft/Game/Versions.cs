@@ -125,20 +125,17 @@ public static class Versions
         /// <summary>
         /// 通过ID获取特定版本信息
         /// </summary>
-        public static async Task<VersionManifes?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
+        public static async Task<VersionManifes?> GetVersionByIdAsync(string rootDir, string versionId)
         {
-            var versionDir = Path.Combine(minecraftDirectory, "versions", versionId);
-            var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
+            var gameDir = Path.Combine(rootDir, "versions", versionId); // get version dir
+            var jsonPath = Path.Combine(gameDir, $"{versionId}.json");
 
-        if (File.Exists(versionJsonPath))
-        {
-            try
+            if (File.Exists(jsonPath))
             {
-                var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
-                var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent, new JsonSerializerOptions
+                try
                 {
-                    PropertyNameCaseInsensitive = true
-                });
+                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                    var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
 
                 if (versionInfo != null)
                 {
