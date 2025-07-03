@@ -95,7 +95,9 @@ public static partial class ArgumentProcessor
         return overallPermission;
     }
 
-    private static bool TryGetTargetArgument(string argument, ArgumentsAdapter adapter, out string? result)
+#nullable disable // disable nullable warnings for this method
+
+    private static bool TryGetTargetArgument(string argument, ArgumentsAdapter adapter, out string result)
     {
         if (argument[0] == '$')
         {
@@ -109,6 +111,15 @@ public static partial class ArgumentProcessor
             return false;
         }
     }
+
+#nullable restore
+
+    /// <summary>
+    /// Used for arguemnts pattern matching.
+    /// </summary>
+    /// <returns>Regex result.</returns>
+    [GeneratedRegex(@"\$\{[^}]+\}")]
+    private static partial Regex ArgumentMatchPattern();
 
     /// <summary>
     /// Process customed properties.
@@ -125,18 +136,26 @@ public static partial class ArgumentProcessor
             var replacePattern = regexMatchResult.Select(it => it.Value).ToArray().Distinct();
             foreach (var it in replacePattern)
             {
-                if (!TryGetTargetArgument(it, adapter, out var value))
+                if (TryGetTargetArgument(it, adapter, out var value))
+                {
+                    argument = argument.Replace(it, value);
+                }
+                else
                 {
                     throw new ArgumentException($"Argument '{it}' not found in Arguments");
                 }
-
-                argument = argument.Replace(it, value);
             }
         }
 
         return argument;
     }
 
+    /// <summary>
+    /// Get effective arguments from argument elements.
+    /// </summary>
+    /// <param name="argumentElements">The argument elements to process.</param>
+    /// <param name="adapter">The launch options adapter.</param>
+    /// <returns>The effective arguments.</returns>
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<ArgumentElement> argumentElements,
         ArgumentsAdapter adapter)
@@ -165,6 +184,13 @@ public static partial class ArgumentProcessor
         return finalArgs;
     }
 
+    /// <summary>
+    /// Get the effective arguments from a collection of argument elements.
+    /// </summary>
+    /// <param name="argumentElements">The collection of argument elements to process.</param>
+    /// <param name="adapter">The launch options adapter.</param>
+    /// <returns>The effective arguments.</returns>
+    /// <exception cref="ArgumentException">Throw if an argument was not found.</exception>
     public static ICollection<string> GetEffectiveArguments(
         IEnumerable<string> argumentElements,
         ArgumentsAdapter adapter)
@@ -173,24 +199,16 @@ public static partial class ArgumentProcessor
 
         foreach (var item in argumentElements)
         {
-            if (item[0] == '$')
+            if (TryGetTargetArgument(item, adapter, out var result))
             {
-                if (!adapter.Arguments.TryGetValue(item, out var value))
-                {
-                    throw new ArgumentException($"Argument '{item}' not found in Arguments");
-                }
-
-                finalArgs.Add(value);
+                finalArgs.Add(result);
             }
             else
             {
-                finalArgs.Add(item);
+                throw new ArgumentException($"Argument '{item}' not found in Arguments");
             }
         }
 
         return finalArgs;
     }
-
-    [GeneratedRegex(@"\$\{[^}]+\}")]
-    private static partial Regex ArgumentMatchPattern();
 }
