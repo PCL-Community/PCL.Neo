@@ -131,6 +131,7 @@ public static class Versions
             var jsonPath = Path.Combine(gameDir, $"{versionId}.json");
 
             if (File.Exists(jsonPath))
+            if (File.Exists(jsonPath))
             {
                 try
                 {
@@ -146,8 +147,6 @@ public static class Versions
 
                     // 添加JsonData属性
                     versionInfo.JsonData = jsonContent;
-                        // 添加JsonData属性
-                        versionInfo.JsonOriginData = jsonContent;
 
                     return versionInfo;
                 }
