@@ -4,8 +4,8 @@ root = true
 [*]
 charset = utf-8
 indent_style = space
-indent_size = 4
-tab_width = 4
+indent_size = 2
+tab_width = 2
 max_line_length = 120
 end_of_line = crlf
 insert_final_newline = true
@@ -15,6 +15,12 @@ ij_xml_space_inside_empty_tag = true
 
 # c# 文件
 [*.cs]
+
+#### Core EditorConfig 选项 ####
+
+# 缩进和间距
+indent_size = 4
+tab_width = 4
 
 #### .NET 代码操作 ####
 
@@ -244,8 +250,19 @@ dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
-[*.{yml,yaml}]
-indent_size = 2
+#### Resharper ####
 
-[*.{slnx,csproj,manifest}]
-indent_size = 2
+resharper_csharp_place_attribute_on_same_line = false
+resharper_csharp_keep_existing_initializer_arrangement = true
+resharper_csharp_wrap_object_and_collection_initializer_style = chop_if_long
+resharper_csharp_space_within_single_line_array_initializer_braces = true
+resharper_csharp_space_within_empty_braces = false
+resharper_xmldoc_indent_child_elements = do_not_touch
+resharper_xmldoc_indent_text = do_not_touch
+
+[*.{axaml,metainfo.xml,svg}]
+indent_size = 4
+tab_width = 4
+
+[*.svg]
+max_line_length = 999999

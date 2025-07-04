@@ -50,7 +50,7 @@ public class DownloadTest
     public const long NumberOfTestCases = 8 * 1024;
     public const long SizeOfSingleTestCase = 32 * 1024;
     public const int MaxThreads = 32;
-    public const bool IsLie = false;
+    public bool IsLie = false;
     public const string CachePath = "/tmp";
 
     public ConcurrentBag<string> Output = [];
