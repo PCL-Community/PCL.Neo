@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
-using Avalonia.Input;
 using Avalonia.Media;
 using PCL.Neo.Helpers;
 using PCL.Neo.Models;
@@ -28,7 +27,7 @@ public class MyRadioButton : RadioButton
         _labText = e.NameScope.Find<TextBlock>("LabText")!;
         _panBack = e.NameScope.Find<Border>("PanBack")!;
 
-        this.Loaded += (_, _) => RefreshColor();
+        Loaded += (_, _) => RefreshColor();
 
         _shapeLogo.Data = Logo;
         _shapeLogo.RenderTransform = new ScaleTransform { ScaleX = LogoScale, ScaleY = LogoScale };
@@ -111,7 +110,7 @@ public class MyRadioButton : RadioButton
     [Obsolete]
     private void SetCheck()
     {
-        if (this.Parent is Panel parent)
+        if (Parent is Panel parent)
         {
             foreach (var child in parent.Children)
             {
@@ -154,6 +153,7 @@ public class MyRadioButton : RadioButton
                     _shapeLogo.Fill = (SolidColorBrush)new MyColor(255, 255, 255);
                     _labText.Foreground = (SolidColorBrush)new MyColor(255, 255, 255);
                 }
+
                 break;
             case ColorState.HighLight:
                 if (IsChecked!.Value)
@@ -168,6 +168,7 @@ public class MyRadioButton : RadioButton
                     _shapeLogo.Fill = (IBrush?)Application.Current!.Resources["ColorBrush3"];
                     _labText.Foreground = (IBrush?)Application.Current!.Resources["ColorBrush3"];
                 }
+
                 break;
         }
     }

@@ -1,43 +1,48 @@
+using PCL.Neo.Core.Service.Accounts.Storage;
 using PCL.Neo.Core.Utils;
 
 namespace PCL.Neo.Core.Service.Accounts.OAuthService;
 
-public partial class MinecraftInfo
+public class MinecraftInfo
 {
-    public static List<Storage.Skin> CollectSkins(
-        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Skin> skins) =>
-        skins.Select(skin => new
+    public static List<Skin> CollectSkins(
+        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Skin> skins)
+    {
+        return skins.Select(skin => new
             {
                 skin,
                 state = skin.State switch
                 {
-                    "ACTIVE" => Storage.AccountState.Active,
-                    "INACTIVE" => Storage.AccountState.Inactive,
+                    "ACTIVE" => AccountState.Active,
+                    "INACTIVE" => AccountState.Inactive,
                     _ => throw new ArgumentOutOfRangeException()
                 },
                 url = new Uri(skin.Url)
             })
             .Select(t =>
-                new Storage.Skin(t.skin.Id, t.url, t.skin.Variant, t.skin.TextureKey,
+                new Skin(t.skin.Id, t.url, t.skin.Variant, t.skin.TextureKey,
                     t.state))
             .ToList();
+    }
 
-    public static List<Storage.Cape> CollectCapes(
-        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Cape> capes) =>
-        capes.Select(cape => new
+    public static List<Cape> CollectCapes(
+        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Cape> capes)
+    {
+        return capes.Select(cape => new
             {
                 cape,
                 state = cape.State switch
                 {
-                    "ACTIVE" => Storage.AccountState.Active,
-                    "INACTIVE" => Storage.AccountState.Inactive,
+                    "ACTIVE" => AccountState.Active,
+                    "INACTIVE" => AccountState.Inactive,
                     _ => throw new ArgumentOutOfRangeException()
                 },
                 url = new Uri(cape.Url)
             })
             .Select(t =>
-                new Storage.Cape(t.cape.Id, t.state, t.url, t.cape.Alias))
+                new Cape(t.cape.Id, t.state, t.url, t.cape.Alias))
             .ToList();
+    }
 
     public static async Task<string> GetMinecraftAccessTokenAsync(string uhs, string xstsToken)
     {
@@ -65,9 +70,11 @@ public partial class MinecraftInfo
     }
 
     public static async Task<OAuthData.ResponseData.MinecraftPlayerUuidResponse>
-        GetPlayerUuidAsync(string accessToken) =>
-        await Net.SendHttpRequestAsync<OAuthData.ResponseData.MinecraftPlayerUuidResponse>(
+        GetPlayerUuidAsync(string accessToken)
+    {
+        return await Net.SendHttpRequestAsync<OAuthData.ResponseData.MinecraftPlayerUuidResponse>(
             HttpMethod.Get,
             OAuthData.RequestUrls.PlayerUuidUri.Value,
             bearerToken: accessToken);
+    }
 }

@@ -8,7 +8,6 @@
              x:Class="PCL.Neo.Views.SetupView"
              Width="120">
     <StackPanel>
-        <TextBlock Text="SetupView"></TextBlock>
+        <TextBlock Text="SetupView" />
     </StackPanel>
 </UserControl>
-

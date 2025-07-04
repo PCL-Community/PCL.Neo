@@ -1,10 +1,5 @@
-using System;
-using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PCL.Neo.Core.Service.Audio;
 
@@ -15,17 +10,18 @@ public class WindowsAudioService : AudioService
 {
     // Windows MCI接口
     [DllImport("winmm.dll")]
-    private static extern long mciSendString(string command, StringBuilder? returnString, int returnLength, IntPtr hwndCallback);
-    
+    private static extern long mciSendString(string command, StringBuilder? returnString, int returnLength,
+        IntPtr hwndCallback);
+
     [DllImport("winmm.dll")]
     private static extern int waveOutGetVolume(IntPtr hwo, out uint dwVolume);
-    
+
     [DllImport("winmm.dll")]
     private static extern int waveOutSetVolume(IntPtr hwo, uint dwVolume);
-    
+
     private const string MciDeviceAlias = "PCLNeoAudio";
-    private bool _deviceOpen = false;
-    
+    private bool _deviceOpen;
+
     /// <summary>
     /// 构造函数
     /// </summary>
@@ -33,7 +29,7 @@ public class WindowsAudioService : AudioService
     public WindowsAudioService(AudioOptions? options = null) : base(options)
     {
     }
-    
+
     /// <summary>
     /// 执行MCI命令
     /// </summary>
@@ -46,7 +42,7 @@ public class WindowsAudioService : AudioService
         LogInfo($"执行MCI命令: {command}");
         return mciSendString(command, returnString, returnLength, IntPtr.Zero);
     }
-    
+
     /// <summary>
     /// 关闭所有MCI设备
     /// </summary>
@@ -78,16 +74,16 @@ public class WindowsAudioService : AudioService
             {
                 // 关闭之前打开的设备
                 CloseAllMciDevices();
-                
+
                 // 第一种方法：使用type MPEGVideo（支持更多格式，但在某些系统上可能有问题）
-                long result = ExecuteMciCommand($"open \"{filePath}\" type MPEGVideo alias {MciDeviceAlias}");
-                
+                var result = ExecuteMciCommand($"open \"{filePath}\" type MPEGVideo alias {MciDeviceAlias}");
+
                 // 如果失败，尝试第二种方法：不指定类型（系统自动选择合适的处理程序）
                 if (result != 0)
                 {
                     LogInfo("MPEGVideo打开失败，尝试不指定类型打开");
                     result = ExecuteMciCommand($"open \"{filePath}\" alias {MciDeviceAlias}");
-                    
+
                     // 如果还失败，直接调用父类方法（使用Windows Media Player）
                     if (result != 0)
                     {
@@ -95,9 +91,9 @@ public class WindowsAudioService : AudioService
                         return base.StartPlaybackAsync(filePath, cancellationToken).Result;
                     }
                 }
-                
+
                 _deviceOpen = true;
-                
+
                 // 播放文件
                 result = ExecuteMciCommand($"play {MciDeviceAlias}");
                 if (result != 0)
@@ -106,7 +102,7 @@ public class WindowsAudioService : AudioService
                     CloseAllMciDevices();
                     return false;
                 }
-                
+
                 // 创建监视线程来检查音频是否播放完成
                 Task.Run(async () =>
                 {
@@ -114,18 +110,18 @@ public class WindowsAudioService : AudioService
                     {
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            StringBuilder statusString = new StringBuilder(128);
+                            var statusString = new StringBuilder(128);
                             ExecuteMciCommand($"status {MciDeviceAlias} mode", statusString, 128);
-                            
+
                             // 如果播放停止或设备关闭，触发播放完成事件
-                            string status = statusString.ToString().Trim().ToLower();
+                            var status = statusString.ToString().Trim().ToLower();
                             if (status != "playing" || !_deviceOpen)
                             {
                                 OnPlaybackFinished(this);
                                 CloseAllMciDevices();
                                 break;
                             }
-                            
+
                             await Task.Delay(500, cancellationToken); // 每500ms检查一次
                         }
                     }
@@ -138,7 +134,7 @@ public class WindowsAudioService : AudioService
                         LogError("监视播放状态出错", ex);
                     }
                 }, cancellationToken);
-                
+
                 return true;
             }, cancellationToken);
         }
@@ -165,9 +161,9 @@ public class WindowsAudioService : AudioService
         return Task.Run(() =>
         {
             if (!_deviceOpen) return false;
-            
+
             LogInfo("Windows MCI暂停播放");
-            long result = ExecuteMciCommand($"pause {MciDeviceAlias}");
+            var result = ExecuteMciCommand($"pause {MciDeviceAlias}");
             return result == 0;
         });
     }
@@ -184,9 +180,9 @@ public class WindowsAudioService : AudioService
         return Task.Run(() =>
         {
             if (!_deviceOpen) return false;
-            
+
             LogInfo("Windows MCI继续播放");
-            long result = ExecuteMciCommand($"resume {MciDeviceAlias}");
+            var result = ExecuteMciCommand($"resume {MciDeviceAlias}");
             return result == 0;
         });
     }
@@ -224,13 +220,13 @@ public class WindowsAudioService : AudioService
             try
             {
                 // Windows音量设置范围是0-0xFFFF (0-65535)
-                uint volumeValue = (uint)(volume * 65535);
-                uint stereoVolume = (volumeValue & 0xFFFF) | (volumeValue << 16);
-                
+                var volumeValue = (uint)(volume * 65535);
+                var stereoVolume = (volumeValue & 0xFFFF) | (volumeValue << 16);
+
                 LogInfo($"设置Windows音量: {volume:P0}");
-                
+
                 // 设置系统音量
-                int result = waveOutSetVolume(IntPtr.Zero, stereoVolume);
+                var result = waveOutSetVolume(IntPtr.Zero, stereoVolume);
                 return result == 0;
             }
             catch (Exception ex)

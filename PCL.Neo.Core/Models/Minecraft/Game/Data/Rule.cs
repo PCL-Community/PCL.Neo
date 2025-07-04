@@ -1,21 +1,23 @@
 using PCL.Neo.Core.Utils;
-using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 public partial class Rule
 {
-    [JsonPropertyName("action")] public string Action { get; set; } = string.Empty;
+    [JsonPropertyName("action")]
+    public string Action { get; set; } = string.Empty;
 
-    [JsonPropertyName("os")] public OsRule? Os { get; set; }
+    [JsonPropertyName("os")]
+    public OsRule? Os { get; set; }
 
     public bool Allow => Action == "allow";
 }
 
 public class OsRule
 {
-    [JsonPropertyName("name")] public string? Name { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
     /// 本条好像并没有参考性，因为API里写的全是X86
     [JsonPropertyName("arch")]
@@ -24,11 +26,14 @@ public class OsRule
 
 public class ArgRule
 {
-    [JsonPropertyName("allow")] public string Action { get; set; } = string.Empty;
+    [JsonPropertyName("allow")]
+    public string Action { get; set; } = string.Empty;
 
-    [JsonPropertyName("features")] public Dictionary<string, bool>? Features { get; set; }
+    [JsonPropertyName("features")]
+    public Dictionary<string, bool>? Features { get; set; }
 
-    [JsonPropertyName("os")] public OsRule? Os { get; set; }
+    [JsonPropertyName("os")]
+    public OsRule? Os { get; set; }
 }
 
 public partial class Rule
@@ -38,7 +43,7 @@ public partial class Rule
         get
         {
             if (Os is null) return true;
-            bool isCurrentOs = this.Os.Name == SystemUtils.Os.ToMajangApiName();
+            var isCurrentOs = Os.Name == SystemUtils.Os.ToMajangApiName();
             return (isCurrentOs && Allow) || (!isCurrentOs && !Allow);
         }
     }
@@ -48,7 +53,7 @@ public partial class Rule
         get
         {
             if (Os?.Arch is null) return true;
-            bool isCurrentArch = Os.Arch == SystemUtils.Architecture.ToMajangApiName();
+            var isCurrentArch = Os.Arch == SystemUtils.Architecture.ToMajangApiName();
             return (isCurrentArch && Allow) || (!isCurrentArch && !Allow);
         }
     }

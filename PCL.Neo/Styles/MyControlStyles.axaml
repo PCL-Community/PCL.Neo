@@ -7,4 +7,3 @@
     <StyleInclude Source="avares://PCL.Neo/Controls/MyCard.axaml" />
     <StyleInclude Source="avares://PCL.Neo/Controls/MyMsg/MyMsgText.axaml" />
 </Styles>
-

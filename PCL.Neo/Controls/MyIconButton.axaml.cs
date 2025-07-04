@@ -1,4 +1,3 @@
-using System;
 using Avalonia;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
@@ -6,13 +5,12 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Media;
 using PCL.Neo.Animations;
 using PCL.Neo.Helpers;
 using PCL.Neo.Models;
 using PCL.Neo.Utils;
-using System.Threading.Tasks;
+using System;
 
 namespace PCL.Neo.Controls;
 
@@ -21,7 +19,7 @@ public class MyIconButton : Button
 {
     private Path? _pathIcon;
     private Border? _panBack;
-    private readonly AnimationHelper _animation = new AnimationHelper();
+    private readonly AnimationHelper _animation = new();
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
@@ -29,7 +27,7 @@ public class MyIconButton : Button
         _pathIcon = e.NameScope.Find<Path>("PathIcon")!;
         _panBack = e.NameScope.Find<Border>("PanBack")!;
 
-        this.Loaded += (_, _) => RefreshColor();
+        Loaded += (_, _) => RefreshColor();
 
         // 初始化
         _pathIcon.Data = Logo;
@@ -117,8 +115,7 @@ public class MyIconButton : Button
 
     public static readonly StyledProperty<IconThemes> IconThemeProperty =
         AvaloniaProperty.Register<MyIconButton, IconThemes>(
-            nameof(IconTheme),
-            IconThemes.Color);
+            nameof(IconTheme));
 
     public IconThemes IconTheme
     {
@@ -130,7 +127,7 @@ public class MyIconButton : Button
         }
     }
 
-    public new static readonly StyledProperty<IBrush> ForegroundProperty =
+    public static new readonly StyledProperty<IBrush> ForegroundProperty =
         AvaloniaProperty.Register<MyIconButton, IBrush>(
             nameof(Foreground));
 
@@ -150,7 +147,7 @@ public class MyIconButton : Button
         set => SetValue(ForegroundInnerProperty, value);
     }
 
-    public new static readonly StyledProperty<IBrush> BackgroundProperty =
+    public static new readonly StyledProperty<IBrush> BackgroundProperty =
         AvaloniaProperty.Register<MyIconButton, IBrush>(
             nameof(Background));
 

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.IO;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
@@ -65,6 +64,7 @@ public record GameEntityInfo
     /// Demonstrater is the game started by user. Used to display in the UI.
     /// </summary>
     public bool IsStared { get; set; } = false;
+
     /// <summary>
     /// Demonstrate is the version has been loader (runed).
     /// </summary>
@@ -102,6 +102,6 @@ public class GameEntity
     public GameEntity(GameEntityInfo entityInfo)
     {
         Entity = entityInfo;
-        GameProcess.StartInfo = new ProcessStartInfo() { FileName = Entity.JarPath };
+        GameProcess.StartInfo = new ProcessStartInfo { FileName = Entity.JarPath };
     }
 }

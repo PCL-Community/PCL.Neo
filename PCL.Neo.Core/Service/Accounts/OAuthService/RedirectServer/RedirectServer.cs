@@ -34,7 +34,7 @@ public class RedirectServer : IObservable<RedirectAuthCode>
 
         return new Unsubscriber<RedirectAuthCode>(_observers, observer);
     }
-    
+
     /// <summary>
     /// 开始监听重定向请求
     /// </summary>
@@ -77,7 +77,7 @@ public class RedirectServer : IObservable<RedirectAuthCode>
         var reponseHelper = new ResponseHelper(response);
 
         requestHelper.DispatchResources(fileStream => reponseHelper.WriteContent(fileStream),
-            out RedirectAuthCode authCode);
+            out var authCode);
         _authCode = authCode;
 
         Notify();

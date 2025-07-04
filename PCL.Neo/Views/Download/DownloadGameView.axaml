@@ -12,7 +12,6 @@
         <vmd:DownloadGameViewModel />
     </Design.DataContext>
     <StackPanel>
-        <TextBlock Margin="10" Text="DownloadGameView"/>
+        <TextBlock Margin="10" Text="DownloadGameView" />
     </StackPanel>
 </UserControl>
-

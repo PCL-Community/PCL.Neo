@@ -76,16 +76,16 @@ public static partial class Uuid // TODO: implement different way of genereate u
             const uint seed = 144;
             const uint c1 = 0xcc9e2d51;
             const uint c2 = 0x1b873593;
-            uint h1 = seed;
+            var h1 = seed;
             uint k1;
-            int len = bytes.Length;
-            int i = 0;
+            var len = bytes.Length;
+            var i = 0;
             for (; i + 4 <= len; i += 4)
             {
                 k1 = (uint)((bytes[i] & 0xFF) |
-                    ((bytes[i + 1] & 0xFF) << 8) |
-                    ((bytes[i + 2] & 0xFF) << 16) |
-                    ((bytes[i + 3] & 0xFF) << 24));
+                            ((bytes[i + 1] & 0xFF) << 8) |
+                            ((bytes[i + 2] & 0xFF) << 16) |
+                            ((bytes[i + 3] & 0xFF) << 24));
                 k1 *= c1;
                 k1 = RotateLeft(k1, 15);
                 k1 *= c2;
@@ -93,11 +93,16 @@ public static partial class Uuid // TODO: implement different way of genereate u
                 h1 = RotateLeft(h1, 13);
                 h1 = h1 * 5 + 0xe6546b64;
             }
+
             k1 = 0;
             switch (len & 3)
             {
-                case 3: k1 ^= (uint)(bytes[i + 2] & 0xFF) << 16; goto case 2;
-                case 2: k1 ^= (uint)(bytes[i + 1] & 0xFF) << 8; goto case 1;
+                case 3:
+                    k1 ^= (uint)(bytes[i + 2] & 0xFF) << 16;
+                    goto case 2;
+                case 2:
+                    k1 ^= (uint)(bytes[i + 1] & 0xFF) << 8;
+                    goto case 1;
                 case 1:
                     k1 ^= (uint)(bytes[i] & 0xFF);
                     k1 *= c1;
@@ -106,16 +111,22 @@ public static partial class Uuid // TODO: implement different way of genereate u
                     h1 ^= k1;
                     break;
             }
+
             h1 ^= (uint)len;
             h1 = Fmix(h1);
-            byte[] result = new byte[16];
+            var result = new byte[16];
             BitConverter.GetBytes(h1).CopyTo(result, 0);
             BitConverter.GetBytes(h1 ^ seed).CopyTo(result, 4);
             BitConverter.GetBytes(seed ^ (h1 >> 16)).CopyTo(result, 8);
             BitConverter.GetBytes(seed ^ (h1 << 8)).CopyTo(result, 12);
             return result;
         }
-        private static uint RotateLeft(uint x, int r) => (x << r) | (x >> (32 - r));
+
+        private static uint RotateLeft(uint x, int r)
+        {
+            return (x << r) | (x >> (32 - r));
+        }
+
         private static uint Fmix(uint h)
         {
             h ^= h >> 16;

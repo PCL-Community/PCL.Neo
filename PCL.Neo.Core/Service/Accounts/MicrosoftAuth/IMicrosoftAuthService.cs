@@ -1,5 +1,6 @@
 using PCL.Neo.Core.Service.Accounts.Exceptions;
 using PCL.Neo.Core.Service.Accounts.OAuthService.Exceptions;
+using PCL.Neo.Core.Service.Accounts.Storage;
 using PCL.Neo.Core.Utils;
 
 namespace PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
@@ -46,5 +47,5 @@ public interface IMicrosoftAuthService
     /// </summary>
     /// <param name="refreshToken">OAuth2的刷新Token</param>
     /// <returns>新的Token</returns>
-    Task<Result<Storage.OAuthTokenData, Exception>> RefreshTokenAsync(string refreshToken);
+    Task<Result<OAuthTokenData, Exception>> RefreshTokenAsync(string refreshToken);
 }

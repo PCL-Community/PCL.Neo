@@ -14,23 +14,23 @@ public class AuthCodeMode
     {
         try
         {
-            var authCode             = GetAuthCode();
-            var authToken            = await GetAuthTokenAsync(authCode).ConfigureAwait(false);
+            var authCode = GetAuthCode();
+            var authToken = await GetAuthTokenAsync(authCode).ConfigureAwait(false);
             var minecraftAccessToken = await OAuth.GetMinecraftTokenAsync(authToken.AccessToken).ConfigureAwait(false);
 
             var playerUuidAndName = await MinecraftInfo.GetPlayerUuidAsync(minecraftAccessToken).ConfigureAwait(false);
 
-            return new MsaAccount()
+            return new MsaAccount
             {
                 McAccessToken = minecraftAccessToken,
                 OAuthToken =
                     new OAuthTokenData(authToken.AccessToken, authToken.RefreshToken,
                         new DateTimeOffset(DateTime.Today, TimeSpan.FromSeconds(authToken.ExpiresIn))),
-                UserName       = playerUuidAndName.Name,
+                UserName = playerUuidAndName.Name,
                 UserProperties = string.Empty,
-                Uuid           = playerUuidAndName.Uuid,
-                Capes          = MinecraftInfo.CollectCapes(playerUuidAndName.Capes),
-                Skins          = MinecraftInfo.CollectSkins(playerUuidAndName.Skins)
+                Uuid = playerUuidAndName.Uuid,
+                Capes = MinecraftInfo.CollectCapes(playerUuidAndName.Capes),
+                Skins = MinecraftInfo.CollectSkins(playerUuidAndName.Skins)
             };
         }
         catch (Exception e)

@@ -21,7 +21,10 @@ namespace PCL.Neo.Tests.Core.Download;
 // strong coupling, but this is only a test, who cares?
 public class ConnectionCountConcern(IHandler content, DownloadTest dt) : IConcern
 {
-    public ValueTask PrepareAsync() => Content.PrepareAsync();
+    public ValueTask PrepareAsync()
+    {
+        return Content.PrepareAsync();
+    }
 
     public async ValueTask<IResponse> HandleAsync(IRequest request)
     {
@@ -38,7 +41,10 @@ public class ConnectionCountConcern(IHandler content, DownloadTest dt) : IConcer
 
 public class CustomConcernBuilder(Func<IHandler, IConcern> concernFactory) : IConcernBuilder
 {
-    public IConcern Build(IHandler content) => concernFactory(content);
+    public IConcern Build(IHandler content)
+    {
+        return concernFactory(content);
+    }
 }
 
 public class DownloadTest
@@ -58,7 +64,7 @@ public class DownloadTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        for (int i = 0; i < NumberOfTestCases; i++)
+        for (var i = 0; i < NumberOfTestCases; i++)
         {
             var buffer = new byte[SizeOfSingleTestCase];
             Random.Shared.NextBytes(buffer);
@@ -157,7 +163,7 @@ public class DownloadTest
             DestinationPath = Path.Combine(CachePath, $"downloadtest/{x.Key}"),
             Integrity = new FileIntegrity { ExpectedSize = SizeOfSingleTestCase, Hash = x.Key }
         }));
-        foreach (string x in Output)
+        foreach (var x in Output)
         {
             TestContext.WriteLine(x);
         }
@@ -165,7 +171,9 @@ public class DownloadTest
         Assert.That(Output.All(x => !x.Contains("OVERLOADED!")), Is.True);
         foreach (var (hash, data) in TestCases)
         {
-            Assert.That((await File.ReadAllBytesAsync(Path.Combine(CachePath, $"downloadtest/{hash}"))).SequenceEqual(data), Is.True);
+            Assert.That(
+                (await File.ReadAllBytesAsync(Path.Combine(CachePath, $"downloadtest/{hash}"))).SequenceEqual(data),
+                Is.True);
         }
     }
 
@@ -199,10 +207,13 @@ public class DownloadTest
         stopwatch.Stop();
         var timeTaken = stopwatch.Elapsed.TotalSeconds;
         TestContext.WriteLine($"Total time taken: {timeTaken}s");
-        TestContext.WriteLine($"Estimated transfer rate: {(double)NumberOfTestCases * SizeOfSingleTestCase / timeTaken / 1024 / 1024:0.##}MB/s");
+        TestContext.WriteLine(
+            $"Estimated transfer rate: {(double)NumberOfTestCases * SizeOfSingleTestCase / timeTaken / 1024 / 1024:0.##}MB/s");
         foreach (var (hash, data) in TestCases)
         {
-            Assert.That((await File.ReadAllBytesAsync(Path.Combine(CachePath, $"downloadtest/{hash}"))).SequenceEqual(data), Is.True);
+            Assert.That(
+                (await File.ReadAllBytesAsync(Path.Combine(CachePath, $"downloadtest/{hash}"))).SequenceEqual(data),
+                Is.True);
         }
     }
 
@@ -237,6 +248,7 @@ public class DownloadTest
         {
             TestContext.WriteLine($"Caught exception: {ex}");
         }
+
         if (!receipt.IsCompleted)
             TestContext.WriteLine($"Download failed as expected!, ex: {receipt.Error}");
         else
@@ -263,6 +275,7 @@ public class DownloadTest
                 TestContext.Progress.WriteLine("Cancelling..");
                 downloader.Cancel();
             }
+
             lastProgress = p;
             TestContext.Progress.WriteLine($"{p * 100:0.##}% {(double)downloader.TransferRate / 1024 / 1024:0.##}MB/s");
         });
@@ -278,8 +291,9 @@ public class DownloadTest
         stopwatch.Stop();
         var timeTaken = stopwatch.Elapsed.TotalSeconds;
         TestContext.WriteLine($"Total time taken: {timeTaken}s");
-        TestContext.WriteLine($"Estimated transfer rate: {(double)NumberOfTestCases * SizeOfSingleTestCase / timeTaken / 1024 / 1024:0.##}MB/s");
-        foreach (string s in Directory.EnumerateFiles(Path.Combine(CachePath, "downloadtest")))
+        TestContext.WriteLine(
+            $"Estimated transfer rate: {(double)NumberOfTestCases * SizeOfSingleTestCase / timeTaken / 1024 / 1024:0.##}MB/s");
+        foreach (var s in Directory.EnumerateFiles(Path.Combine(CachePath, "downloadtest")))
         {
             var filename = Path.GetFileName(s);
             Assert.That(filename, Is.Not.Contain(".tmp"));

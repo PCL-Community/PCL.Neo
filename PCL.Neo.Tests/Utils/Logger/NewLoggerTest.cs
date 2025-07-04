@@ -1,30 +1,29 @@
 using PCL.Neo.Core.Utils.Logger;
 using System;
 
-namespace PCL.Neo.Tests.Utils.Logger
+namespace PCL.Neo.Tests.Utils.Logger;
+
+[TestFixture]
+[TestOf(typeof(NewLogger))]
+public class NewLoggerTest
 {
-    [TestFixture]
-    [TestOf(typeof(NewLogger))]
-    public class NewLoggerTest
+    [Test]
+    public void LoggerTest()
     {
-        [Test]
-        public void LoggerTest()
+        var logger = NewLogger.Logger;
+        var ex = new Exception("test exception");
+
+        logger.OnDebugLogEvent += argvs =>
         {
-            var logger = NewLogger.Logger;
-            var ex = new Exception("test exception");
+            Console.WriteLine(argvs.Message);
+            Console.WriteLine(argvs.Timestamp.ToString("O"));
+            Console.WriteLine("OnDebugLog");
+        };
 
-            logger.OnDebugLogEvent += argvs =>
-            {
-                Console.WriteLine(argvs.Message);
-                Console.WriteLine(argvs.Timestamp.ToString("O"));
-                Console.WriteLine("OnDebugLog");
-            };
-
-            logger.LogDebug("Test Debug", level: NewLogger.LogLevel.Debug);
-            logger.LogInformation("Hello World!");
-            logger.LogWarning("Test Warning");
-            logger.LogError("Test Error");
-            logger.LogFatal("Test Fatal", ex);
-        }
+        logger.LogDebug("Test Debug", level: NewLogger.LogLevel.Debug);
+        logger.LogInformation("Hello World!");
+        logger.LogWarning("Test Warning");
+        logger.LogError("Test Error");
+        logger.LogFatal("Test Fatal", ex);
     }
 }

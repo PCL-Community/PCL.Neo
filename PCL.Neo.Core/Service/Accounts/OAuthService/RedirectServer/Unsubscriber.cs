@@ -6,7 +6,9 @@ internal sealed class Unsubscriber<TRedirectAuthCode> : IDisposable
     private readonly ISet<IObserver<TRedirectAuthCode>> _observers;
 
     internal Unsubscriber(ISet<IObserver<TRedirectAuthCode>> observers, IObserver<TRedirectAuthCode> observer)
-        => (_observers, _observer) = (observers, observer);
+    {
+        (_observers, _observer) = (observers, observer);
+    }
 
     /// <inheritdoc />
     public void Dispose()

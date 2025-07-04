@@ -23,7 +23,7 @@ public class FileTest
     {
         await new JavaManager().FetchJavaOnline("mac-os-arm64", "/Users/amagicpear/Downloads/PCL2Test",
             JavaManager.MojangJavaVersion.Δ,
-            new Progress<(int, int)>((value) =>
+            new Progress<(int, int)>(value =>
             {
                 Console.WriteLine($"下载进度：已下载{value.Item1}/总文件数{value.Item2}");
             }));
@@ -33,7 +33,8 @@ public class FileTest
     [Test]
     public void ModPackTest()
     {
-        ModPack.InstallPackModrinth("/Users/amagicpear/Downloads/1.20.4-Fabric 0.15.3/modpack.mrpack", "/Users/amagicpear/Downloads/TestModPack");
+        ModPack.InstallPackModrinth("/Users/amagicpear/Downloads/1.20.4-Fabric 0.15.3/modpack.mrpack",
+            "/Users/amagicpear/Downloads/TestModPack");
     }
 
     [Test]
@@ -43,7 +44,8 @@ public class FileTest
     }
 
     [Test]
-    public async Task SelectFileTest(){
+    public async Task SelectFileTest()
+    {
         // await Helpers.FileExtension.SelectFile("Test");
     }
 }

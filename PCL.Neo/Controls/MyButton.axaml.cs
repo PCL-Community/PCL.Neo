@@ -22,7 +22,7 @@ public class MyButton : Button
 
     public MyButton()
     {
-        _animation = new();
+        _animation = new AnimationHelper();
         Inlines = new InlineCollection();
     }
 
@@ -70,8 +70,9 @@ public class MyButton : Button
 
     public int Uuid = CoreUtils.GetUuid();
 
-    public static readonly StyledProperty<InlineCollection?> InlinesProperty = AvaloniaProperty.Register<MyButton, InlineCollection?>(
-        nameof(Inlines), new InlineCollection());
+    public static readonly StyledProperty<InlineCollection?> InlinesProperty =
+        AvaloniaProperty.Register<MyButton, InlineCollection?>(
+            nameof(Inlines), new InlineCollection());
 
     [Content]
     public InlineCollection? Inlines
@@ -89,8 +90,9 @@ public class MyButton : Button
         set => SetValue(TextProperty, value);
     }
 
-    public static readonly StyledProperty<Thickness> TextPaddingProperty = AvaloniaProperty.Register<MyButton, Thickness>(
-        nameof(TextPadding));
+    public static readonly StyledProperty<Thickness> TextPaddingProperty =
+        AvaloniaProperty.Register<MyButton, Thickness>(
+            nameof(TextPadding));
 
     public Thickness TextPadding
     {
@@ -105,8 +107,9 @@ public class MyButton : Button
         Red
     }
 
-    public static readonly StyledProperty<ColorState> ColorTypeProperty = AvaloniaProperty.Register<MyButton, ColorState>(
-        nameof(ColorType));
+    public static readonly StyledProperty<ColorState> ColorTypeProperty =
+        AvaloniaProperty.Register<MyButton, ColorState>(
+            nameof(ColorType));
 
     public ColorState ColorType
     {
@@ -114,8 +117,9 @@ public class MyButton : Button
         set => SetValue(ColorTypeProperty, value);
     }
 
-    public static readonly StyledProperty<Transform> RealRenderTransformProperty = AvaloniaProperty.Register<MyButton, Transform>(
-        nameof(RealRenderTransform));
+    public static readonly StyledProperty<Transform> RealRenderTransformProperty =
+        AvaloniaProperty.Register<MyButton, Transform>(
+            nameof(RealRenderTransform));
 
     public Transform RealRenderTransform
     {
@@ -164,6 +168,7 @@ public class MyButton : Button
         {
             _panFore.BorderBrush = (SolidColorBrush)ThemeHelper.ColorGray4;
         }
+
         _panFore.Background = (IBrush?)Application.Current!.Resources["ColorBrushHalfWhite"];
     }
 

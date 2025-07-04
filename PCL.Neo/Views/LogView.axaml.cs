@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using PCL.Neo.ViewModels;
 using System;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 
 namespace PCL.Neo.Views;
@@ -9,20 +10,20 @@ namespace PCL.Neo.Views;
 public partial class LogView : UserControl
 {
     private ScrollViewer? _logScrollViewer;
-    
+
     public LogView()
     {
         InitializeComponent();
-        
-        this.Loaded += LogView_Loaded;
+
+        Loaded += LogView_Loaded;
     }
-    
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
         _logScrollViewer = this.FindControl<ScrollViewer>("LogScrollViewer");
     }
-    
+
     private void LogView_Loaded(object? sender, EventArgs e)
     {
         if (DataContext is LogViewModel viewModel && _logScrollViewer != null)
@@ -30,7 +31,7 @@ public partial class LogView : UserControl
             // 监听过滤条件变化，更新滚动位置
             viewModel.PropertyChanged += (s, args) =>
             {
-                if ((args.PropertyName == nameof(LogViewModel.FilterText) || 
+                if ((args.PropertyName == nameof(LogViewModel.FilterText) ||
                      args.PropertyName == nameof(LogViewModel.ShowErrorOnly)) &&
                     viewModel.IsAutoScroll)
                 {
@@ -40,11 +41,11 @@ public partial class LogView : UserControl
                     });
                 }
             };
-            
+
             // 监听日志条目变化，更新滚动位置
             if (viewModel.LogEntries != null)
             {
-                ((System.Collections.Specialized.INotifyCollectionChanged)viewModel.LogEntries).CollectionChanged += (s, args) =>
+                ((INotifyCollectionChanged)viewModel.LogEntries).CollectionChanged += (s, args) =>
                 {
                     if (viewModel.IsAutoScroll && args.NewItems?.Count > 0)
                     {
@@ -52,12 +53,12 @@ public partial class LogView : UserControl
                     }
                 };
             }
-            
+
             // 初始滚动到底部
             ScrollToBottom();
         }
     }
-    
+
     private void ScrollToBottom()
     {
         if (_logScrollViewer != null)
@@ -65,4 +66,4 @@ public partial class LogView : UserControl
             _logScrollViewer.ScrollToEnd();
         }
     }
-} 
+}

@@ -1,7 +1,6 @@
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels.Job;
 using System;
-using System.Timers;
 
 namespace PCL.Neo.ViewModels;
 
@@ -17,7 +16,7 @@ public class JobViewModel : ViewModelBase
 
     public JobViewModel(JobService jobService)
     {
-        this.JobService = jobService;
+        JobService = jobService;
     }
 
     public double Progress => JobService.Progress * 100;

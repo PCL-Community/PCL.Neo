@@ -1,18 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
-using PCL.Neo.Models.Minecraft.Game;
-using PCL.Neo.Models.Minecraft.Game.Data;
 using PCL.Neo.Services;
-using PCL.Neo.ViewModels;
+using PCL.Neo.ViewModels.Download;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using PCL.Neo.Core.Models.Minecraft.Game;
-using System.IO;
 
 namespace PCL.Neo.ViewModels.Home;
 
@@ -40,28 +37,44 @@ public partial class VersionManagerViewModel : ViewModelBase
 {
     private readonly INavigationService _navigationService;
     private readonly GameService _gameService;
-    private readonly PCL.Neo.Core.Models.Minecraft.Game.GameLauncher _gameLauncher;
+    private readonly GameLauncher _gameLauncher;
     private readonly StorageService _storageService;
 
-    [ObservableProperty] private ObservableCollection<GameDirectory> _directories = new();
-    [ObservableProperty] private GameDirectory? _selectedDirectory;
+    [ObservableProperty]
+    private ObservableCollection<GameDirectory> _directories = new();
 
-    [ObservableProperty] private ObservableCollection<VersionItem> _versions = new();
-    [ObservableProperty] private ObservableCollection<VersionItem> _filteredVersions = new();
-    [ObservableProperty] private VersionItem? _selectedVersion;
+    [ObservableProperty]
+    private GameDirectory? _selectedDirectory;
 
-    [ObservableProperty] private ObservableCollection<string> _versionFilters = new();
-    [ObservableProperty] private string _selectedVersionFilter = "全部";
-    [ObservableProperty] private string _searchText = string.Empty;
+    [ObservableProperty]
+    private ObservableCollection<VersionItem> _versions = new();
 
-    [ObservableProperty] private bool _isLoading = false;
-    [ObservableProperty] private string _statusMessage = string.Empty;
+    [ObservableProperty]
+    private ObservableCollection<VersionItem> _filteredVersions = new();
+
+    [ObservableProperty]
+    private VersionItem? _selectedVersion;
+
+    [ObservableProperty]
+    private ObservableCollection<string> _versionFilters = new();
+
+    [ObservableProperty]
+    private string _selectedVersionFilter = "全部";
+
+    [ObservableProperty]
+    private string _searchText = string.Empty;
+
+    [ObservableProperty]
+    private bool _isLoading;
+
+    [ObservableProperty]
+    private string _statusMessage = string.Empty;
 
     public VersionManagerViewModel(
         INavigationService navigationService,
         GameService gameService,
         StorageService storageService,
-        PCL.Neo.Core.Models.Minecraft.Game.GameLauncher gameLauncher)
+        GameLauncher gameLauncher)
     {
         _navigationService = navigationService;
         _gameService = gameService;
@@ -281,7 +294,7 @@ public partial class VersionManagerViewModel : ViewModelBase
     public async Task DownloadVersionCommand()
     {
         // 导航到下载页面
-        await _navigationService.GoToAsync<Download.DownloadGameViewModel>();
+        await _navigationService.GoToAsync<DownloadGameViewModel>();
     }
 
     [RelayCommand]
@@ -332,7 +345,7 @@ public partial class VersionManagerViewModel : ViewModelBase
             return;
 
         // 检查Java路径是否存在
-        string javaPath = _gameService.DefaultJavaRuntimes.Java21.JavaWExe;
+        var javaPath = _gameService.DefaultJavaRuntimes.Java21.JavaWExe;
         if (string.IsNullOrEmpty(javaPath) || !File.Exists(javaPath))
         {
             StatusMessage = "无效的Java路径，请在设置中选择正确的Java可执行文件";
@@ -356,7 +369,7 @@ public partial class VersionManagerViewModel : ViewModelBase
             StatusMessage = $"正在启动 {version.Name}...";
 
             // 创建完善的启动选项
-            var launchOptions = new PCL.Neo.Core.Models.Minecraft.Game.LaunchOptions
+            var launchOptions = new LaunchOptions
             {
                 VersionId = version.Id,
                 MinecraftRootDirectory = version.Directory,
@@ -410,7 +423,7 @@ public partial class VersionManagerViewModel : ViewModelBase
             }
 
             // 使用正式的GameLauncher启动游戏
-            Process process = await _gameLauncher.LaunchAsync(launchOptions);
+            var process = await _gameLauncher.LaunchAsync(launchOptions);
             StatusMessage = $"{version.Name} 已启动";
 
             // 如果设置了启动后关闭启动器
@@ -433,7 +446,7 @@ public partial class VersionManagerViewModel : ViewModelBase
     private string GetDirectoryDisplayName(string path)
     {
         // 从路径生成显示名称
-        string displayName = Path.GetFileName(path);
+        var displayName = Path.GetFileName(path);
         if (string.IsNullOrEmpty(displayName))
         {
             displayName = path;

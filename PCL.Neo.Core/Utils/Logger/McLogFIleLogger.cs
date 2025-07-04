@@ -82,14 +82,14 @@ public sealed class McLogFIleLogger : IDisposable
         {
             try
             {
-                while (await _process.StandardOutput.ReadLineAsync() is { } line)
+                while (await _process.StandardOutput.ReadLineAsync() is {} line)
                 {
                     await AppendContent(line);
                 }
             }
             catch (Exception ex)
             {
-                NewLogger.Logger.LogError($"Error reading standard error.", ex);
+                NewLogger.Logger.LogError("Error reading standard error.", ex);
             }
         });
     }
@@ -100,7 +100,7 @@ public sealed class McLogFIleLogger : IDisposable
         {
             try
             {
-                while (await _process.StandardError.ReadLineAsync() is { } line)
+                while (await _process.StandardError.ReadLineAsync() is {} line)
                 {
                     await AppendContent(line);
                 }

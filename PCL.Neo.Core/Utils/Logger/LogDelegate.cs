@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace PCL.Neo.Core.Utils.Logger;
 
 public sealed class LogDelegate
@@ -21,7 +15,7 @@ public sealed class LogDelegate
     public delegate void OnDebugLogEvent(LogEventArgvs argvs);
 }
 
-public record LogEventArgvs()
+public record LogEventArgvs
 {
     public required string Message { get; init; }
     public Exception? Exception { get; init; } = null;

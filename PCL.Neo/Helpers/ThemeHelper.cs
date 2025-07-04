@@ -1,4 +1,3 @@
-using System;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -6,6 +5,7 @@ using Avalonia.Platform;
 using Avalonia.Styling;
 using PCL.Neo.Models;
 using PCL.Neo.Views;
+using System;
 
 namespace PCL.Neo.Helpers;
 
@@ -45,6 +45,7 @@ public class ThemeHelper
             Refresh(themeVariant);
         };
     }
+
     public void Refresh(ThemeVariant themeVariant)
     {
         // 主题色

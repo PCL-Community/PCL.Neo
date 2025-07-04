@@ -1,7 +1,5 @@
 using PCL.Neo.Services;
 using System;
-using System.IO;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,10 +61,10 @@ public class JobServiceTest
     {
         TestContext.Progress.WriteLine($"JobService Progress:\t{js.Progress * 100:0.00}%");
         TestContext.Progress.WriteLine("Jobs:");
-        foreach (Job j in js.Jobs)
+        foreach (var j in js.Jobs)
         {
             TestContext.Progress.WriteLine($"\t{j.Name}:\t{j.Progress * 100:0.00}%\tIsCompleted: {j.IsCompleted}");
-            foreach (Job.Stage s in j.Stages)
+            foreach (var s in j.Stages)
             {
                 TestContext.Progress.WriteLine($"\t\t{s.Name}:\t{s.Progress * 100:0.00}%\tStatus: {s.Status:G}");
             }
@@ -91,7 +89,7 @@ public class JobServiceTest
                     PrintSummary(js);
                 }
             }
-            catch (TaskCanceledException) { }
+            catch (TaskCanceledException) {}
         }, cts.Token);
 
         await callback(js);

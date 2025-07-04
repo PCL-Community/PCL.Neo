@@ -1,7 +1,4 @@
 using PCL.Neo.Core.Utils;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Security.Cryptography;
 
 namespace PCL.Neo.Core.Download;
 
@@ -32,7 +29,7 @@ public class DownloadReceipt
         {
             return Task.Run(async () => await DownloadAsync(client, false, token), token);
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) {}
 
         return Task.FromCanceled(token);
     }
@@ -96,7 +93,7 @@ public class DownloadReceipt
 
                     // 異議あり！ ...
                     const int baseDelayMs = 500;
-                    int delay = baseDelayMs * (1 << Attempts++);
+                    var delay = baseDelayMs * (1 << Attempts++);
                     // TODO: remove this testing log
                     Console.WriteLine(
                         $"[{SourceUrl}] Attempt {Attempts} failed: {ex.Message}. Retry after {delay} ms...");
@@ -110,7 +107,7 @@ public class DownloadReceipt
                 OnSuccess?.Invoke(this);
             }
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) {}
         catch (Exception ex)
         {
             // 寄
@@ -127,15 +124,19 @@ public class DownloadReceipt
         }
     }
 
-    public static async Task FastDownloadAsync(string sourceUrl, string destPath, string? sha1 = null, CancellationToken token = default) =>
+    public static async Task FastDownloadAsync(string sourceUrl, string destPath, string? sha1 = null,
+        CancellationToken token = default)
+    {
         await new DownloadReceipt
         {
             SourceUrl = sourceUrl,
             DestinationPath = destPath,
             Integrity = sha1 is null ? null : new FileIntegrity { Hash = sha1 }
         }.DownloadAsync(token: token);
+    }
 
-    public static async Task<FileStream> FastDownloadAsStreamAsync(string sourceUrl, string destPath, string? sha1 = null, CancellationToken token = default)
+    public static async Task<FileStream> FastDownloadAsStreamAsync(string sourceUrl, string destPath,
+        string? sha1 = null, CancellationToken token = default)
     {
         await FastDownloadAsync(sourceUrl, destPath, sha1, token);
         return new FileStream(destPath, FileMode.Open, FileAccess.Read, FileShare.Read);

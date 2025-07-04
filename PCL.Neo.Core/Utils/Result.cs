@@ -25,8 +25,15 @@ public class Result<TOk, TError>
     public TOk Value => IsSuccess ? _ok : throw new InvalidOperationException("Result is a failure.");
     public TError Error => IsFailure ? _error : throw new InvalidOperationException("Result is success.");
 
-    public static Result<TOk, TError> Ok(TOk value) => new(value);
-    public static Result<TOk, TError> Fail(TError error) => new(error);
+    public static Result<TOk, TError> Ok(TOk value)
+    {
+        return new Result<TOk, TError>(value);
+    }
+
+    public static Result<TOk, TError> Fail(TError error)
+    {
+        return new Result<TOk, TError>(error);
+    }
 
     public TResult Match<TResult>(Func<TOk, TResult> onSuccess, Func<TError, TResult> onFailure)
     {
@@ -74,5 +81,8 @@ public class Result<TOk, TError>
         return IsSuccess ? continuationFunc(_ok) : Result<TNewSuccess, TError>.Fail(_error);
     }
 
-    public static implicit operator Result<TOk, TError>(TOk value) => Ok(value);
+    public static implicit operator Result<TOk, TError>(TOk value)
+    {
+        return Ok(value);
+    }
 }

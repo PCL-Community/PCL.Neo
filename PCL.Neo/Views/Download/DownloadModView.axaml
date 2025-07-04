@@ -12,7 +12,6 @@
         <vmd:DownloadModViewModel />
     </Design.DataContext>
     <StackPanel>
-        <TextBlock Margin="10" Text="DownloadModView"/>
+        <TextBlock Margin="10" Text="DownloadModView" />
     </StackPanel>
 </UserControl>
-

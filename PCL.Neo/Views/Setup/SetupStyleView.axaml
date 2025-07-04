@@ -6,4 +6,3 @@
              x:Class="PCL.Neo.Views.Setup.SetupStyleView">
     Welcome to Avalonia!
 </UserControl>
-

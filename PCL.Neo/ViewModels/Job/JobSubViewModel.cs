@@ -15,6 +15,6 @@ public class JobSubViewModel : ViewModelBase
 
     public JobSubViewModel(JobService jobService)
     {
-        this.JobService = jobService;
+        JobService = jobService;
     }
 }

@@ -10,10 +10,10 @@ namespace PCL.Neo.Helpers;
 public class AnimationHelper(List<IAnimation> animations)
 {
     public List<IAnimation> Animations { get; set; } = animations;
-    public List<Task> Tasks { get; } = new List<Task>();
+    public List<Task> Tasks { get; } = new();
     public bool Loop { get; set; } = false;
 
-    public AnimationHelper() : this([]){}
+    public AnimationHelper() : this([]) {}
 
     public void Run()
     {
@@ -42,7 +42,7 @@ public class AnimationHelper(List<IAnimation> animations)
         // 根据 Wait 进行动画分组
         var groupedAnimations = new List<List<IAnimation>>();
         var currentGroup = new List<IAnimation>();
-        foreach (IAnimation animation in Animations)
+        foreach (var animation in Animations)
         {
             if (animation.Wait)
             {
@@ -52,6 +52,7 @@ public class AnimationHelper(List<IAnimation> animations)
                     currentGroup.Clear();
                     continue;
                 }
+
                 currentGroup.Add(animation);
             }
             else
@@ -67,9 +68,9 @@ public class AnimationHelper(List<IAnimation> animations)
 
         currentGroup.Clear();
 
-        foreach (List<IAnimation> list in groupedAnimations)
+        foreach (var list in groupedAnimations)
         {
-            foreach (IAnimation animation in list)
+            foreach (var animation in list)
             {
                 Tasks.Add(animation.RunAsync());
             }
@@ -80,7 +81,7 @@ public class AnimationHelper(List<IAnimation> animations)
 
     public void Cancel()
     {
-        foreach (IAnimation animation in Animations)
+        foreach (var animation in Animations)
         {
             animation.Cancel();
         }

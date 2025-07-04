@@ -11,7 +11,10 @@ public static class RandomUtils
     /// <summary>
     /// 随机获取集合中的一个元素。
     /// </summary>
-    public static T RandomOne<T>(ICollection<T> objects) => objects.ElementAt(_random.Next(0, objects.Count - 1));
+    public static T RandomOne<T>(ICollection<T> objects)
+    {
+        return objects.ElementAt(_random.Next(0, objects.Count - 1));
+    }
 
     /// <summary>
     /// 将数组随机打乱。

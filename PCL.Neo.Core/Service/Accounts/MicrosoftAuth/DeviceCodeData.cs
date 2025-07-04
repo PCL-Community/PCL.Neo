@@ -1,3 +1,5 @@
+using PCL.Neo.Core.Service.Accounts.Storage;
+
 namespace PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 
 public static class DeviceCodeData
@@ -7,8 +9,8 @@ public static class DeviceCodeData
     public record DeviceCodeAccessToken(string AccessToken, string RefreshToken, DateTimeOffset ExpiresIn);
 
     public record McAccountInfo(
-        List<Storage.Skin> Skins,
-        List<Storage.Cape> Capes,
+        List<Skin> Skins,
+        List<Cape> Capes,
         string UserName,
         string Uuid);
 }

@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using static PCL.Neo.Const;
+using Timer = System.Timers.Timer;
 
 namespace PCL.Neo.Utils;
 
@@ -51,15 +52,15 @@ public class Logger
 
     private static Logger? _instance;
 
-    private LogDelegate _hintLogDelegate = _ => { };
-    private LogDelegate _feedbackLogDelegate = _ => { };
-    private LogDelegate _developerLogDelegate = _ => { };
-    private LogDelegate _assertLogDelegate = _ => { };
-    private LogDelegate _msgboxLogDelegate = _ => { };
-    private LogDelegate _debugLogDelegate = _ => { };
+    private LogDelegate _hintLogDelegate = _ => {};
+    private LogDelegate _feedbackLogDelegate = _ => {};
+    private LogDelegate _developerLogDelegate = _ => {};
+    private LogDelegate _assertLogDelegate = _ => {};
+    private LogDelegate _msgboxLogDelegate = _ => {};
+    private LogDelegate _debugLogDelegate = _ => {};
     private readonly StreamWriter? _logStream;
     private readonly ConcurrentQueue<string> _logQueue = new();
-    private readonly System.Timers.Timer _logTimer;
+    private readonly Timer _logTimer;
 
     public static void InitLogger(string logFilePath)
     {
@@ -88,8 +89,8 @@ public class Logger
 
     private Logger(string logFilePath)
     {
-        bool isInitSuccess = true;
-        _logTimer = new System.Timers.Timer(FlushInterval) { AutoReset = true };
+        var isInitSuccess = true;
+        _logTimer = new Timer(FlushInterval) { AutoReset = true };
         _logTimer.Elapsed += (_, _) => Flush();
         try
         {
@@ -105,6 +106,7 @@ public class Logger
             isInitSuccess = false;
             Log(ex, "日志初始化失败", LogLevel.Developer);
         }
+
         _logTimer.Start();
 
         if (!isInitSuccess) return;
@@ -153,13 +155,13 @@ public class Logger
 
     public void Log(string text, LogLevel level = LogLevel.Normal, string title = "出现错误")
     {
-        string logText = $"[{TimeDateUtils.GetTimeNow()}] {text}{CrLf}";
+        var logText = $"[{TimeDateUtils.GetTimeNow()}] {text}{CrLf}";
 
         _logQueue.Enqueue(logText);
 #if DEBUG
         Debug.Write(logText);
 #endif
-        string msg = Regex.Replace(text, @"\[[^\]]+?\] ", "");
+        var msg = Regex.Replace(text, @"\[[^\]]+?\] ", "");
         switch (level)
         {
 #if DEBUG

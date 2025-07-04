@@ -12,4 +12,3 @@
                    Text="{Binding Progress, StringFormat='Progress: {0:0.##}%'}" />
     </StackPanel>
 </UserControl>
-

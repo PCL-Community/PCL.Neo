@@ -1,5 +1,3 @@
-using PCL.Neo.Core.Service.Accounts;
-
 namespace PCL.Neo.Core.Service.Accounts.OAuthService.RedirectServer;
 
 public class AuthCode : IObserver<RedirectAuthCode>
@@ -9,7 +7,7 @@ public class AuthCode : IObserver<RedirectAuthCode>
     public RedirectAuthCode? AuthCodeValue { get; private set; }
 
     /// <inheritdoc />
-    public void OnCompleted() { }
+    public void OnCompleted() {}
 
     /// <inheritdoc />
     public void OnError(Exception error)
@@ -36,7 +34,7 @@ public class AuthCode : IObserver<RedirectAuthCode>
             this.LogAuthError("授权码获取失败，返回值为空");
             throw new InvalidOperationException("授权码获取失败");
         }
-        
+
         this.LogAuthDebug("授权码获取完成");
         return AuthCodeValue;
     }

@@ -7,8 +7,9 @@ public class ModPack
     public static void InstallPackModrinth(string mrpack, string directory)
     {
         if (!File.Exists(mrpack)) { throw new FileNotFoundException(); }
+
         // ZipFile.ExtractToDirectory(mrpack, directory);
-        using (ZipArchive archive = ZipFile.OpenRead(mrpack))
+        using (var archive = ZipFile.OpenRead(mrpack))
         {
             var modrinthOptions = archive.GetEntry("modrinth.index.json");
 

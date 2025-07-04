@@ -18,21 +18,21 @@
                     <TextBlock Grid.Row="0" Grid.Column="0"
                                Text="整合包名称:"
                                VerticalAlignment="Center"
-                               Margin="0,0,10,0"/>
+                               Margin="0,0,10,0" />
 
                     <TextBox Grid.Row="0" Grid.Column="1"
                              Text="{Binding PackageName}"
-                             VerticalAlignment="Center"/>
+                             VerticalAlignment="Center" />
 
                     <TextBlock Grid.Row="0" Grid.Column="2"
                                Text="整合包版本:"
                                VerticalAlignment="Center"
-                               Margin="10,0"/>
+                               Margin="10,0" />
 
                     <TextBox Grid.Row="0" Grid.Column="3"
                              Text="{Binding PackageVersion}"
                              VerticalAlignment="Center"
-                             Width="120"/>
+                             Width="120" />
                 </Grid>
             </Border>
 
@@ -45,87 +45,87 @@
                     <TextBlock Text="导出内容列表"
                                FontSize="16"
                                FontWeight="Bold"
-                               Margin="0,0,0,15"/>
+                               Margin="0,0,0,15" />
 
                     <StackPanel Margin="0,5,0,0">
                         <!-- 游戏本体 -->
                         <CheckBox Content="游戏本体"
                                   IsChecked="{Binding ExportGameCore}"
-                                  FontWeight="SemiBold"/>
+                                  FontWeight="SemiBold" />
 
                         <StackPanel Margin="25,5,0,10">
                             <Grid ColumnDefinitions="Auto,*">
                                 <CheckBox Grid.Column="0"
                                           Content="游戏本体设置"
                                           IsChecked="{Binding ExportGameSettings}"
-                                          VerticalAlignment="Center"/>
+                                          VerticalAlignment="Center" />
 
                                 <TextBlock Grid.Column="1"
                                            Text="键位、音量、视频设置等"
                                            Foreground="#757575"
                                            VerticalAlignment="Center"
-                                           Margin="10,0,0,0"/>
+                                           Margin="10,0,0,0" />
                             </Grid>
 
                             <Grid ColumnDefinitions="Auto,*" Margin="0,5,0,0">
                                 <CheckBox Grid.Column="0"
                                           Content="游戏本体个人信息"
                                           IsChecked="{Binding ExportGameUserInfo}"
-                                          VerticalAlignment="Center"/>
+                                          VerticalAlignment="Center" />
 
                                 <TextBlock Grid.Column="1"
                                            Text="金币历史、已保存的状态等"
                                            Foreground="#757575"
                                            VerticalAlignment="Center"
-                                           Margin="10,0,0,0"/>
+                                           Margin="10,0,0,0" />
                             </Grid>
                         </StackPanel>
 
                         <!-- Mod -->
                         <CheckBox Content="Mod"
                                   IsChecked="{Binding ExportMods}"
-                                  FontWeight="SemiBold"/>
+                                  FontWeight="SemiBold" />
 
                         <StackPanel Margin="25,5,0,10">
                             <Grid ColumnDefinitions="Auto,*">
                                 <CheckBox Grid.Column="0"
                                           Content="Mod 设置"
                                           IsChecked="{Binding ExportModsSettings}"
-                                          VerticalAlignment="Center"/>
+                                          VerticalAlignment="Center" />
                             </Grid>
                         </StackPanel>
 
                         <!-- 资源包 -->
                         <CheckBox Content="资源包"
                                   IsChecked="{Binding ExportResourcePacks}"
-                                  FontWeight="SemiBold"/>
+                                  FontWeight="SemiBold" />
 
                         <StackPanel Margin="25,5,0,10">
                             <Grid ColumnDefinitions="Auto,Auto,*">
                                 <CheckBox Grid.Column="0"
                                           IsChecked="True"
-                                          VerticalAlignment="Center"/>
+                                          VerticalAlignment="Center" />
 
                                 <TextBlock Grid.Column="1"
                                            Text="PlaceHolder"
                                            VerticalAlignment="Center"
-                                           Margin="10,0,0,0"/>
+                                           Margin="10,0,0,0" />
                             </Grid>
                         </StackPanel>
 
                         <!-- 其他选项 -->
                         <CheckBox Content="多人游戏服务器列表"
                                   IsChecked="{Binding ExportMultiServerList}"
-                                  FontWeight="SemiBold"/>
+                                  FontWeight="SemiBold" />
 
                         <CheckBox Content="PCL 启动器程序"
                                   IsChecked="{Binding ExportLauncherProgram}"
                                   FontWeight="SemiBold"
-                                  Margin="0,5,0,0"/>
+                                  Margin="0,5,0,0" />
 
                         <TextBlock Text="打包社区版 PCL，以便没有启动器的玩家安装整合包"
                                    Foreground="#757575"
-                                   Margin="25,0,0,0"/>
+                                   Margin="25,0,0,0" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -140,23 +140,23 @@
                         <TextBlock Grid.Column="0"
                                    Text="高级选项"
                                    FontSize="16"
-                                   FontWeight="Bold"/>
+                                   FontWeight="Bold" />
 
                         <Button Grid.Column="1"
                                 Content="∧"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Padding="4"
-                                FontWeight="Bold"/>
+                                FontWeight="Bold" />
                     </Grid>
 
                     <StackPanel Margin="0,10,0,0">
                         <CheckBox Content="打包资源文件，以避免在导入时下载"
-                                  IsChecked="{Binding ExportSourceFiles}"/>
+                                  IsChecked="{Binding ExportSourceFiles}" />
 
                         <CheckBox Content="Modrinth 上传模式"
                                   IsChecked="{Binding UseModrinthUpload}"
-                                  Margin="0,5,0,0"/>
+                                  Margin="0,5,0,0" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -173,12 +173,12 @@
                           Fill="#2196F3"
                           Width="16"
                           Height="16"
-                          Margin="0,0,8,0"/>
+                          Margin="0,0,8,0" />
 
                     <TextBlock Grid.Column="1"
-                              Text="配置文件中含有未在此处列出的选项，例如精确控制导出的文件、设置整合包存放位置等。请先选择&quot;保存配置&quot;，然后编辑保存的配置文件。"
-                              TextWrapping="Wrap"
-                              VerticalAlignment="Center"/>
+                               Text="配置文件中含有未在此处列出的选项，例如精确控制导出的文件、设置整合包存放位置等。请先选择&quot;保存配置&quot;，然后编辑保存的配置文件。"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center" />
 
                     <Button Grid.Column="2"
                             Content="×"
@@ -187,7 +187,7 @@
                             Padding="4"
                             Foreground="#2196F3"
                             VerticalAlignment="Top"
-                            HorizontalAlignment="Right"/>
+                            HorizontalAlignment="Right" />
                 </Grid>
             </Border>
 
@@ -198,17 +198,17 @@
                 <Button Content="读取配置"
                         Command="{Binding ReadConfigCommand}"
                         Width="120"
-                        Height="36"/>
+                        Height="36" />
 
                 <Button Content="保存配置"
                         Command="{Binding SaveConfigCommand}"
                         Width="120"
-                        Height="36"/>
+                        Height="36" />
 
                 <Button Content="整合包制作指南"
                         Command="{Binding ExportPackageGuideCommand}"
                         Width="120"
-                        Height="36"/>
+                        Height="36" />
             </StackPanel>
 
             <!-- 开始导出按钮 -->
@@ -221,7 +221,7 @@
                     CornerRadius="20">
                 <Button.Styles>
                     <Style Selector="Button:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#1E88E5"/>
+                        <Setter Property="Background" Value="#1E88E5" />
                     </Style>
                 </Button.Styles>
 
@@ -230,8 +230,8 @@
                           Fill="White"
                           Width="16"
                           Height="16"
-                          Margin="0,0,8,0"/>
-                    <TextBlock Text="开始导出"/>
+                          Margin="0,0,8,0" />
+                    <TextBlock Text="开始导出" />
                 </StackPanel>
             </Button>
         </StackPanel>

@@ -1,18 +1,19 @@
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PCL.Neo.Core.Models.Minecraft.Game;
+using PCL.Neo.Core.Utils;
 using PCL.Neo.Services;
 using PCL.Neo.Views.Home;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using PCL.Neo.Core.Models.Minecraft.Game;
-using Avalonia.Platform.Storage;
-using PCL.Neo.Core.Utils;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace PCL.Neo.ViewModels.Home;
 
@@ -38,7 +39,7 @@ public class VersionComponent
     public string Name { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
     public bool IsCompatible { get; set; } = true;
-    public bool IsClickable { get; set; } = false;
+    public bool IsClickable { get; set; }
 }
 
 [SubViewModel(typeof(HomeViewModelBackup))]
@@ -47,135 +48,275 @@ public partial class GameSettingsViewModel : ViewModelBase
     private readonly INavigationService _navigationService;
     private readonly GameService _gameService;
     private readonly StorageService _storageService;
-    private bool _isInitialized = false;
+    private bool _isInitialized;
 
     // 版本标题
-    [ObservableProperty] private string _versionTitle = "1.20.2-Fabric 0.15.7-OptiFine_I7_pre1";
+    [ObservableProperty]
+    private string _versionTitle = "1.20.2-Fabric 0.15.7-OptiFine_I7_pre1";
 
     // 导航相关
-    [ObservableProperty] private int _selectedMenuIndex = 0;
-    [ObservableProperty] private object? _currentContentView;
-    [ObservableProperty] private object? _currentView;
+    [ObservableProperty]
+    private int _selectedMenuIndex;
+
+    [ObservableProperty]
+    private object? _currentContentView;
+
+    [ObservableProperty]
+    private object? _currentView;
 
     #region 基本信息
 
-    [ObservableProperty] private string _versionId = string.Empty;
-    [ObservableProperty] private string _gameVersionName = string.Empty;
-    [ObservableProperty] private string _versionType = string.Empty;
-    [ObservableProperty] private string _releaseTime = string.Empty;
-    [ObservableProperty] private string _mainClass = string.Empty;
-    [ObservableProperty] private string _inheritsFrom = string.Empty;
+    [ObservableProperty]
+    private string _versionId = string.Empty;
+
+    [ObservableProperty]
+    private string _gameVersionName = string.Empty;
+
+    [ObservableProperty]
+    private string _versionType = string.Empty;
+
+    [ObservableProperty]
+    private string _releaseTime = string.Empty;
+
+    [ObservableProperty]
+    private string _mainClass = string.Empty;
+
+    [ObservableProperty]
+    private string _inheritsFrom = string.Empty;
 
     #endregion
 
     #region 修改页面
 
-    [ObservableProperty] private ObservableCollection<VersionComponent> _components = new();
-    [ObservableProperty] private bool _hasFabricWarning = true;
-    [ObservableProperty] private string _minecraftVersion = "";
+    [ObservableProperty]
+    private ObservableCollection<VersionComponent> _components = new();
+
+    [ObservableProperty]
+    private bool _hasFabricWarning = true;
+
+    [ObservableProperty]
+    private string _minecraftVersion = "";
 
     #endregion
 
     #region 概览页面
 
-    [ObservableProperty] private string _packageName = "";
-    [ObservableProperty] private string _packageDescription = "";
-    [ObservableProperty] private string _customIcon = "自动";
-    [ObservableProperty] private string _customCategory = "自动";
+    [ObservableProperty]
+    private string _packageName = "";
+
+    [ObservableProperty]
+    private string _packageDescription = "";
+
+    [ObservableProperty]
+    private string _customIcon = "自动";
+
+    [ObservableProperty]
+    private string _customCategory = "自动";
 
     #endregion
 
     #region 设置页面
 
-    [ObservableProperty] private string _launchMode = "开启";
-    [ObservableProperty] private string _gameWindowTitle = "跟随全局设置";
-    [ObservableProperty] private string _customGameInfo = "跟随全局设置";
-    [ObservableProperty] private string _gameJava = "跟随全局设置";
-    [ObservableProperty] private bool _useGlobalMemory = true;
-    [ObservableProperty] private bool _useCustomMemory = false;
-    [ObservableProperty] private bool _isCustomMemory = false;
-    [ObservableProperty] private double _memorySliderValue = 50;
-    [ObservableProperty] private double _usedMemory = 8.3;
-    [ObservableProperty] private double _totalMemory = 15.9;
-    [ObservableProperty] private double _gameMemory = 4.5;
-    [ObservableProperty] private string _serverLoginMethod = "正版登录或离线登录";
-    [ObservableProperty] private string _serverAutoJoin = string.Empty;
-    [ObservableProperty] private string _memoryOptimization = "跟随全局设置";
-    [ObservableProperty] private string _advancedLaunchOptions = string.Empty;
+    [ObservableProperty]
+    private string _launchMode = "开启";
+
+    [ObservableProperty]
+    private string _gameWindowTitle = "跟随全局设置";
+
+    [ObservableProperty]
+    private string _customGameInfo = "跟随全局设置";
+
+    [ObservableProperty]
+    private string _gameJava = "跟随全局设置";
+
+    [ObservableProperty]
+    private bool _useGlobalMemory = true;
+
+    [ObservableProperty]
+    private bool _useCustomMemory;
+
+    [ObservableProperty]
+    private bool _isCustomMemory;
+
+    [ObservableProperty]
+    private double _memorySliderValue = 50;
+
+    [ObservableProperty]
+    private double _usedMemory = 8.3;
+
+    [ObservableProperty]
+    private double _totalMemory = 15.9;
+
+    [ObservableProperty]
+    private double _gameMemory = 4.5;
+
+    [ObservableProperty]
+    private string _serverLoginMethod = "正版登录或离线登录";
+
+    [ObservableProperty]
+    private string _serverAutoJoin = string.Empty;
+
+    [ObservableProperty]
+    private string _memoryOptimization = "跟随全局设置";
+
+    [ObservableProperty]
+    private string _advancedLaunchOptions = string.Empty;
 
     #endregion
 
     #region 导出页面
 
-    [ObservableProperty] private string _packageVersion = "1.0.0";
-    [ObservableProperty] private bool _exportGameCore = true;
-    [ObservableProperty] private bool _exportGameSettings = true;
-    [ObservableProperty] private bool _exportGameUserInfo = false;
-    [ObservableProperty] private bool _exportMods = true;
-    [ObservableProperty] private bool _exportModsSettings = true;
-    [ObservableProperty] private bool _exportResourcePacks = true;
-    [ObservableProperty] private string _selectedResourcePack = "";
-    [ObservableProperty] private bool _exportMultiServerList = false;
-    [ObservableProperty] private bool _exportLauncherProgram = false;
-    [ObservableProperty] private bool _exportSourceFiles = false;
-    [ObservableProperty] private bool _useModrinthUpload = false;
+    [ObservableProperty]
+    private string _packageVersion = "1.0.0";
+
+    [ObservableProperty]
+    private bool _exportGameCore = true;
+
+    [ObservableProperty]
+    private bool _exportGameSettings = true;
+
+    [ObservableProperty]
+    private bool _exportGameUserInfo;
+
+    [ObservableProperty]
+    private bool _exportMods = true;
+
+    [ObservableProperty]
+    private bool _exportModsSettings = true;
+
+    [ObservableProperty]
+    private bool _exportResourcePacks = true;
+
+    [ObservableProperty]
+    private string _selectedResourcePack = "";
+
+    [ObservableProperty]
+    private bool _exportMultiServerList;
+
+    [ObservableProperty]
+    private bool _exportLauncherProgram;
+
+    [ObservableProperty]
+    private bool _exportSourceFiles;
+
+    [ObservableProperty]
+    private bool _useModrinthUpload;
 
     #endregion
 
     #region Java设置
 
-    [ObservableProperty] private string _javaPath = string.Empty;
-    [ObservableProperty] private int _memoryAllocation = 2048;
-    [ObservableProperty] private int _maxMemoryMB = 8192;
-    [ObservableProperty] private string _memoryAllocationDisplay = "2048 MB";
-    [ObservableProperty] private string _jvmArguments = string.Empty;
+    [ObservableProperty]
+    private string _javaPath = string.Empty;
+
+    [ObservableProperty]
+    private int _memoryAllocation = 2048;
+
+    [ObservableProperty]
+    private int _maxMemoryMB = 8192;
+
+    [ObservableProperty]
+    private string _memoryAllocationDisplay = "2048 MB";
+
+    [ObservableProperty]
+    private string _jvmArguments = string.Empty;
 
     #endregion
 
     #region 游戏设置
 
-    [ObservableProperty] private string _gameDirectory = string.Empty;
-    [ObservableProperty] private bool _isFullScreen = false;
-    [ObservableProperty] private int _gameWidth = 854;
-    [ObservableProperty] private int _gameHeight = 480;
-    [ObservableProperty] private string _gameArguments = string.Empty;
-    [ObservableProperty] private bool _closeAfterLaunch = false;
-    [ObservableProperty] private bool _disableAnimation = false;
-    [ObservableProperty] private bool _useLegacyLauncher = false;
+    [ObservableProperty]
+    private string _gameDirectory = string.Empty;
+
+    [ObservableProperty]
+    private bool _isFullScreen;
+
+    [ObservableProperty]
+    private int _gameWidth = 854;
+
+    [ObservableProperty]
+    private int _gameHeight = 480;
+
+    [ObservableProperty]
+    private string _gameArguments = string.Empty;
+
+    [ObservableProperty]
+    private bool _closeAfterLaunch;
+
+    [ObservableProperty]
+    private bool _disableAnimation;
+
+    [ObservableProperty]
+    private bool _useLegacyLauncher;
 
     #endregion
 
     #region Mods管理
 
-    [ObservableProperty] private ObservableCollection<ModInfo> _mods = new();
+    [ObservableProperty]
+    private ObservableCollection<ModInfo> _mods = new();
 
     #endregion
 
     #region 高级设置
 
-    [ObservableProperty] private ObservableCollection<string> _downloadSources = new();
-    [ObservableProperty] private string _selectedDownloadSource = string.Empty;
-    [ObservableProperty] private string _proxyAddress = string.Empty;
-    [ObservableProperty] private bool _isProxyEnabled = false;
-    [ObservableProperty] private int _maxThreads = 16;
-    [ObservableProperty] private ObservableCollection<EnvironmentVariable> _environmentVariables = new();
-    [ObservableProperty] private bool _isDebugMode = false;
-    [ObservableProperty] private bool _saveGameLog = true;
-    [ObservableProperty] private bool _enableCrashAnalysis = true;
+    [ObservableProperty]
+    private ObservableCollection<string> _downloadSources = new();
+
+    [ObservableProperty]
+    private string _selectedDownloadSource = string.Empty;
+
+    [ObservableProperty]
+    private string _proxyAddress = string.Empty;
+
+    [ObservableProperty]
+    private bool _isProxyEnabled;
+
+    [ObservableProperty]
+    private int _maxThreads = 16;
+
+    [ObservableProperty]
+    private ObservableCollection<EnvironmentVariable> _environmentVariables = new();
+
+    [ObservableProperty]
+    private bool _isDebugMode;
+
+    [ObservableProperty]
+    private bool _saveGameLog = true;
+
+    [ObservableProperty]
+    private bool _enableCrashAnalysis = true;
 
     #endregion
 
     #region 性能设置
 
-    [ObservableProperty] private int _renderDistance = 12;
-    [ObservableProperty] private ObservableCollection<string> _particleOptions = new();
-    [ObservableProperty] private string _selectedParticleOption = string.Empty;
-    [ObservableProperty] private ObservableCollection<string> _graphicsOptions = new();
-    [ObservableProperty] private string _selectedGraphicsOption = string.Empty;
-    [ObservableProperty] private int _maxFrameRate = 60;
-    [ObservableProperty] private int _masterVolume = 100;
-    [ObservableProperty] private int _musicVolume = 100;
-    [ObservableProperty] private int _soundVolume = 100;
+    [ObservableProperty]
+    private int _renderDistance = 12;
+
+    [ObservableProperty]
+    private ObservableCollection<string> _particleOptions = new();
+
+    [ObservableProperty]
+    private string _selectedParticleOption = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<string> _graphicsOptions = new();
+
+    [ObservableProperty]
+    private string _selectedGraphicsOption = string.Empty;
+
+    [ObservableProperty]
+    private int _maxFrameRate = 60;
+
+    [ObservableProperty]
+    private int _masterVolume = 100;
+
+    [ObservableProperty]
+    private int _musicVolume = 100;
+
+    [ObservableProperty]
+    private int _soundVolume = 100;
 
     #endregion
 
@@ -189,13 +330,13 @@ public partial class GameSettingsViewModel : ViewModelBase
         // 初始化组件列表
         Components = new ObservableCollection<VersionComponent>
         {
-            new VersionComponent { Name = "Minecraft", Version = "1.20.2", IsClickable = true },
-            new VersionComponent { Name = "Forge", Version = "与Fabric不兼容", IsCompatible = false },
-            new VersionComponent { Name = "NeoForge", Version = "与Fabric不兼容", IsCompatible = false },
-            new VersionComponent { Name = "Fabric", Version = "0.15.7", IsClickable = true },
-            new VersionComponent { Name = "Fabric API", Version = "点击选择", IsClickable = true },
-            new VersionComponent { Name = "Quilt", Version = "与Fabric不兼容", IsCompatible = false },
-            new VersionComponent { Name = "OptiFine", Version = "点击选择", IsClickable = true }
+            new() { Name = "Minecraft", Version = "1.20.2", IsClickable = true },
+            new() { Name = "Forge", Version = "与Fabric不兼容", IsCompatible = false },
+            new() { Name = "NeoForge", Version = "与Fabric不兼容", IsCompatible = false },
+            new() { Name = "Fabric", Version = "0.15.7", IsClickable = true },
+            new() { Name = "Fabric API", Version = "点击选择", IsClickable = true },
+            new() { Name = "Quilt", Version = "与Fabric不兼容", IsCompatible = false },
+            new() { Name = "OptiFine", Version = "点击选择", IsClickable = true }
         };
 
         // 初始化下拉选项
@@ -211,15 +352,15 @@ public partial class GameSettingsViewModel : ViewModelBase
         // 初始化环境变量列表
         EnvironmentVariables = new ObservableCollection<EnvironmentVariable>
         {
-            new EnvironmentVariable
+            new()
             {
                 IsEnabled = true, Name = "JAVA_TOOL_OPTIONS", Value = "-Dfile.encoding=UTF-8"
             },
-            new EnvironmentVariable { IsEnabled = false, Name = "JAVA_OPTS", Value = "-XX:+UseG1GC" }
+            new() { IsEnabled = false, Name = "JAVA_OPTS", Value = "-XX:+UseG1GC" }
         };
 
         // 监听菜单索引变化
-        this.PropertyChanged += (sender, args) =>
+        PropertyChanged += (sender, args) =>
         {
             if (args.PropertyName == nameof(SelectedMenuIndex))
             {
@@ -228,7 +369,7 @@ public partial class GameSettingsViewModel : ViewModelBase
         };
 
         // 监听设置变更
-        this.PropertyChanged += (sender, args) =>
+        PropertyChanged += (sender, args) =>
         {
             if (args.PropertyName == nameof(JavaPath) ||
                 args.PropertyName == nameof(GameDirectory) ||
@@ -327,7 +468,7 @@ public partial class GameSettingsViewModel : ViewModelBase
         catch (Exception ex)
         {
             // 处理异常
-            System.Diagnostics.Debug.WriteLine($"初始化游戏设置失败: {ex.Message}");
+            Debug.WriteLine($"初始化游戏设置失败: {ex.Message}");
         }
     }
 
@@ -347,9 +488,9 @@ public partial class GameSettingsViewModel : ViewModelBase
         // 以下是示例数据
         Mods = new ObservableCollection<ModInfo>
         {
-            new ModInfo { Name = "OptiFine", Version = "1.20.1_HD_U_I5", Author = "sp614x", Description = "优化模组" },
-            new ModInfo { Name = "JourneyMap", Version = "5.9.16", Author = "techbrew", Description = "小地图模组" },
-            new ModInfo
+            new() { Name = "OptiFine", Version = "1.20.1_HD_U_I5", Author = "sp614x", Description = "优化模组" },
+            new() { Name = "JourneyMap", Version = "5.9.16", Author = "techbrew", Description = "小地图模组" },
+            new()
             {
                 Name = "Fabric API", Version = "0.92.0", Author = "FabricMC", Description = "Fabric模组加载器API"
             }
@@ -409,7 +550,7 @@ public partial class GameSettingsViewModel : ViewModelBase
         catch (Exception ex)
         {
             // 处理异常
-            System.Diagnostics.Debug.WriteLine($"保存设置失败: {ex.Message}");
+            Debug.WriteLine($"保存设置失败: {ex.Message}");
         }
     }
 
@@ -427,26 +568,26 @@ public partial class GameSettingsViewModel : ViewModelBase
         {
             // 实现版本名称编辑功能，需要UI交互
             // 这里暂且仅修改本地变量
-            string versionJsonPath = Path.Combine(GameDirectory, "versions", VersionId, $"{VersionId}.json");
+            var versionJsonPath = Path.Combine(GameDirectory, "versions", VersionId, $"{VersionId}.json");
 
             if (File.Exists(versionJsonPath))
             {
-                string jsonContent = File.ReadAllText(versionJsonPath);
+                var jsonContent = File.ReadAllText(versionJsonPath);
                 // TODO:修改版本名称需要UI交互
                 // 实际使用时应该弹出对话框让用户输入新名称
                 // var newName = "新版本名称";
 
                 // 回调UI层实现编辑功能
-                System.Diagnostics.Debug.WriteLine("需要UI层实现版本名称编辑功能");
+                Debug.WriteLine("需要UI层实现版本名称编辑功能");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"版本文件不存在: {versionJsonPath}");
+                Debug.WriteLine($"版本文件不存在: {versionJsonPath}");
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"编辑版本名称失败: {ex.Message}");
+            Debug.WriteLine($"编辑版本名称失败: {ex.Message}");
         }
     }
 
@@ -457,11 +598,11 @@ public partial class GameSettingsViewModel : ViewModelBase
         {
             // TODO:实现版本描述编辑功能，需要UI交互
             // 回调UI层实现编辑功能
-            System.Diagnostics.Debug.WriteLine("需要UI层实现版本描述编辑功能");
+            Debug.WriteLine("需要UI层实现版本描述编辑功能");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"编辑版本描述失败: {ex.Message}");
+            Debug.WriteLine($"编辑版本描述失败: {ex.Message}");
         }
     }
 
@@ -476,19 +617,19 @@ public partial class GameSettingsViewModel : ViewModelBase
     {
         try
         {
-            string versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
+            var versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
             if (Directory.Exists(versionFolder))
             {
                 OpenFolder(versionFolder);
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
+                Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"打开版本文件夹失败: {ex.Message}");
+            Debug.WriteLine($"打开版本文件夹失败: {ex.Message}");
         }
     }
 
@@ -497,7 +638,7 @@ public partial class GameSettingsViewModel : ViewModelBase
     {
         try
         {
-            string saveFolder = Path.Combine(GameDirectory, "saves");
+            var saveFolder = Path.Combine(GameDirectory, "saves");
             if (!Directory.Exists(saveFolder))
             {
                 Directory.CreateDirectory(saveFolder);
@@ -507,7 +648,7 @@ public partial class GameSettingsViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"打开存档文件夹失败: {ex.Message}");
+            Debug.WriteLine($"打开存档文件夹失败: {ex.Message}");
         }
     }
 
@@ -516,7 +657,7 @@ public partial class GameSettingsViewModel : ViewModelBase
     {
         try
         {
-            string modFolder = Path.Combine(GameDirectory, "mods");
+            var modFolder = Path.Combine(GameDirectory, "mods");
             if (!Directory.Exists(modFolder))
             {
                 Directory.CreateDirectory(modFolder);
@@ -526,7 +667,7 @@ public partial class GameSettingsViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"打开Mod文件夹失败: {ex.Message}");
+            Debug.WriteLine($"打开Mod文件夹失败: {ex.Message}");
         }
     }
 
@@ -538,19 +679,19 @@ public partial class GameSettingsViewModel : ViewModelBase
             // 通过GameService启动游戏进行测试
             if (string.IsNullOrEmpty(VersionId))
             {
-                System.Diagnostics.Debug.WriteLine("未选择游戏版本");
+                Debug.WriteLine("未选择游戏版本");
                 return;
             }
 
             // 检查Java路径是否有效
             if (string.IsNullOrEmpty(JavaPath) || !File.Exists(JavaPath))
             {
-                System.Diagnostics.Debug.WriteLine("无效的Java路径");
+                Debug.WriteLine("无效的Java路径");
                 return;
             }
 
             // 创建测试启动选项
-            var testOptions = new PCL.Neo.Core.Models.Minecraft.Game.LaunchOptions
+            var testOptions = new LaunchOptions
             {
                 VersionId = VersionId,
                 JavaPath = JavaPath,
@@ -594,14 +735,14 @@ public partial class GameSettingsViewModel : ViewModelBase
             }
 
             // 获取GameLauncher实例并启动游戏
-            var gameLauncher = new PCL.Neo.Core.Models.Minecraft.Game.GameLauncher(_gameService);
+            var gameLauncher = new GameLauncher(_gameService);
             var process = await gameLauncher.LaunchAsync(testOptions);
 
-            System.Diagnostics.Debug.WriteLine($"测试游戏已启动，进程ID: {process.Id}");
+            Debug.WriteLine($"测试游戏已启动，进程ID: {process.Id}");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"测试游戏失败: {ex.Message}");
+            Debug.WriteLine($"测试游戏失败: {ex.Message}");
         }
     }
 
@@ -617,22 +758,22 @@ public partial class GameSettingsViewModel : ViewModelBase
             // 确定版本ID和Java路径有效
             if (string.IsNullOrEmpty(VersionId))
             {
-                System.Diagnostics.Debug.WriteLine("未选择游戏版本");
+                Debug.WriteLine("未选择游戏版本");
                 return;
             }
 
             if (string.IsNullOrEmpty(JavaPath) || !File.Exists(JavaPath))
             {
-                System.Diagnostics.Debug.WriteLine("无效的Java路径");
+                Debug.WriteLine("无效的Java路径");
                 return;
             }
 
             // 构建启动命令
-            string javaPath = Path.GetFullPath(JavaPath);
-            string gameDir = Path.GetFullPath(GameDirectory);
+            var javaPath = Path.GetFullPath(JavaPath);
+            var gameDir = Path.GetFullPath(GameDirectory);
 
             // 构建JVM参数
-            string jvmArgs = $"-Xmx{MemoryAllocation}M -Xms{Math.Max(512, MemoryAllocation / 4)}M";
+            var jvmArgs = $"-Xmx{MemoryAllocation}M -Xms{Math.Max(512, MemoryAllocation / 4)}M";
 
             if (!string.IsNullOrEmpty(JvmArguments))
             {
@@ -650,7 +791,7 @@ public partial class GameSettingsViewModel : ViewModelBase
             }
 
             // 构建游戏参数（简化版）
-            string gameArgs =
+            var gameArgs =
                 $"--username Player --version {VersionId} --gameDir \"{gameDir}\" --assetsDir \"{Path.Combine(gameDir, "assets")}\"";
 
             if (!string.IsNullOrEmpty(GameArguments))
@@ -704,16 +845,16 @@ read -n 1 -s";
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"设置脚本可执行权限失败: {ex.Message}");
+                        Debug.WriteLine($"设置脚本可执行权限失败: {ex.Message}");
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine($"启动脚本已导出: {filePath}");
+                Debug.WriteLine($"启动脚本已导出: {filePath}");
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"导出启动脚本失败: {ex.Message}");
+            Debug.WriteLine($"导出启动脚本失败: {ex.Message}");
         }
     }
 
@@ -724,49 +865,49 @@ read -n 1 -s";
         {
             if (string.IsNullOrEmpty(VersionId))
             {
-                System.Diagnostics.Debug.WriteLine("未选择游戏版本");
+                Debug.WriteLine("未选择游戏版本");
                 return;
             }
 
             // 补全游戏文件，需要访问GameService
-            System.Diagnostics.Debug.WriteLine($"开始补全版本 {VersionId} 的文件...");
+            Debug.WriteLine($"开始补全版本 {VersionId} 的文件...");
 
-            string versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
+            var versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
 
             if (!Directory.Exists(versionFolder))
             {
-                System.Diagnostics.Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
+                Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
                 return;
             }
 
             // 检查版本JSON文件
-            string versionJsonPath = Path.Combine(versionFolder, $"{VersionId}.json");
+            var versionJsonPath = Path.Combine(versionFolder, $"{VersionId}.json");
 
             if (!File.Exists(versionJsonPath))
             {
-                System.Diagnostics.Debug.WriteLine($"版本JSON文件不存在: {versionJsonPath}");
+                Debug.WriteLine($"版本JSON文件不存在: {versionJsonPath}");
                 return;
             }
 
             // 解析版本信息
-            string jsonContent = File.ReadAllText(versionJsonPath);
-            var versionInfo = System.Text.Json.JsonSerializer.Deserialize<object>(jsonContent);
+            var jsonContent = File.ReadAllText(versionJsonPath);
+            var versionInfo = JsonSerializer.Deserialize<object>(jsonContent);
 
             // 这里需要调用GameService的实际补全文件方法
             // 由于GameService的具体实现可能不同，这里只模拟进度
 
             // 显示进度条或提示（实际实现需要UI交互）
-            for (int i = 0; i <= 100; i += 10)
+            for (var i = 0; i <= 100; i += 10)
             {
-                System.Diagnostics.Debug.WriteLine($"补全文件进度: {i}%");
+                Debug.WriteLine($"补全文件进度: {i}%");
                 await Task.Delay(100); // 模拟进度，实际实现中应删除此行
             }
 
-            System.Diagnostics.Debug.WriteLine("文件补全完成");
+            Debug.WriteLine("文件补全完成");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"补全文件失败: {ex.Message}");
+            Debug.WriteLine($"补全文件失败: {ex.Message}");
         }
     }
 
@@ -776,7 +917,7 @@ read -n 1 -s";
         try
         {
             // 打开选择存档文件对话框
-            System.Diagnostics.Debug.WriteLine("需要实现选择存档文件的UI交互");
+            Debug.WriteLine("需要实现选择存档文件的UI交互");
 
             // 以下为示例代码，需要UI层实现文件选择
             // var saveFile = await _storageService.SelectFileWithFilters(
@@ -794,7 +935,7 @@ read -n 1 -s";
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"打开存档文件失败: {ex.Message}");
+            Debug.WriteLine($"打开存档文件失败: {ex.Message}");
         }
     }
 
@@ -804,7 +945,7 @@ read -n 1 -s";
         try
         {
             // 实现粘贴存档功能
-            string savesFolder = Path.Combine(GameDirectory, "saves");
+            var savesFolder = Path.Combine(GameDirectory, "saves");
 
             if (!Directory.Exists(savesFolder))
             {
@@ -826,17 +967,17 @@ read -n 1 -s";
             }
 
             // 处理存档文件，根据文件类型决定操作
-            string extension = Path.GetExtension(saveFile).ToLower();
+            var extension = Path.GetExtension(saveFile).ToLower();
 
             if (extension == ".zip" || extension == ".mcworld")
             {
                 // 解压存档文件
-                System.Diagnostics.Debug.WriteLine($"正在解压存档文件: {saveFile}");
+                Debug.WriteLine($"正在解压存档文件: {saveFile}");
 
                 // 这里需要实现解压功能
                 // 作为示例，我们只做简单的文件复制
-                string saveFileName = Path.GetFileNameWithoutExtension(saveFile);
-                string targetFolder = Path.Combine(savesFolder, saveFileName);
+                var saveFileName = Path.GetFileNameWithoutExtension(saveFile);
+                var targetFolder = Path.Combine(savesFolder, saveFileName);
 
                 if (!Directory.Exists(targetFolder))
                 {
@@ -848,20 +989,20 @@ read -n 1 -s";
 
                 File.Copy(saveFile, Path.Combine(targetFolder, Path.GetFileName(saveFile)), true);
 
-                System.Diagnostics.Debug.WriteLine($"存档已导入: {targetFolder}");
+                Debug.WriteLine($"存档已导入: {targetFolder}");
             }
             else
             {
                 // 非ZIP格式，直接复制文件
-                string targetFile = Path.Combine(savesFolder, Path.GetFileName(saveFile));
+                var targetFile = Path.Combine(savesFolder, Path.GetFileName(saveFile));
                 File.Copy(saveFile, targetFile, true);
 
-                System.Diagnostics.Debug.WriteLine($"存档文件已复制: {targetFile}");
+                Debug.WriteLine($"存档文件已复制: {targetFile}");
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"粘贴存档文件失败: {ex.Message}");
+            Debug.WriteLine($"粘贴存档文件失败: {ex.Message}");
         }
     }
 
@@ -890,7 +1031,7 @@ read -n 1 -s";
         try
         {
             // 创建设置目录
-            string settingsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            var settingsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "PCL.Neo", "settings");
             Directory.CreateDirectory(settingsDir);
 
@@ -913,15 +1054,15 @@ read -n 1 -s";
             };
 
             // 写入JSON文件
-            string settingsFile = Path.Combine(settingsDir, "game_settings.json");
+            var settingsFile = Path.Combine(settingsDir, "game_settings.json");
             File.WriteAllText(settingsFile,
-                System.Text.Json.JsonSerializer.Serialize(settings,
-                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                JsonSerializer.Serialize(settings,
+                    new JsonSerializerOptions { WriteIndented = true }));
         }
         catch (Exception ex)
         {
             // 处理异常
-            System.Diagnostics.Debug.WriteLine($"保存设置失败: {ex.Message}");
+            Debug.WriteLine($"保存设置失败: {ex.Message}");
         }
     }
 
@@ -930,18 +1071,18 @@ read -n 1 -s";
     {
         try
         {
-            string settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            var settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "PCL.Neo", "settings", "game_settings.json");
 
             if (File.Exists(settingsFile))
             {
                 var json = File.ReadAllText(settingsFile);
-                var settings = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
 
                 if (settings != null)
                 {
                     // 加载Java路径
-                    if (settings.TryGetValue("JavaPath", out string javaPath) && !string.IsNullOrEmpty(javaPath) &&
+                    if (settings.TryGetValue("JavaPath", out var javaPath) && !string.IsNullOrEmpty(javaPath) &&
                         File.Exists(javaPath))
                     {
                         JavaPath = javaPath;
@@ -952,80 +1093,80 @@ read -n 1 -s";
                     }
 
                     // 加载游戏目录
-                    if (settings.TryGetValue("GameDirectory", out string gameDir) && !string.IsNullOrEmpty(gameDir) &&
+                    if (settings.TryGetValue("GameDirectory", out var gameDir) && !string.IsNullOrEmpty(gameDir) &&
                         Directory.Exists(gameDir))
                     {
                         GameDirectory = gameDir;
                     }
 
                     // 加载内存设置
-                    if (settings.TryGetValue("MemoryAllocation", out string memAlloc) &&
-                        int.TryParse(memAlloc, out int memory))
+                    if (settings.TryGetValue("MemoryAllocation", out var memAlloc) &&
+                        int.TryParse(memAlloc, out var memory))
                     {
                         MemoryAllocation = Math.Min(MaxMemoryMB, memory);
                     }
 
                     // 加载JVM参数
-                    if (settings.TryGetValue("JvmArguments", out string jvmArgs))
+                    if (settings.TryGetValue("JvmArguments", out var jvmArgs))
                     {
                         JvmArguments = jvmArgs;
                     }
 
                     // 加载游戏参数
-                    if (settings.TryGetValue("GameArguments", out string gameArgs))
+                    if (settings.TryGetValue("GameArguments", out var gameArgs))
                     {
                         GameArguments = gameArgs;
                     }
 
                     // 加载全屏设置
-                    if (settings.TryGetValue("IsFullScreen", out string isFullScreen) &&
-                        bool.TryParse(isFullScreen, out bool fullScreen))
+                    if (settings.TryGetValue("IsFullScreen", out var isFullScreen) &&
+                        bool.TryParse(isFullScreen, out var fullScreen))
                     {
                         IsFullScreen = fullScreen;
                     }
 
                     // 加载游戏窗口尺寸
-                    if (settings.TryGetValue("GameWidth", out string gameWidth) &&
-                        int.TryParse(gameWidth, out int width))
+                    if (settings.TryGetValue("GameWidth", out var gameWidth) &&
+                        int.TryParse(gameWidth, out var width))
                     {
                         GameWidth = width;
                     }
 
-                    if (settings.TryGetValue("GameHeight", out string gameHeight) &&
-                        int.TryParse(gameHeight, out int height))
+                    if (settings.TryGetValue("GameHeight", out var gameHeight) &&
+                        int.TryParse(gameHeight, out var height))
                     {
                         GameHeight = height;
                     }
 
                     // 加载启动后关闭设置
-                    if (settings.TryGetValue("CloseAfterLaunch", out string closeAfterLaunch) &&
-                        bool.TryParse(closeAfterLaunch, out bool close))
+                    if (settings.TryGetValue("CloseAfterLaunch", out var closeAfterLaunch) &&
+                        bool.TryParse(closeAfterLaunch, out var close))
                     {
                         CloseAfterLaunch = close;
                     }
 
                     // 加载日志保存设置
-                    if (settings.TryGetValue("SaveGameLog", out string saveGameLog) &&
-                        bool.TryParse(saveGameLog, out bool saveLog))
+                    if (settings.TryGetValue("SaveGameLog", out var saveGameLog) &&
+                        bool.TryParse(saveGameLog, out var saveLog))
                     {
                         SaveGameLog = saveLog;
                     }
 
                     // 加载崩溃分析设置
-                    if (settings.TryGetValue("EnableCrashAnalysis", out string enableCrashAnalysis) &&
-                        bool.TryParse(enableCrashAnalysis, out bool crashAnalysis))
+                    if (settings.TryGetValue("EnableCrashAnalysis", out var enableCrashAnalysis) &&
+                        bool.TryParse(enableCrashAnalysis, out var crashAnalysis))
                     {
                         EnableCrashAnalysis = crashAnalysis;
                     }
 
                     // 加载代理设置
-                    if (settings.TryGetValue("IsProxyEnabled", out string isProxyEnabled) &&
-                        bool.TryParse(isProxyEnabled, out bool proxyEnabled))
+                    if (settings.TryGetValue("IsProxyEnabled", out var isProxyEnabled) &&
+                        bool.TryParse(isProxyEnabled, out var proxyEnabled))
                     {
                         IsProxyEnabled = proxyEnabled;
                     }
 
-                    if (settings.TryGetValue("ProxyAddress", out string proxyAddress))
+                    if (settings.TryGetValue("ProxyAddress", out var proxyAddress))
                     {
                         ProxyAddress = proxyAddress;
                     }
@@ -1035,7 +1176,7 @@ read -n 1 -s";
         catch (Exception ex)
         {
             // 处理异常
-            System.Diagnostics.Debug.WriteLine($"加载设置失败: {ex.Message}");
+            Debug.WriteLine($"加载设置失败: {ex.Message}");
         }
     }
 
@@ -1080,7 +1221,7 @@ read -n 1 -s";
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"打开文件夹失败: {ex.Message}");
+            Debug.WriteLine($"打开文件夹失败: {ex.Message}");
         }
     }
 
@@ -1091,7 +1232,7 @@ read -n 1 -s";
         {
             if (!File.Exists(filePath))
             {
-                System.Diagnostics.Debug.WriteLine($"文件不存在: {filePath}");
+                Debug.WriteLine($"文件不存在: {filePath}");
                 return;
             }
 
@@ -1128,7 +1269,7 @@ read -n 1 -s";
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"打开文件失败: {ex.Message}");
+            Debug.WriteLine($"打开文件失败: {ex.Message}");
         }
     }
 
@@ -1139,29 +1280,29 @@ read -n 1 -s";
         {
             if (string.IsNullOrEmpty(VersionId))
             {
-                System.Diagnostics.Debug.WriteLine("未选择游戏版本");
+                Debug.WriteLine("未选择游戏版本");
                 return;
             }
 
             // 确认对话框（应该由UI层实现）
-            bool confirmed = true; // 假设用户已确认，实际使用时应该显示确认对话框
+            var confirmed = true; // 假设用户已确认，实际使用时应该显示确认对话框
 
             if (!confirmed)
             {
                 return;
             }
 
-            string versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
+            var versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
 
             if (!Directory.Exists(versionFolder))
             {
-                System.Diagnostics.Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
+                Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
                 return;
             }
 
             // 备份版本JSON文件
-            string versionJsonPath = Path.Combine(versionFolder, $"{VersionId}.json");
-            string backupJsonPath = Path.Combine(versionFolder, $"{VersionId}.json.bak");
+            var versionJsonPath = Path.Combine(versionFolder, $"{VersionId}.json");
+            var backupJsonPath = Path.Combine(versionFolder, $"{VersionId}.json.bak");
 
             if (File.Exists(versionJsonPath))
             {
@@ -1185,14 +1326,14 @@ read -n 1 -s";
             }
 
             // 重新下载所需文件（实际应调用GameService方法）
-            System.Diagnostics.Debug.WriteLine($"版本 {VersionId} 已准备重新安装");
+            Debug.WriteLine($"版本 {VersionId} 已准备重新安装");
 
             // TODO: 调用GameService方法重新下载文件
             // 例如: await _gameService.ReinstallVersion(VersionId, GameDirectory);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"重装失败: {ex.Message}");
+            Debug.WriteLine($"重装失败: {ex.Message}");
         }
     }
 
@@ -1203,37 +1344,37 @@ read -n 1 -s";
         {
             if (string.IsNullOrEmpty(VersionId))
             {
-                System.Diagnostics.Debug.WriteLine("未选择游戏版本");
+                Debug.WriteLine("未选择游戏版本");
                 return;
             }
 
             // 确认对话框（应该由UI层实现）
-            bool confirmed = true; // 假设用户已确认，实际使用时应该显示确认对话框
+            var confirmed = true; // 假设用户已确认，实际使用时应该显示确认对话框
 
             if (!confirmed)
             {
                 return;
             }
 
-            string versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
+            var versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
 
             if (!Directory.Exists(versionFolder))
             {
-                System.Diagnostics.Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
+                Debug.WriteLine($"版本文件夹不存在: {versionFolder}");
                 return;
             }
 
             // 删除版本文件夹及其内容
             Directory.Delete(versionFolder, true);
 
-            System.Diagnostics.Debug.WriteLine($"版本 {VersionId} 已删除");
+            Debug.WriteLine($"版本 {VersionId} 已删除");
 
             // 返回上一页
             _navigationService.GoBackAsync();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"删除版本失败: {ex.Message}");
+            Debug.WriteLine($"删除版本失败: {ex.Message}");
         }
     }
 
@@ -1244,7 +1385,7 @@ read -n 1 -s";
         {
             if (string.IsNullOrEmpty(VersionId))
             {
-                System.Diagnostics.Debug.WriteLine("未选择游戏版本");
+                Debug.WriteLine("未选择游戏版本");
                 return;
             }
 
@@ -1252,14 +1393,14 @@ read -n 1 -s";
             SelectedMenuIndex = 2;
 
             // 准备修改操作
-            System.Diagnostics.Debug.WriteLine($"开始修改版本 {VersionId}");
+            Debug.WriteLine($"开始修改版本 {VersionId}");
 
             // 可以在这里加载可用的组件，如Forge、Fabric等版本
             // 例如：LoadAvailableComponents();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"开始修改失败: {ex.Message}");
+            Debug.WriteLine($"开始修改失败: {ex.Message}");
         }
     }
 
@@ -1269,7 +1410,7 @@ read -n 1 -s";
         try
         {
             // 打开整合包制作指南，可以是在线链接或本地文档
-            string guideUrl = "https://www.mcbbs.net/thread-896219-1-1.html"; // 示例链接，应替换为实际指南URL
+            var guideUrl = "https://www.mcbbs.net/thread-896219-1-1.html"; // 示例链接，应替换为实际指南URL
 
             // 在浏览器中打开指南
             if (OperatingSystem.IsWindows())
@@ -1308,7 +1449,7 @@ read -n 1 -s";
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"打开整合包制作指南失败: {ex.Message}");
+            Debug.WriteLine($"打开整合包制作指南失败: {ex.Message}");
         }
     }
 
@@ -1319,7 +1460,7 @@ read -n 1 -s";
         {
             if (string.IsNullOrEmpty(VersionId))
             {
-                System.Diagnostics.Debug.WriteLine("未选择游戏版本");
+                Debug.WriteLine("未选择游戏版本");
                 return;
             }
 
@@ -1332,8 +1473,8 @@ read -n 1 -s";
             }
 
             // 创建整合包目录
-            string packageName = $"{PackageName}_{PackageVersion}";
-            string packageDir = Path.Combine(exportDir, packageName);
+            var packageName = $"{PackageName}_{PackageVersion}";
+            var packageDir = Path.Combine(exportDir, packageName);
 
             if (Directory.Exists(packageDir))
             {
@@ -1347,36 +1488,36 @@ read -n 1 -s";
             // 复制游戏核心
             if (ExportGameCore)
             {
-                string versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
-                string targetVersionFolder = Path.Combine(packageDir, "versions", VersionId);
+                var versionFolder = Path.Combine(GameDirectory, "versions", VersionId);
+                var targetVersionFolder = Path.Combine(packageDir, "versions", VersionId);
 
                 Directory.CreateDirectory(targetVersionFolder);
 
                 foreach (var file in Directory.GetFiles(versionFolder))
                 {
-                    string fileName = Path.GetFileName(file);
+                    var fileName = Path.GetFileName(file);
                     File.Copy(file, Path.Combine(targetVersionFolder, fileName), true);
                 }
 
-                System.Diagnostics.Debug.WriteLine("已导出游戏核心");
+                Debug.WriteLine("已导出游戏核心");
             }
 
             // 复制游戏设置
             if (ExportGameSettings)
             {
-                string optionsFile = Path.Combine(GameDirectory, "options.txt");
+                var optionsFile = Path.Combine(GameDirectory, "options.txt");
                 if (File.Exists(optionsFile))
                 {
                     File.Copy(optionsFile, Path.Combine(packageDir, "options.txt"), true);
-                    System.Diagnostics.Debug.WriteLine("已导出游戏设置");
+                    Debug.WriteLine("已导出游戏设置");
                 }
             }
 
             // 复制Mods
             if (ExportMods)
             {
-                string modsFolder = Path.Combine(GameDirectory, "mods");
-                string targetModsFolder = Path.Combine(packageDir, "mods");
+                var modsFolder = Path.Combine(GameDirectory, "mods");
+                var targetModsFolder = Path.Combine(packageDir, "mods");
 
                 if (Directory.Exists(modsFolder))
                 {
@@ -1384,32 +1525,32 @@ read -n 1 -s";
 
                     foreach (var file in Directory.GetFiles(modsFolder, "*.jar"))
                     {
-                        string fileName = Path.GetFileName(file);
+                        var fileName = Path.GetFileName(file);
                         File.Copy(file, Path.Combine(targetModsFolder, fileName), true);
                     }
 
-                    System.Diagnostics.Debug.WriteLine("已导出Mods");
+                    Debug.WriteLine("已导出Mods");
                 }
             }
 
             // 复制Mods配置
             if (ExportModsSettings)
             {
-                string configFolder = Path.Combine(GameDirectory, "config");
-                string targetConfigFolder = Path.Combine(packageDir, "config");
+                var configFolder = Path.Combine(GameDirectory, "config");
+                var targetConfigFolder = Path.Combine(packageDir, "config");
 
                 if (Directory.Exists(configFolder))
                 {
                     CopyDirectory(configFolder, targetConfigFolder);
-                    System.Diagnostics.Debug.WriteLine("已导出Mods配置");
+                    Debug.WriteLine("已导出Mods配置");
                 }
             }
 
             // 复制资源包
             if (ExportResourcePacks)
             {
-                string resourcePacksFolder = Path.Combine(GameDirectory, "resourcepacks");
-                string targetResourcePacksFolder = Path.Combine(packageDir, "resourcepacks");
+                var resourcePacksFolder = Path.Combine(GameDirectory, "resourcepacks");
+                var targetResourcePacksFolder = Path.Combine(packageDir, "resourcepacks");
 
                 if (Directory.Exists(resourcePacksFolder))
                 {
@@ -1418,7 +1559,7 @@ read -n 1 -s";
                     // 如果选择了特定资源包
                     if (!string.IsNullOrEmpty(SelectedResourcePack))
                     {
-                        string resourcePackPath = Path.Combine(resourcePacksFolder, SelectedResourcePack);
+                        var resourcePackPath = Path.Combine(resourcePacksFolder, SelectedResourcePack);
                         if (File.Exists(resourcePackPath))
                         {
                             File.Copy(resourcePackPath, Path.Combine(targetResourcePacksFolder, SelectedResourcePack),
@@ -1430,23 +1571,23 @@ read -n 1 -s";
                         // 复制所有资源包
                         foreach (var file in Directory.GetFiles(resourcePacksFolder))
                         {
-                            string fileName = Path.GetFileName(file);
+                            var fileName = Path.GetFileName(file);
                             File.Copy(file, Path.Combine(targetResourcePacksFolder, fileName), true);
                         }
                     }
 
-                    System.Diagnostics.Debug.WriteLine("已导出资源包");
+                    Debug.WriteLine("已导出资源包");
                 }
             }
 
             // 复制多人游戏服务器列表
             if (ExportMultiServerList)
             {
-                string serversFile = Path.Combine(GameDirectory, "servers.dat");
+                var serversFile = Path.Combine(GameDirectory, "servers.dat");
                 if (File.Exists(serversFile))
                 {
                     File.Copy(serversFile, Path.Combine(packageDir, "servers.dat"), true);
-                    System.Diagnostics.Debug.WriteLine("已导出服务器列表");
+                    Debug.WriteLine("已导出服务器列表");
                 }
             }
 
@@ -1500,16 +1641,16 @@ read -n 1 -s -r -p ""按任意键退出...""";
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"设置启动脚本权限失败: {ex.Message}");
+                        Debug.WriteLine($"设置启动脚本权限失败: {ex.Message}");
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine("已创建启动器程序");
+                Debug.WriteLine("已创建启动器程序");
             }
 
             // 创建ReadMe文件
-            string readmePath = Path.Combine(packageDir, "ReadMe.txt");
-            string readmeContent = $@"{PackageName} v{PackageVersion}
+            var readmePath = Path.Combine(packageDir, "ReadMe.txt");
+            var readmeContent = $@"{PackageName} v{PackageVersion}
 {PackageDescription}
 
 安装说明:
@@ -1524,11 +1665,11 @@ read -n 1 -s -r -p ""按任意键退出...""";
             // 打开导出目录
             OpenFolder(packageDir);
 
-            System.Diagnostics.Debug.WriteLine($"整合包已导出到: {packageDir}");
+            Debug.WriteLine($"整合包已导出到: {packageDir}");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"导出整合包失败: {ex.Message}");
+            Debug.WriteLine($"导出整合包失败: {ex.Message}");
         }
     }
 
@@ -1539,15 +1680,15 @@ read -n 1 -s -r -p ""按任意键退出...""";
 
         foreach (var file in Directory.GetFiles(sourceDir))
         {
-            string fileName = Path.GetFileName(file);
-            string targetFile = Path.Combine(targetDir, fileName);
+            var fileName = Path.GetFileName(file);
+            var targetFile = Path.Combine(targetDir, fileName);
             File.Copy(file, targetFile, true);
         }
 
         foreach (var directory in Directory.GetDirectories(sourceDir))
         {
-            string dirName = Path.GetFileName(directory);
-            string targetSubDir = Path.Combine(targetDir, dirName);
+            var dirName = Path.GetFileName(directory);
+            var targetSubDir = Path.Combine(targetDir, dirName);
             CopyDirectory(directory, targetSubDir);
         }
     }
@@ -1558,7 +1699,7 @@ read -n 1 -s -r -p ""按任意键退出...""";
         try
         {
             // 读取游戏配置文件
-            string optionsFile = Path.Combine(GameDirectory, "options.txt");
+            var optionsFile = Path.Combine(GameDirectory, "options.txt");
 
             if (File.Exists(optionsFile))
             {
@@ -1572,20 +1713,20 @@ read -n 1 -s -r -p ""按任意键退出...""";
                     var parts = line.Split(new[] { ':' }, 2);
                     if (parts.Length == 2)
                     {
-                        string key = parts[0].Trim();
-                        string value = parts[1].Trim();
+                        var key = parts[0].Trim();
+                        var value = parts[1].Trim();
                         gameOptions[key] = value;
                     }
                 }
 
                 // 根据读取的配置更新UI
-                if (gameOptions.TryGetValue("renderDistance", out string renderDistanceValue) &&
-                    int.TryParse(renderDistanceValue, out int renderDistance))
+                if (gameOptions.TryGetValue("renderDistance", out var renderDistanceValue) &&
+                    int.TryParse(renderDistanceValue, out var renderDistance))
                 {
                     RenderDistance = renderDistance;
                 }
 
-                if (gameOptions.TryGetValue("particles", out string particlesValue))
+                if (gameOptions.TryGetValue("particles", out var particlesValue))
                 {
                     switch (particlesValue)
                     {
@@ -1604,27 +1745,27 @@ read -n 1 -s -r -p ""按任意键退出...""";
                     }
                 }
 
-                if (gameOptions.TryGetValue("maxFps", out string maxFpsValue) &&
-                    int.TryParse(maxFpsValue, out int maxFps))
+                if (gameOptions.TryGetValue("maxFps", out var maxFpsValue) &&
+                    int.TryParse(maxFpsValue, out var maxFps))
                 {
                     MaxFrameRate = maxFps;
                 }
 
-                if (gameOptions.TryGetValue("soundVolume", out string soundVolumeValue) &&
-                    float.TryParse(soundVolumeValue, out float soundVolume))
+                if (gameOptions.TryGetValue("soundVolume", out var soundVolumeValue) &&
+                    float.TryParse(soundVolumeValue, out var soundVolume))
                 {
                     SoundVolume = (int)(soundVolume * 100);
                 }
 
-                if (gameOptions.TryGetValue("musicVolume", out string musicVolumeValue) &&
-                    float.TryParse(musicVolumeValue, out float musicVolume))
+                if (gameOptions.TryGetValue("musicVolume", out var musicVolumeValue) &&
+                    float.TryParse(musicVolumeValue, out var musicVolume))
                 {
                     MusicVolume = (int)(musicVolume * 100);
                 }
 
                 // 加载图形设置
-                if (gameOptions.TryGetValue("graphicsMode", out string graphicsModeValue) &&
-                    int.TryParse(graphicsModeValue, out int graphicsMode))
+                if (gameOptions.TryGetValue("graphicsMode", out var graphicsModeValue) &&
+                    int.TryParse(graphicsModeValue, out var graphicsMode))
                 {
                     switch (graphicsMode)
                     {
@@ -1643,16 +1784,16 @@ read -n 1 -s -r -p ""按任意键退出...""";
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine("游戏配置已加载");
+                Debug.WriteLine("游戏配置已加载");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("游戏配置文件不存在，将使用默认设置");
+                Debug.WriteLine("游戏配置文件不存在，将使用默认设置");
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"读取配置失败: {ex.Message}");
+            Debug.WriteLine($"读取配置失败: {ex.Message}");
         }
     }
 
@@ -1662,7 +1803,7 @@ read -n 1 -s -r -p ""按任意键退出...""";
         try
         {
             // 保存游戏配置文件
-            string optionsFile = Path.Combine(GameDirectory, "options.txt");
+            var optionsFile = Path.Combine(GameDirectory, "options.txt");
 
             // 读取现有配置（如果存在）
             var gameOptions = new Dictionary<string, string>();
@@ -1677,8 +1818,8 @@ read -n 1 -s -r -p ""按任意键退出...""";
                     var parts = line.Split(new[] { ':' }, 2);
                     if (parts.Length == 2)
                     {
-                        string key = parts[0].Trim();
-                        string value = parts[1].Trim();
+                        var key = parts[0].Trim();
+                        var value = parts[1].Trim();
                         gameOptions[key] = value;
                     }
                 }
@@ -1740,11 +1881,11 @@ read -n 1 -s -r -p ""按任意键退出...""";
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine("游戏配置已保存");
+            Debug.WriteLine("游戏配置已保存");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"保存配置失败: {ex.Message}");
+            Debug.WriteLine($"保存配置失败: {ex.Message}");
         }
     }
 }

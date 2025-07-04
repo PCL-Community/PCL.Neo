@@ -11,4 +11,4 @@
     <s:String x:Key="LangTitleOther">More</s:String>
     <s:String x:Key="LangNavigateBack">Back</s:String>
 
-</ResourceDictionary> 
+</ResourceDictionary>

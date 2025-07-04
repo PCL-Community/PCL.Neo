@@ -7,22 +7,22 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="PCL.Neo.Views.LogView"
              x:DataType="vm:LogViewModel">
-    
+
     <Grid RowDefinitions="Auto,*,Auto">
         <!-- 顶部工具栏 -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Margin="10">
-            <TextBlock Grid.Column="0" Text="游戏日志" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
-            
+            <TextBlock Grid.Column="0" Text="游戏日志" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+
             <Grid Grid.Column="1" ColumnDefinitions="Auto,*,Auto" Margin="10,0,0,0">
-                <TextBlock Grid.Column="0" Text="过滤:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                <TextBox Grid.Column="1" Text="{Binding FilterText}" Watermark="输入过滤文本" Margin="0,0,5,0"/>
-                <CheckBox Grid.Column="2" Content="仅显示错误" IsChecked="{Binding ShowErrorOnly}"/>
+                <TextBlock Grid.Column="0" Text="过滤:" VerticalAlignment="Center" Margin="0,0,5,0" />
+                <TextBox Grid.Column="1" Text="{Binding FilterText}" Watermark="输入过滤文本" Margin="0,0,5,0" />
+                <CheckBox Grid.Column="2" Content="仅显示错误" IsChecked="{Binding ShowErrorOnly}" />
             </Grid>
-            
-            <Button Grid.Column="2" Content="清除日志" Command="{Binding ClearLogsCommand}" Margin="10,0"/>
-            <Button Grid.Column="3" Content="导出日志" Command="{Binding ExportLogsCommand}"/>
+
+            <Button Grid.Column="2" Content="清除日志" Command="{Binding ClearLogsCommand}" Margin="10,0" />
+            <Button Grid.Column="3" Content="导出日志" Command="{Binding ExportLogsCommand}" />
         </Grid>
-        
+
         <!-- 日志内容 -->
         <Border Grid.Row="1" BorderBrush="#20000000" BorderThickness="1" Margin="10">
             <ScrollViewer Name="LogScrollViewer">
@@ -30,10 +30,12 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="vm:LogEntry">
                             <Grid Margin="0,1">
-                                <Border Background="{Binding IsError, Converter={StaticResource BoolToColorConverter}}" Padding="5,2" CornerRadius="3">
+                                <Border Background="{Binding IsError, Converter={StaticResource BoolToColorConverter}}"
+                                        Padding="5,2" CornerRadius="3">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" FontFamily="Consolas" Margin="0,0,10,0" Foreground="#555555"/>
-                                        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontFamily="Consolas"/>
+                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}"
+                                                   FontFamily="Consolas" Margin="0,0,10,0" Foreground="#555555" />
+                                        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontFamily="Consolas" />
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -42,17 +44,17 @@
                 </ItemsControl>
             </ScrollViewer>
         </Border>
-        
+
         <!-- 底部状态栏 -->
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="10,0,10,10">
-            <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
-            <CheckBox Grid.Column="1" Content="自动滚动" IsChecked="{Binding IsAutoScroll}"/>
+            <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center" />
+            <CheckBox Grid.Column="1" Content="自动滚动" IsChecked="{Binding IsAutoScroll}" />
         </Grid>
     </Grid>
-    
+
     <UserControl.Resources>
-        <vm:BoolToColorConverter x:Key="BoolToColorConverter" 
+        <vm:BoolToColorConverter x:Key="BoolToColorConverter"
                                  TrueValue="#FFDDDD"
-                                 FalseValue="#F0F0F0"/>
+                                 FalseValue="#F0F0F0" />
     </UserControl.Resources>
-</UserControl> 
+</UserControl>

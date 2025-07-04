@@ -1,7 +1,5 @@
-namespace PCL.Neo.Helpers
-{
-    public class ArchitectureHelper
-    {
+namespace PCL.Neo.Helpers;
 
-    }
+public class ArchitectureHelper
+{
 }

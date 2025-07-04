@@ -14,4 +14,4 @@ public partial class SettingsView : UserControl
     {
         AvaloniaXamlLoader.Load(this);
     }
-} 
+}

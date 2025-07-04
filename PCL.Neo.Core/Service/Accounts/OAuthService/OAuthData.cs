@@ -132,7 +132,7 @@ public static class OAuthData
             [property: JsonPropertyName("PropertiesData")]
             public required PropertiesData Properties { get; set; }
 
-            public const  string TokenType = "JWT";
+            public const string TokenType = "JWT";
             public static string RelyingParty => "http://auth.xboxlive.com";
 
             public sealed record PropertiesData(
@@ -140,7 +140,7 @@ public static class OAuthData
                 string RpsTicket)
             {
                 public const string AuthMethod = "RPS";
-                public const string SiteName   = "user.auth.xboxlive.com";
+                public const string SiteName = "user.auth.xboxlive.com";
             }
         }
 
@@ -148,7 +148,7 @@ public static class OAuthData
             XstsRequire.PropertiesData Properties)
         {
             public const string RelyingParty = "rp://api.minecraftservices.com/";
-            public const string TokenType    = "JWT";
+            public const string TokenType = "JWT";
 
             public sealed record PropertiesData(
                 [property: JsonPropertyName("UserTokens")]
@@ -160,7 +160,8 @@ public static class OAuthData
 
         public sealed record MinecraftAccessTokenRequire
         {
-            [JsonPropertyName("identityToken")] public string IdentityToken { get; set; }
+            [JsonPropertyName("identityToken")]
+            public string IdentityToken { get; set; }
         }
     }
 

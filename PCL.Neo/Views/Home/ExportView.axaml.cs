@@ -14,4 +14,4 @@ public partial class ExportView : UserControl
     {
         AvaloniaXamlLoader.Load(this);
     }
-} 
+}

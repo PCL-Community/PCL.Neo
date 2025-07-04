@@ -17,13 +17,16 @@
 原生运行，自然快！
 
 ## 特色
+
 - **跨平台**：借助于强大的 **Avalonia** 框架，你可以在 Windows、Linux 和 macOS 上体验 PCL.Neo！
 - **像素级还原**：PCL.Neo 的界面，功能与原版 PCL 几乎一致。
 - **原生运行**：PCL.Neo 是原生自绘控件，自然快！
 - **无付费功能**：PCL.Neo 的任何功能都不需要**付费**！
 
 ## 贡献指南
+
 如果你想为此项目做出贡献，请参考[这里](docs/pcl_neo_contribution_guide.md)
 
 ## 协议声明
+
 PCL.Neo.Core 使用 **MIT license**，而主项目使用与主线相同的协议。因此你可以放心使用 PCL.Neo.Core 用于你的项目。

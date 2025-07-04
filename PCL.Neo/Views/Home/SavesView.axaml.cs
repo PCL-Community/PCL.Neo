@@ -14,4 +14,4 @@ public partial class SavesView : UserControl
     {
         AvaloniaXamlLoader.Load(this);
     }
-} 
+}
