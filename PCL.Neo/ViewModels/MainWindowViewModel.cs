@@ -378,22 +378,20 @@ public partial class MainWindowViewModel : ViewModelBase
                 CloseAfterLaunch = false
             };
 
-            var gameEntity = new GameEntity()
+            var gameEntity = new GameEntity(new GameProfile
             {
-                Profile = new GameProfile
+                Options = launchOptions,
+                Information = new GameInfo
                 {
-                    Options = launchOptions,
-                    Information = new GameInfo()
-                    {
-                        GameDirectory =
-                            @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
-                        RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                    }
+                    GameDirectory =
+                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
+                    RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
+                    Name = "None",
                 }
-            };
+            });
 
 
-            var result = await gameEntity.StartGame();
+            var result = await gameEntity.StartGameAsync();
         }
     }
 

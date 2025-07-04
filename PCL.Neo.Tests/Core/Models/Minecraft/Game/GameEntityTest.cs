@@ -4,25 +4,23 @@ using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace PCL.Neo.Tests.Core.Models.Models.Minecraft.Game.Data
+namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
 {
     [TestFixture]
-    [TestOf(typeof(GameProfile))]
-    public class GameProfileTest
+    [TestOf(typeof(GameEntity))]
+    public class GameEntityTest
     {
         [Test]
-        public async Task SaveProfileTest()
+        public async Task StartGameTest()
         {
             var launchOptions = new LaunchOptions
             {
-                VersionId = "1.20.1",
+                VersionId = "Create",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
-                        @"C:\Users\WhiteCAT\Documents\Java\zulu17.48.15-ca-jdk17.0.10-win_x64\bin\"),
+                        @"C:\Users\WhiteCAT\Documents\Java\zulu17.58.21-ca-jdk17.0.15-win_x64\bin"),
                 MaxMemoryMB = 4096,
                 MinMemoryMB = 512, // 最小内存设为最大内存的1/4，但不低于512MB
                 Username = "Steve",
@@ -49,32 +47,22 @@ namespace PCL.Neo.Tests.Core.Models.Models.Minecraft.Game.Data
                 CloseAfterLaunch = false
             };
 
-            var gameProfile = new GameProfile
+            var gameEntity = new GameEntity(new GameProfile
             {
                 Options = launchOptions,
-                Information = new GameInfo()
+                Information = new GameInfo
                 {
-                    GameDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                    RootDirectory =
-                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
+                    GameDirectory =
+                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
+                    RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
+                    Name = "None",
                 }
-            };
+            });
 
-            var jsonOptions = new JsonSerializerOptions()
-            {
-                WriteIndented = true,
-                Converters = { new JsonStringEnumConverter<ModLoader>(JsonNamingPolicy.CamelCase) }
-            };
 
-            var seri = JsonSerializer.Serialize(gameProfile, jsonOptions);
+            var result = await gameEntity.StartGameAsync();
 
-            Console.WriteLine(seri);
-
-            var deseri = JsonSerializer.Deserialize<GameProfile>(seri, jsonOptions);
-
-            var reseri = JsonSerializer.Serialize(deseri, jsonOptions);
-
-            Console.WriteLine(reseri);
+            Assert.That(result, Is.EqualTo(true));
         }
     }
 }

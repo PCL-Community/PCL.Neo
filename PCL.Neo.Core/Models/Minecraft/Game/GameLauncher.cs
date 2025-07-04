@@ -53,14 +53,14 @@ public class GameLauncher : IGameLauncher
     /// </summary>
     public async Task<Collection<string>> BuildLaunchCommandAsync()
     {
-        var manifest = await _manifestLazy.Value;
+        Manifes = await _manifestLazy.Value;
 
         var nativesDir = PrepareNativesDirectory();
         var libPath = Path.Combine(Profile.Information.RootDirectory, "libraries");
 
-        ArgumentNullException.ThrowIfNull(manifest.Libraries); // enure libraries is not null
+        ArgumentNullException.ThrowIfNull(Manifes.Libraries); // enure libraries is not null
 
-        var libCommand = await BuildLibrariesCommandAsync(manifest.Libraries, Profile.Information.RootDirectory);
+        var libCommand = await BuildLibrariesCommandAsync(Manifes.Libraries, Profile.Information.RootDirectory);
         var classPath = BuildClassPath(libCommand);
 
         _adapter = CreateArgumentsAdapter(nativesDir, libPath, classPath);
@@ -71,17 +71,17 @@ public class GameLauncher : IGameLauncher
         AddBasicJvmArguments(args);
 
         // 添加JVM参数
-        var jvmArgs = GenerateJvmArguments(Profile, manifest, _adapter);
+        var jvmArgs = GenerateJvmArguments(Profile, Manifes, _adapter);
         args.AddRange(jvmArgs);
 
         // 添加Java包装器
         AddJavaWrapper(args);
 
         // 添加主类
-        args.Add(manifest.MainClass);
+        args.Add(Manifes.MainClass);
 
         // 添加游戏参数
-        var gameArgs = GenerateGameArguments(Profile, manifest, _adapter);
+        var gameArgs = GenerateGameArguments(Profile, Manifes, _adapter);
         args.AddRange(gameArgs);
 
         return args;
@@ -643,7 +643,9 @@ public class GameLauncher : IGameLauncher
             { "${classpath}", classPath }
         };
 
-        return new ArgumentsAdapter(Profile.Information, Profile.Options, extraArgs);
+        ArgumentNullException.ThrowIfNull(Manifes);
+
+        return new ArgumentsAdapter(Profile.Information, Profile.Options, extraArgs, Manifes);
     }
 
     /// <summary>

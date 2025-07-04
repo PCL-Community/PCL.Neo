@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PCL.Neo.Tests.Models.Configuration;
 
-namespace PCL.Neo.Tests.Core.Models.Models.Configuration
+namespace PCL.Neo.Tests.Core.Models.Configuration
 {
     [TestFixture]
     [TestOf(typeof(ConfigurationManager))]

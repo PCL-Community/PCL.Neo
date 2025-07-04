@@ -10,7 +10,6 @@ public class GameEntity(GameProfile profile) : IDisposable
     private bool _disposed;
 
     // 惰性创建启动器
-
     public GameProfile Profile { get; } = profile ?? throw new ArgumentNullException(nameof(profile));
 
     private IGameLauncher Launcher => _launcherLazy.Value;
@@ -34,7 +33,6 @@ public class GameEntity(GameProfile profile) : IDisposable
     {
         if (_disposed) return;
 
-        _gameProcess?.Kill();
         _gameProcess?.Dispose();
         _disposed = true;
     }

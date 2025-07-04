@@ -124,10 +124,10 @@ public class LoggingInfo
 
         [JsonPropertyName("argument")] public required string Argument { get; set; }
 
-        [JsonPropertyName("FileInfo")] public required FileInfo File { get; set; }
+        [JsonPropertyName("file")] public required FileInfo File { get; set; }
 
         [JsonPropertyName("type")] public string Type { get; set; } = string.Empty;
     }
 
-    [JsonPropertyName("ClientInfo")] public required ClientInfo Client { get; set; }
+    [JsonPropertyName("client")] public required ClientInfo Client { get; set; }
 }
