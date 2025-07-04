@@ -1,0 +1,16 @@
+version: "1.0"
+
+ide: QDNET
+
+profile:
+  name: qodana.recommended
+
+licenseRules:
+  - keys:
+      - "MIT"
+
+exclude:
+  - name: All
+    paths:
+      - PCL.Neo/.editorconfig
+      - PCL.Neo/app.manifest
