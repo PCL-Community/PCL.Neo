@@ -7,7 +7,7 @@ namespace PCL.Neo.Core.Utils;
 
 public static partial class Uuid
 {
-    public enum UuidGenerateType
+    public enum UuidGenerateType : byte
     {
         Guid,
         Standard,
@@ -15,8 +15,6 @@ public static partial class Uuid
     }
 
     private const string OfflinePlayerPrefix = "OfflinePlayer:";
-    private const int MinUsernameLength = 3;
-    private const int MaxUsernameLength = 16;
 
     // Thread-safe MD5 instance
     private static readonly ThreadLocal<MD5> Md5Instance = new(MD5.Create);
@@ -80,12 +78,9 @@ public static partial class Uuid
     [GeneratedRegex("^[a-zA-Z0-9_]+$", RegexOptions.Compiled)]
     private static partial Regex ValidUsernameRegex();
 
-    private static bool IsValidUsername(string? username)
-    {
-        return !string.IsNullOrEmpty(username) &&
-               username.Length is >= MinUsernameLength and <= MaxUsernameLength &&
-               ValidUsernameRegex().IsMatch(username);
-    }
+    private static bool IsValidUsername(string? username) =>
+        !string.IsNullOrEmpty(username) &&
+        ValidUsernameRegex().IsMatch(username);
 
     // Optimized MurmurHash3 implementation
     private static class MurmurHash3

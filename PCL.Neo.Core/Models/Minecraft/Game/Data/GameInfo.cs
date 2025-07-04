@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 public record GameInfo
@@ -13,6 +15,11 @@ public record GameInfo
     public required string RootDirectory { get; set; }
 
     /// <summary>
+    /// The name of the game version.
+    /// </summary>
+    public required string Name { get; set; }
+
+    /// <summary>
     /// The loader type.
     /// </summary>
     public ModLoader Loader { get; set; } = ModLoader.None;
@@ -20,6 +27,8 @@ public record GameInfo
     /// <summary>
     /// Demonstrate if the version has been loaded (runed).
     /// </summary>
+
+    [JsonIgnore]
     public bool IsRunning { get; set; } = false;
 
     private bool? _isIndie;

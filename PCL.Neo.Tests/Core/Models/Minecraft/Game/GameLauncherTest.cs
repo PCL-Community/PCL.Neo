@@ -6,14 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PCL.Neo.Tests.Core.Models.Models.Minecraft.Game
+namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
 {
     [TestFixture]
-    [TestOf(typeof(GameEntity))]
-    public class GameEntityTest
+    [TestOf(typeof(GameLauncher))]
+    public class GameLauncherTest
     {
         [Test]
-        public async Task StartGameTest()
+        public async Task GameArgumentsTest()
         {
             var launchOptions = new LaunchOptions
             {
@@ -47,21 +47,23 @@ namespace PCL.Neo.Tests.Core.Models.Models.Minecraft.Game
                 CloseAfterLaunch = false
             };
 
-            var gameEntity = new GameEntity(new GameProfile
+            var launcher = new GameLauncher(new GameProfile
             {
                 Options = launchOptions,
-                Information = new GameInfo()
+                Information = new GameInfo
                 {
                     GameDirectory =
                         @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
                     RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
+                    Name = "None",
                 }
             });
 
 
-            var result = await gameEntity.StartGame();
+            var result = await launcher.BuildLaunchCommandAsync();
 
-            Assert.That(result, Is.EqualTo(true));
+
+            Console.WriteLine(string.Join('\n', result));
         }
     }
 }

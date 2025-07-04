@@ -1,7 +1,7 @@
 using PCL.Neo.Core.Utils;
 using System;
 
-namespace PCL.Neo.Tests.Utils
+namespace PCL.Neo.Tests.Core.Models.Utils
 {
     [TestFixture]
     [TestOf(typeof(Uuid))]
@@ -10,7 +10,7 @@ namespace PCL.Neo.Tests.Utils
         [Test]
         public void UuidGenerateTest()
         {
-            var name = "WhiteCat";
+            const string name = "WhiteCat";
             var uuid1 = Uuid.GenerateUuid(name, Uuid.UuidGenerateType.Guid);
             var uuid2 = Uuid.GenerateUuid(name, Uuid.UuidGenerateType.Standard);
             var uuid3 = Uuid.GenerateUuid(name, Uuid.UuidGenerateType.MurmurHash3);
