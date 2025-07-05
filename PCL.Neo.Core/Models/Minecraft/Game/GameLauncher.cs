@@ -92,11 +92,11 @@ public class GameLauncher : IGameLauncher
         ValidateDirctories();
 
         var versionManifest =
-            await Versions.GetVersionByIdAsync(Profile.Information.RootDirectory, Profile.Options.VersionId);
+            await Versions.GetVersionByIdAsync(Profile.Information.RootDirectory, Profile.Information.Name);
 
         if (versionManifest == null)
         {
-            throw new InvalidOperationException($"Version manifest not found {Profile.Options.VersionId}");
+            throw new InvalidOperationException($"Version manifest not found {Profile.Information.Name}");
         }
 
         if (!string.IsNullOrEmpty(versionManifest.InheritsFrom))
@@ -533,7 +533,7 @@ public class GameLauncher : IGameLauncher
         var nativesDir = Path.Combine(
             Profile.Information.RootDirectory,
             "versions",
-            Profile.Options.VersionId,
+            Profile.Information.Name,
             "natives");
 
         if (!Directory.Exists(nativesDir))
@@ -549,7 +549,7 @@ public class GameLauncher : IGameLauncher
     /// </summary>
     private string BuildClassPath(Collection<string> libCommand)
     {
-        libCommand.Add(Path.Combine(Profile.Information.GameDirectory, $"{Profile.Options.VersionId}.jar"));
+        libCommand.Add(Path.Combine(Profile.Information.GameDirectory, $"{Profile.Information.Name}.jar"));
 
         var separator = SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':';
         return string.Join(separator, libCommand.Where(path => !string.IsNullOrEmpty(path)));
@@ -824,7 +824,7 @@ public class GameLauncher : IGameLauncher
 
         args.AddRange([
             "--username", profile.Options.Username,
-            "--version", profile.Options.VersionId,
+            "--version", profile.Information.Name,
             "--gameDir", DirectoryUtil.QuotePath(profile.Information.GameDirectory),
             "--assetsDir", DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")),
             "--assetIndex", versionManifest.AssetIndex?.Id ?? "legacy",

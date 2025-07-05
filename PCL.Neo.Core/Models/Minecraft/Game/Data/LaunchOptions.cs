@@ -6,11 +6,6 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 public sealed record LaunchOptions
 {
     /// <summary>
-    /// Minecraft版本ID
-    /// </summary>
-    public required string VersionId { get; set; } = string.Empty;
-
-    /// <summary>
     /// Java可执行文件路径
     /// </summary>
     [JsonIgnore]

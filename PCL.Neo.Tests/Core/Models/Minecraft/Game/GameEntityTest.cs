@@ -17,7 +17,6 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
         {
             var launchOptions = new LaunchOptions
             {
-                VersionId = "Create",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
                         @"C:\Users\WhiteCAT\Documents\Java\zulu17.58.21-ca-jdk17.0.15-win_x64\bin"),
@@ -55,7 +54,7 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                     GameDirectory =
                         @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
                     RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                    Name = "None",
+                    Name = "Create",
                 }
             });
 

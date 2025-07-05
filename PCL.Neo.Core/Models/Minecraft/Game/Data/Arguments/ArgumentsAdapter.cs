@@ -22,7 +22,7 @@ public class ArgumentsAdapter
         Arguments.Add("${assets_root}",
             DirectoryUtil.QuotePath(Path.Combine(info.RootDirectory, "assets")));
         Arguments.Add("${auth_player_name}", options.Username);
-        Arguments.Add("${version_name}", options.VersionId);
+        Arguments.Add("${version_name}", info.Name);
         Arguments.Add("${assets_index_name}", manifes.AssetIndex?.Id ?? "legacy");
         Arguments.Add("${auth_uuid}", options.UUID);
         Arguments.Add("${auth_access_token}", options.AccessToken);

@@ -2,7 +2,11 @@ using PCL.Neo.Core.Download;
 using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Models.Minecraft.Java;
+using PCL.Neo.Core.Service.Game.Data;
 using PCL.Neo.Core.Utils;
+using PCL.Neo.Core.Utils.Logger;
+using Serilog;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace PCL.Neo.Core.Service.Game;
@@ -18,6 +22,53 @@ public class GameService(IJavaManager javaManager) : IGameService
 
     public static string DefaultGameDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".minecraft");
+
+    /// <inheritdoc />
+    public async Task<bool> DownloadJavaWrapperAsync(string targetDir)
+    {
+        const string requestUrl = "https://api.github.com/repos/00ll00/java_launch_wrapper/releases/latest";
+        var url = new Uri(requestUrl);
+
+        NewLogger.Logger.LogInformation("Start to download JavaWrapper file.");
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer",
+            "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");
+        // TODO: this is a personal access token, should be replaced with a more secure method
+        // and will expried at 2025, Aug, 4th
+
+        var response = await Shared.HttpClient.SendAsync(request);
+
+        try
+        {
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException e)
+        {
+            NewLogger.Logger.LogError("Failed to download JavaWrapper.", e);
+            return false;
+        }
+
+        var ressponseContent = await response.Content.ReadAsStringAsync();
+        var latestRelease = JsonSerializer.Deserialize<LatestRepoRelease>(ressponseContent);
+
+        var downloadUrl = latestRelease?.Assets.FirstOrDefault()?.DownloadUrl;
+
+        if (downloadUrl == null)
+        {
+            throw new ArgumentNullException(nameof(downloadUrl),
+                "Release file download url is null. Maybe caused by response content error.");
+        }
+
+        var savePath = Path.Combine(targetDir, "java_launch_wrapper.jar");
+        var fileResponse = await Shared.HttpClient.GetAsync(downloadUrl);
+        await using var fs = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await fileResponse.Content.CopyToAsync(fs);
+
+        NewLogger.Logger.LogInformation("Download JavaWrapper file successfully.");
+
+        return true;
+    }
 
     public DefaultJavaRuntimeCombine DefaultJavaRuntimes => JavaManager.DefaultJavaRuntimes;
 
@@ -141,7 +192,7 @@ public class GameService(IJavaManager javaManager) : IGameService
             if (!File.Exists(assetObjectPath))
             {
                 Directory.CreateDirectory(assetObjectDir);
-                var assetUrl = $"https://resources.download.minecraft.net/{prefix}/{hash}";
+                var assetUrl = $"https://resources.download.minecraft.net/{prefix}/{hash}"; // TODO: support BMCL source
                 await DownloadReceipt.FastDownloadAsync(assetUrl, assetObjectPath);
             }
 
