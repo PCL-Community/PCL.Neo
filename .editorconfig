@@ -4,8 +4,6 @@ root = true
 [*]
 charset = utf-8
 indent_style = space
-indent_size = 2
-tab_width = 2
 max_line_length = 120
 end_of_line = crlf
 insert_final_newline = true
@@ -260,9 +258,9 @@ resharper_csharp_space_within_empty_braces = false
 resharper_xmldoc_indent_child_elements = do_not_touch
 resharper_xmldoc_indent_text = do_not_touch
 
-[*.{axaml,metainfo.xml,svg}]
-indent_size = 4
-tab_width = 4
+[*.{slnx,csproj,manifest,md}]
+indent_size = 2
+tab_width = 2
 
 [*.svg]
 max_line_length = 999999
