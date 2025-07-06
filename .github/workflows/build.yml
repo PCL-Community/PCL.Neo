@@ -26,8 +26,11 @@ jobs:
                     sudo apt-get install fuse
             - name: Build-AppImage
               run: |
-                  cd ./PCL.Neo
                   sudo su
+                  echo $(pwd) >> "$GITHUB_PATH"
+                  curl -sL https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -o appimagetool-x86_64.AppImage
+                  chmod +x appimagetool-x86_64.AppImage
+                  cd ./PCL.Neo
                   pupnet --runtime linux-x64 --kind appimage -o PCL.Neo.linux.x64.AppImage -y --app-version 1.0.0
                   pupnet --runtime linux-arm64 --kind appimage -o PCL.Neo.linux.arm64.AppImage -y --app-version 1.0.0
             - name: UploadArtifacts linux.arm64
