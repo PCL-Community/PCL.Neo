@@ -26,7 +26,6 @@ jobs:
                     sudo apt-get install fuse
             - name: Build-AppImage
               run: |
-                  sudo su
                   echo $(pwd) >> "$GITHUB_PATH"
                   curl -sL https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -o appimagetool-x86_64.AppImage
                   chmod +x appimagetool-x86_64.AppImage
