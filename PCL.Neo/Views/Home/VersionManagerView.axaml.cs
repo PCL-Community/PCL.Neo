@@ -26,6 +26,7 @@ public partial class VersionManagerView : UserControl
             {
                 return vm.RemoveDirectoryCommandCommand;
             }
+
             return null;
         }
     }
@@ -38,6 +39,7 @@ public partial class VersionManagerView : UserControl
             {
                 return vm.LaunchVersionCommandCommand;
             }
+
             return null;
         }
     }
@@ -50,6 +52,7 @@ public partial class VersionManagerView : UserControl
             {
                 return vm.SettingsCommandCommand;
             }
+
             return null;
         }
     }
@@ -62,6 +65,7 @@ public partial class VersionManagerView : UserControl
             {
                 return vm.DeleteVersionCommandCommand;
             }
+
             return null;
         }
     }

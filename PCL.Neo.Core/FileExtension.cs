@@ -1,7 +1,9 @@
 using PCL.Neo.Core.Utils;
+using SevenZip.Compression.LZMA;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Security.Cryptography;
 
 namespace PCL.Neo.Core;
 
@@ -18,10 +20,10 @@ public static class FileExtension
     /// <returns>是否匹配</returns>
     public static async Task<bool> CheckSha1(this FileStream fileStream, string sha1)
     {
-        using var sha1Provider = System.Security.Cryptography.SHA1.Create();
+        using var sha1Provider = SHA1.Create();
         fileStream.Position = 0; // 重置文件流位置
 
-        var computedHash       = await sha1Provider.ComputeHashAsync(fileStream).ConfigureAwait(false);
+        var computedHash = await sha1Provider.ComputeHashAsync(fileStream).ConfigureAwait(false);
         var computedHashString = Convert.ToHexStringLower(computedHash);
 
         return string.Equals(computedHashString, sha1, StringComparison.OrdinalIgnoreCase);
@@ -67,19 +69,19 @@ public static class FileExtension
     {
         inStream.Position = 0;
 
-        var outStream        = new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite);
+        var outStream = new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite);
         var decodeProperties = new byte[5];
-        var debugPos         = inStream.Read(decodeProperties, 0, 5);
+        var debugPos = inStream.Read(decodeProperties, 0, 5);
 
         Debug.Assert(debugPos == 5);
 
-        SevenZip.Compression.LZMA.Decoder decoder = new();
+        Decoder decoder = new();
 
         decoder.SetDecoderProperties(decodeProperties);
         long outSize = 0;
-        for (int i = 0; i < 8; i++)
+        for (var i = 0; i < 8; i++)
         {
-            int v = inStream.ReadByte();
+            var v = inStream.ReadByte();
             if (v < 0)
             {
                 Console.WriteLine("read outSize error.");
@@ -89,7 +91,7 @@ public static class FileExtension
             outSize |= (long)(byte)v << (8 * i);
         }
 
-        long compressedSize = inStream.Length - inStream.Position;
+        var compressedSize = inStream.Length - inStream.Position;
 
         decoder.Code(inStream, outStream, compressedSize, outSize, null);
         inStream.Close();

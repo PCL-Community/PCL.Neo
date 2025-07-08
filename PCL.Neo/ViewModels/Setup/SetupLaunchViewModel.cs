@@ -21,12 +21,14 @@ public partial class SetupLaunchViewModel : ViewModelBase
 {
     private readonly IJavaManager _javaManager;
     private readonly StorageService _storageService;
-    [ObservableProperty] private ObservableCollection<JavaUiInfo> _javaInfoList = [];
+
+    [ObservableProperty]
+    private ObservableCollection<JavaUiInfo> _javaInfoList = [];
 
     private void DoUiRefresh()
     {
         if (JavaInfoList.Count != 0) JavaInfoList.Clear();
-        foreach (JavaRuntime runtime in _javaManager.JavaList)
+        foreach (var runtime in _javaManager.JavaList)
             JavaInfoList.Add(new JavaUiInfo(runtime));
     }
 
@@ -48,11 +50,11 @@ public partial class SetupLaunchViewModel : ViewModelBase
     [RelayCommand]
     private async Task ManualAdd()
     {
-        string? javaPath = await _storageService.SelectFile("选择要添加的Java");
+        var javaPath = await _storageService.SelectFile("选择要添加的Java");
         if (javaPath == null) return;
         var dirPath = Path.GetDirectoryName(javaPath);
         if (dirPath == null) return;
-        (JavaRuntime? resultRuntime, bool updateCurrent) = await _javaManager.ManualAdd(dirPath);
+        var (resultRuntime, updateCurrent) = await _javaManager.ManualAdd(dirPath);
         if (resultRuntime == null || updateCurrent) return;
         JavaInfoList.Add(new JavaUiInfo(resultRuntime));
     }

@@ -1,12 +1,8 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using PCL.Neo.ViewModels;
-using PCL.Neo.ViewModels.Job;
 using System.Linq;
 using System.Timers;
 

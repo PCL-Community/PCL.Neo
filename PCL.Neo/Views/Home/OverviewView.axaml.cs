@@ -14,4 +14,4 @@ public partial class OverviewView : UserControl
     {
         AvaloniaXamlLoader.Load(this);
     }
-} 
+}

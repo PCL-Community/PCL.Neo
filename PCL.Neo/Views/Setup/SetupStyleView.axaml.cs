@@ -1,14 +1,11 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
-namespace PCL.Neo.Views.Setup
+namespace PCL.Neo.Views.Setup;
+
+public partial class SetupStyleView : UserControl
 {
-    public partial class SetupStyleView : UserControl
+    public SetupStyleView()
     {
-        public SetupStyleView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

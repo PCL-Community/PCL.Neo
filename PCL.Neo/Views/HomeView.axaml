@@ -23,30 +23,39 @@
                     <TextBlock
                         Margin="2"
                         FontSize="14"
-                        Foreground="{DynamicResource ColorBrush2}">启动游戏</TextBlock>
+                        Foreground="{DynamicResource ColorBrush2}">
+                        启动游戏
+                    </TextBlock>
                     <TextBlock
                         Margin="3"
                         FontSize="11"
                         Foreground="#A3A0A0"
-                        HorizontalAlignment="Center">1.17.1</TextBlock>
+                        HorizontalAlignment="Center">
+                        1.17.1
+                    </TextBlock>
                 </StackPanel>
             </controls:MyButton>
             <DockPanel HorizontalAlignment="Center">
                 <controls:MyButton
                     Margin="5"
                     Height="35"
-                    Width="125">版本选择</controls:MyButton>
+                    Width="125">
+                    版本选择
+                </controls:MyButton>
                 <controls:MyButton
                     Margin="5"
                     Height="35"
-                    Width="125">版本设置</controls:MyButton>
+                    Width="125">
+                    版本设置
+                </controls:MyButton>
             </DockPanel>
             <controls:MyButton
                 Margin="5"
                 IsVisible="False"
                 Width="260"
-                Height="35">版本选择</controls:MyButton>
+                Height="35">
+                版本选择
+            </controls:MyButton>
         </StackPanel>
     </Grid>
 </UserControl>
-

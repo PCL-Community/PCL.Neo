@@ -105,16 +105,18 @@ audioService.Dispose();
 要创建自定义音频服务实现，可以:
 
 1. 继承 `AudioService` 基类并重写以下方法:
-   - `StartPlaybackAsync`: 实现音频播放
-   - `PausePlaybackAsync`: 实现暂停功能
-   - `ResumePlaybackAsync`: 实现继续播放功能
-   - `StopPlaybackAsync`: 实现停止播放功能
-   - `SetVolumeInternalAsync`: 实现音量控制
-   - `OnPlaybackFinished`: 控制播放完成事件的触发
+
+- `StartPlaybackAsync`: 实现音频播放
+- `PausePlaybackAsync`: 实现暂停功能
+- `ResumePlaybackAsync`: 实现继续播放功能
+- `StopPlaybackAsync`: 实现停止播放功能
+- `SetVolumeInternalAsync`: 实现音量控制
+- `OnPlaybackFinished`: 控制播放完成事件的触发
 
 2. 使用受保护的成员进行状态管理:
-   - `_currentProcess`: 当前播放进程
-   - `LogInfo/LogError/LogDebug`: 记录日志的辅助方法
+
+- `_currentProcess`: 当前播放进程
+- `LogInfo/LogError/LogDebug`: 记录日志的辅助方法
 
 3. 修改 `AudioServiceFactory` 以使用新的自定义实现。
 
@@ -123,4 +125,4 @@ audioService.Dispose();
 - 所有音频服务实现都实现了 `IDisposable` 接口，使用完毕后应当调用 `Dispose()` 方法释放资源
 - 音频服务默认会创建临时文件夹用于存储从流中读取的音频数据，可通过 `AudioOptions` 配置路径
 - 如有日志需求，可通过 `AudioOptions.EnableLogging` 启用日志输出
-- 基类 `AudioService` 已具备基本的跨平台能力，但平台特定实现提供了更优的性能和功能 
+- 基类 `AudioService` 已具备基本的跨平台能力，但平台特定实现提供了更优的性能和功能

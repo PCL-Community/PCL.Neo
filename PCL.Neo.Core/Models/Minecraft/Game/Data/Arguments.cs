@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
@@ -6,9 +5,12 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 public partial class Arguments
 {
-    [JsonPropertyName("game")] public List<object>? Game { get; set; } = new();
+    [JsonPropertyName("game")]
+    public List<object>? Game { get; set; } = new();
 
-    [JsonPropertyName("jvm")] public List<object>? Jvm { get; set; } = new();
+    [JsonPropertyName("jvm")]
+    public List<object>? Jvm { get; set; } = new();
+
     public List<string> GameArguments { get; init; } = new();
 
     private static readonly Dictionary<string, bool> GameRules = new()
@@ -62,7 +64,7 @@ public partial class Arguments
             }
 
             var key = match.Groups[1].Value;
-            if (ArgumentsCustomValue.TryGetValue(key, out string? value))
+            if (ArgumentsCustomValue.TryGetValue(key, out var value))
             {
                 CustomValueRegex().Replace(arg, value);
                 result.Add(arg);
@@ -100,8 +102,10 @@ public partial class Arguments
     */
 
     /// <inheritdoc />
-    public override string ToString() =>
-        string.Join(" ", GameArguments);
+    public override string ToString()
+    {
+        return string.Join(" ", GameArguments);
+    }
 
     [GeneratedRegex(@"\$\{([^}]+)\}")]
     private static partial Regex CustomValueRegex();

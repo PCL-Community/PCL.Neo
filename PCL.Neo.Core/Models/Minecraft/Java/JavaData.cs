@@ -35,17 +35,17 @@ public class JavaRuntime
     /// </summary>
     private record JavaInfo
     {
-        public string Version     { get; set; } = string.Empty;
-        public int    SlugVersion { get; set; } = 0;
+        public string Version { get; set; } = string.Empty;
+        public int SlugVersion { get; set; }
 
         public ExeArchitectureUtils.ExeArchitecture Architecture { get; set; } =
             ExeArchitectureUtils.ExeArchitecture.Unknown;
 
-        public          bool            IsJre       { get; init; }
-        public          JavaCompability Compability { get; set; } = JavaCompability.Unknown;
-        public required string          JavaExe     { get; init; }
-        public required string          JavaWExe    { get; init; }
-        public          string?         Implementor { get; set; }
+        public bool IsJre { get; init; }
+        public JavaCompability Compability { get; set; } = JavaCompability.Unknown;
+        public required string JavaExe { get; init; }
+        public required string JavaWExe { get; init; }
+        public string? Implementor { get; set; }
     }
 
     /// <summary>
@@ -96,7 +96,8 @@ public class JavaRuntime
     private static async Task<JavaInfo> JavaInfoInitAsync(string directoryPath)
     {
         // 首先直接设置JavaExe、JavawExe、releaseFile、javac的路径
-        var javaExe = Path.Combine(directoryPath, SystemUtils.Os is SystemUtils.RunningOs.Windows ? "java.exe" : "java");
+        var javaExe = Path.Combine(directoryPath,
+            SystemUtils.Os is SystemUtils.RunningOs.Windows ? "java.exe" : "java");
         string? releaseFile = null;
         var parentDir = Directory.GetParent(directoryPath);
         if (parentDir != null) releaseFile = Path.Combine(parentDir.FullName, "release");
@@ -106,7 +107,9 @@ public class JavaRuntime
         var info = new JavaInfo
         {
             JavaExe = javaExe,
-            JavaWExe = SystemUtils.Os is SystemUtils.RunningOs.Windows ? Path.Combine(directoryPath, "javaw.exe") : javaExe,
+            JavaWExe = SystemUtils.Os is SystemUtils.RunningOs.Windows
+                ? Path.Combine(directoryPath, "javaw.exe")
+                : javaExe,
             IsJre = !File.Exists(javacPath)
         };
 
@@ -134,7 +137,7 @@ public class JavaRuntime
 
         // 设置slug Version
         var versionSplit = info.Version.Split('.');
-        info.SlugVersion = int.TryParse(versionSplit[0] == "1" ? versionSplit[1] : versionSplit[0], out int slugVersion)
+        info.SlugVersion = int.TryParse(versionSplit[0] == "1" ? versionSplit[1] : versionSplit[0], out var slugVersion)
             ? slugVersion
             : 0;
 
@@ -194,8 +197,8 @@ public class JavaRuntime
             throw new FileNotFoundException("Release file not found.", releaseFile);
         }
 
-        string implementor = string.Empty;
-        string version = string.Empty;
+        var implementor = string.Empty;
+        var version = string.Empty;
         var osArch = ExeArchitectureUtils.ExeArchitecture.Unknown;
         foreach (var line in File.ReadLines(releaseFile))
         {
@@ -205,7 +208,7 @@ public class JavaRuntime
                 version = line.Split('=')[1].Trim('"');
             else if (line.StartsWith("OS_ARCH="))
             {
-                string arch = line.Split('=')[1].Trim('"');
+                var arch = line.Split('=')[1].Trim('"');
                 osArch = arch switch
                 {
                     "x86_64" => ExeArchitectureUtils.ExeArchitecture.X64,
@@ -222,6 +225,7 @@ public class JavaRuntime
                 break;
             }
         }
+
         return (implementor, version, osArch);
     }
 }

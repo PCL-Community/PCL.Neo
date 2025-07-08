@@ -5,5 +5,4 @@ namespace PCL.Neo.ViewModels;
 [MainViewModel(typeof(SetupLaunchViewModel))]
 public class SetupViewModel : ViewModelBase
 {
-
 }

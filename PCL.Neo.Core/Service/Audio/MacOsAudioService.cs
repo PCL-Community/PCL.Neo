@@ -1,8 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PCL.Neo.Core.Service.Audio;
 
@@ -39,11 +35,11 @@ public class MacOsAudioService : AudioService
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-            
+
             process.Start();
-            string output = process.StandardOutput.ReadToEnd();
+            var output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-            
+
             return output.Trim();
         }
         catch (Exception ex)
@@ -52,7 +48,7 @@ public class MacOsAudioService : AudioService
             return string.Empty;
         }
     }
-    
+
     /// <summary>
     /// 执行AppleScript
     /// </summary>
@@ -91,14 +87,14 @@ public class MacOsAudioService : AudioService
                     },
                     EnableRaisingEvents = true
                 };
-                
+
                 process.Exited += (sender, args) =>
                 {
                     OnPlaybackFinished(this);
                     process.Dispose();
                 };
 
-                bool started = process.Start();
+                var started = process.Start();
                 if (!started)
                 {
                     LogError("无法启动afplay进程");
@@ -118,9 +114,12 @@ public class MacOsAudioService : AudioService
                             process.Kill();
                         }
                     }
-                    catch { /* 忽略错误 */ }
+                    catch
+                    {
+                        /* 忽略错误 */
+                    }
                 });
-                
+
                 return true;
             });
         }
@@ -143,11 +142,11 @@ public class MacOsAudioService : AudioService
         {
             if (_currentProcess == null || _currentProcess.HasExited)
                 return false;
-            
+
             try
             {
                 LogInfo("macOS暂停播放");
-                int pid = _currentProcess.Id;
+                var pid = _currentProcess.Id;
                 // 发送SIGSTOP信号暂停进程
                 ExecuteCommand("kill", $"-STOP {pid}");
                 return true;
@@ -172,11 +171,11 @@ public class MacOsAudioService : AudioService
         {
             if (_currentProcess == null || _currentProcess.HasExited)
                 return false;
-            
+
             try
             {
                 LogInfo("macOS继续播放");
-                int pid = _currentProcess.Id;
+                var pid = _currentProcess.Id;
                 // 发送SIGCONT信号继续进程
                 ExecuteCommand("kill", $"-CONT {pid}");
                 return true;
@@ -198,7 +197,7 @@ public class MacOsAudioService : AudioService
         {
             if (_currentProcess == null)
                 return true;
-                
+
             try
             {
                 LogInfo("macOS停止播放");
@@ -206,6 +205,7 @@ public class MacOsAudioService : AudioService
                 {
                     _currentProcess.Kill();
                 }
+
                 _currentProcess.Dispose();
                 _currentProcess = null;
                 return true;
@@ -232,11 +232,11 @@ public class MacOsAudioService : AudioService
             try
             {
                 // 将0-1范围的音量映射到macOS的0-100范围
-                int osVolume = (int)(volume * 100);
+                var osVolume = (int)(volume * 100);
                 LogInfo($"设置macOS系统音量: {osVolume}%");
-                
+
                 // 使用AppleScript设置系统音量
-                string script = $"set volume output volume {osVolume}";
+                var script = $"set volume output volume {osVolume}";
                 ExecuteAppleScript(script);
                 return true;
             }
@@ -247,4 +247,4 @@ public class MacOsAudioService : AudioService
             }
         });
     }
-} 
+}

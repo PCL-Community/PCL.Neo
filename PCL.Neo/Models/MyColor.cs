@@ -4,33 +4,32 @@ using System.Numerics;
 
 namespace PCL.Neo.Models;
 
-
 public class MyColor : IEquatable<MyColor>
 {
     private Vector4 _color;
 
     public float A
     {
-        get => this._color.X;
-        set => this._color.X = value;
+        get => _color.X;
+        set => _color.X = value;
     }
 
     public float R
     {
-        get => this._color.Y;
-        set => this._color.Y = value;
+        get => _color.Y;
+        set => _color.Y = value;
     }
 
     public float G
     {
-        get => this._color.Z;
-        set => this._color.Z = value;
+        get => _color.Z;
+        set => _color.Z = value;
     }
 
     public float B
     {
-        get => this._color.W;
-        set => this._color.W = value;
+        get => _color.W;
+        set => _color.W = value;
     }
 
     // 类型转换
@@ -48,7 +47,7 @@ public class MyColor : IEquatable<MyColor>
     public static implicit operator Color(MyColor conv)
     {
         return Color.FromArgb((byte)Math.Clamp(conv.A, 0, 255),
-             (byte)Math.Clamp(conv.R, 0, 255),
+            (byte)Math.Clamp(conv.R, 0, 255),
             (byte)Math.Clamp(conv.G, 0, 255),
             (byte)Math.Clamp(conv.B, 0, 255));
     }
@@ -61,7 +60,7 @@ public class MyColor : IEquatable<MyColor>
     public static implicit operator SolidColorBrush(MyColor conv)
     {
         return new SolidColorBrush(Color.FromArgb((byte)Math.Clamp(conv.A, 0, 255),
-             (byte)Math.Clamp(conv.R, 0, 255),
+            (byte)Math.Clamp(conv.R, 0, 255),
             (byte)Math.Clamp(conv.G, 0, 255),
             (byte)Math.Clamp(conv.B, 0, 255)));
     }
@@ -74,7 +73,7 @@ public class MyColor : IEquatable<MyColor>
     public static implicit operator Brush(MyColor conv)
     {
         return new SolidColorBrush(Color.FromArgb((byte)Math.Clamp(conv.A, 0, 255),
-             (byte)Math.Clamp(conv.R, 0, 255),
+            (byte)Math.Clamp(conv.R, 0, 255),
             (byte)Math.Clamp(conv.G, 0, 255),
             (byte)Math.Clamp(conv.B, 0, 255)));
     }
@@ -88,7 +87,7 @@ public class MyColor : IEquatable<MyColor>
 
     public static MyColor operator -(MyColor a, MyColor b)
     {
-        return new MyColor { _color = a._color - b._color};
+        return new MyColor { _color = a._color - b._color };
     }
 
     public static MyColor operator *(MyColor a, float b)
@@ -125,39 +124,45 @@ public class MyColor : IEquatable<MyColor>
 
     public MyColor()
     {
-        this._color = new Vector4(255f, 0f, 0f, 0f);
+        _color = new Vector4(255f, 0f, 0f, 0f);
     }
+
     public MyColor(Color color)
     {
-        this._color = new Vector4(color.A, color.R, color.G, color.B);
+        _color = new Vector4(color.A, color.R, color.G, color.B);
     }
+
     public MyColor(string hex)
     {
         var color = Color.Parse(hex);
-        this._color = new Vector4(color.A, color.R, color.G, color.B);
+        _color = new Vector4(color.A, color.R, color.G, color.B);
     }
+
     public MyColor(float a, MyColor color)
     {
-        this._color = color._color with { X = a };
+        _color = color._color with { X = a };
     }
 
     public MyColor(float r, float g, float b)
     {
-        this._color = new Vector4(255f, r, g, b);
+        _color = new Vector4(255f, r, g, b);
     }
+
     public MyColor(float a, float r, float g, float b)
     {
-        this._color = new Vector4(a, r, g, b);
+        _color = new Vector4(a, r, g, b);
     }
+
     public MyColor(Brush brush)
     {
         var color = ((SolidColorBrush)brush).Color;
-        this._color = new Vector4(color.A, color.R, color.G, color.B);
+        _color = new Vector4(color.A, color.R, color.G, color.B);
     }
+
     public MyColor(SolidColorBrush brush)
     {
         var color = brush.Color;
-        this._color = new Vector4(color.A, color.R, color.G, color.B);
+        _color = new Vector4(color.A, color.R, color.G, color.B);
     }
 
     // IEquatable
@@ -225,9 +230,9 @@ public class MyColor : IEquatable<MyColor>
         }
         else
         {
-            double h = sH / 360;
-            double s = sS / 100;
-            double l = sL / 100;
+            var h = sH / 360;
+            var s = sS / 100;
+            var l = sL / 100;
             s = l < 0.5 ? s * l + l : s * (1.0 - l) + l;
             l = 2 * l - s;
             color.R = (float)(255 * Hue(l, s, h + 1 / 3.0));
@@ -259,8 +264,8 @@ public class MyColor : IEquatable<MyColor>
                 +0.05, -0.12, -0.02, // 270, 300, 330
                 +0.1, -0.06
             ]; // 最后两位与前两位一致，加是变亮，减是变暗
-            double center = sH / 30.0;
-            int intCenter = (int)Math.Floor(center); // 亮度片区编号
+            var center = sH / 30.0;
+            var intCenter = (int)Math.Floor(center); // 亮度片区编号
             center = 50 - (
                 (1 - center + intCenter) * cent[intCenter] + (center - intCenter) * cent[intCenter + 1]
             ) * sS;

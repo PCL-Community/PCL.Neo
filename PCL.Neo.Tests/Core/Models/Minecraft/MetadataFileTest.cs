@@ -31,7 +31,7 @@ public class MetadataFileTest
                 Assert.That(meta.AssetIndex.TotalSize, Is.Not.Zero);
             });
             Assert.That(meta.Downloads, Is.Not.Empty);
-            foreach ((string id, MetadataFile.RemoteFileModel file) in meta.Downloads)
+            foreach (var (id, file) in meta.Downloads)
             {
                 Assert.Multiple(() =>
                 {
@@ -57,7 +57,7 @@ public class MetadataFileTest
                 if (meta.Logging is null)
                     return;
                 Assert.That(meta.Logging, Is.Not.Empty);
-                foreach ((string id, MetadataFile.LoggingModel logging) in meta.Logging)
+                foreach (var (id, logging) in meta.Logging)
                 {
                     Assert.That(id, Is.Not.Empty);
                     Assert.That(logging.Argument, Is.Not.Empty);
@@ -207,7 +207,7 @@ public class MetadataFileTest
         var jsonObj = JsonNode.Parse(File.ReadAllText("./MCMetadataFiles/1.21.5.json"))!.AsObject();
         var meta = MetadataFile.Parse(jsonObj);
         Assert.That(meta.Arguments.Game.Count, Is.EqualTo(testGameArgs.Length));
-        for (int i = 0; i < meta.Arguments.Game.Count; i++)
+        for (var i = 0; i < meta.Arguments.Game.Count; i++)
         {
             if (testGameArgs[i] is string)
             {
@@ -226,7 +226,7 @@ public class MetadataFileTest
                 if (arg.Rules is not null && testArg.Rules is not null)
                 {
                     Assert.That(arg.Rules.Count, Is.EqualTo(testArg.Rules.Count));
-                    foreach ((MetadataFile.Rule rule, MetadataFile.Rule testRule) in arg.Rules.Zip(testArg.Rules))
+                    foreach (var (rule, testRule) in arg.Rules.Zip(testArg.Rules))
                     {
                         Assert.That(rule.Action, Is.EqualTo(testRule.Action));
                         Assert.That((rule.Features is null && testRule.Features is null) ||

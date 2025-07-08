@@ -1,16 +1,14 @@
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PCL.Neo.Messages;
 using PCL.Neo.Models.User;
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels.Home;
-using System;
-using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
-using CommunityToolkit.Mvvm.Messaging;
-using PCL.Neo.Messages;
 using SkiaSharp;
+using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace PCL.Neo.ViewModels;
 
@@ -21,26 +19,51 @@ public partial class HomeViewModel : ViewModelBase
     private readonly UserService _userService;
 
     #region 用户信息
-    [ObservableProperty] private string _currentUserName = "Player";
-    [ObservableProperty] private string _currentUserType = "离线账户";
-    [ObservableProperty] private string _currentUserInitial = "P";
-    [ObservableProperty] private string _currentUserAvatar = string.Empty;
-    [ObservableProperty] private bool _isOnline = false;
-    [ObservableProperty] private string _selectedGameVersion = "1.20.2-Fabric 0.15.7-OptiFine_I7_pre1";
-    [ObservableProperty] private int _memoryAllocation = 4;
+
+    [ObservableProperty]
+    private string _currentUserName = "Player";
+
+    [ObservableProperty]
+    private string _currentUserType = "离线账户";
+
+    [ObservableProperty]
+    private string _currentUserInitial = "P";
+
+    [ObservableProperty]
+    private string _currentUserAvatar = string.Empty;
+
+    [ObservableProperty]
+    private bool _isOnline;
+
+    [ObservableProperty]
+    private string _selectedGameVersion = "1.20.2-Fabric 0.15.7-OptiFine_I7_pre1";
+
+    [ObservableProperty]
+    private int _memoryAllocation = 4;
+
     #endregion
 
     #region 主页布局选择
-    [ObservableProperty] private bool _isDefaultLayoutSelected = true;
-    [ObservableProperty] private bool _isNewsLayoutSelected = false;
-    [ObservableProperty] private bool _isInfoLayoutSelected = false;
-    [ObservableProperty] private bool _isSimpleLayoutSelected = false;
+
+    [ObservableProperty]
+    private bool _isDefaultLayoutSelected = true;
+
+    [ObservableProperty]
+    private bool _isNewsLayoutSelected;
+
+    [ObservableProperty]
+    private bool _isInfoLayoutSelected;
+
+    [ObservableProperty]
+    private bool _isSimpleLayoutSelected;
+
     #endregion
 
     [ObservableProperty]
     private ViewModelBase? _currentSubViewModel;
 
-    [ObservableProperty] private Bitmap? _showImageBitmap;
+    [ObservableProperty]
+    private Bitmap? _showImageBitmap;
 
     public HomeViewModel(INavigationService navigationService, UserService userService)
     {
@@ -86,8 +109,8 @@ public partial class HomeViewModel : ViewModelBase
 
     private void UpdateCurrentUserInfo(UserInfo user)
     {
-        CurrentUserName    = user.Account.UserName;
-        CurrentUserType    = user.GetUserTypeText();
+        CurrentUserName = user.Account.UserName;
+        CurrentUserType = user.GetUserTypeText();
         CurrentUserInitial = user.GetInitial();
     }
 
@@ -196,18 +219,18 @@ public partial class HomeViewModel : ViewModelBase
     {
         try
         {
-            const string    filePath    = @"\res\test_skin.png"; // TODO: replace with actual path
+            const string filePath = @"\res\test_skin.png"; // TODO: replace with actual path
             await using var inputStream = File.OpenRead(filePath);
-            using var       skiaStream  = new SKManagedStream(inputStream);
-            using var       bitMap      = SKBitmap.Decode(skiaStream);
+            using var skiaStream = new SKManagedStream(inputStream);
+            using var bitMap = SKBitmap.Decode(skiaStream);
 
-            var       cropRect = new SKRectI(8, 8, 16, 16);
-            using var cropped  = new SKBitmap(cropRect.Width, cropRect.Height);
+            var cropRect = new SKRectI(8, 8, 16, 16);
+            using var cropped = new SKBitmap(cropRect.Width, cropRect.Height);
             bitMap.ExtractSubset(cropped, cropRect);
 
             using var image = SKImage.FromBitmap(cropped);
-            using var data  = image.Encode(SKEncodedImageFormat.Png, 100);
-            using var ms    = new MemoryStream(data.ToArray());
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            using var ms = new MemoryStream(data.ToArray());
             ShowImageBitmap = new Bitmap(ms);
         }
         catch (Exception e)

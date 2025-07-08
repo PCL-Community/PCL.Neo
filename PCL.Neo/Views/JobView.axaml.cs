@@ -1,12 +1,7 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Avalonia.Reactive;
 using Avalonia.Threading;
-using PCL.Neo.ViewModels;
-using System;
 using System.Timers;
 
 namespace PCL.Neo.Views;

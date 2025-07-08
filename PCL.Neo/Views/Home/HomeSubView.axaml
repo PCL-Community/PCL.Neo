@@ -11,8 +11,6 @@
     xmlns:pc="using:PCL.Neo.Controls"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer>
-        <StackPanel Orientation="Vertical">
-
-        </StackPanel>
+        <StackPanel Orientation="Vertical" />
     </ScrollViewer>
 </UserControl>

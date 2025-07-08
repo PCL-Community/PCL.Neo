@@ -8,7 +8,9 @@ namespace PCL.Neo.Core.Models.Minecraft.Java;
 /// </summary>
 public static class Windows
 {
-    private static readonly string[] _windowJavaSearchTerms = ["java",
+    private static readonly string[] _windowJavaSearchTerms =
+    [
+        "java",
         "jdk",
         "jbr",
         "bin",
@@ -50,20 +52,20 @@ public static class Windows
         "microsoft",
         "hotspot",
         "idea",
-        "android",
+        "android"
     ];
 
     public static async Task<ImmutableArray<JavaRuntime>> SearchJavaAsync()
     {
         List<string> paths = [];
         // 获得环境变量
-        string? environmentVariable = Environment.GetEnvironmentVariable("Path");
+        var environmentVariable = Environment.GetEnvironmentVariable("Path");
         if (environmentVariable != null)
         {
-            string[] array = environmentVariable.Split(Path.PathSeparator);
-            foreach (string path in array)
+            var array = environmentVariable.Split(Path.PathSeparator);
+            foreach (var path in array)
             {
-                string temp = Path.Combine(path, "javaw.exe");
+                var temp = Path.Combine(path, "javaw.exe");
                 if (File.Exists(temp))
                 {
                     paths.Add(temp);
@@ -87,12 +89,17 @@ public static class Windows
 
         // FetchJavaw(new DirectoryInfo(AppDomain.CurrentDomain.SetupInformation.ApplicationBase)), ref paths);
 
-        paths.Sort((string x, string s) => x.CompareTo(s));
+        paths.Sort((x, s) => x.CompareTo(s));
 
-        var validPaths = paths.Where(x => !string.IsNullOrWhiteSpace(x) && !x.Contains("javapath_target_") && File.Exists(x))
+        var validPaths = paths
+            .Where(x => !string.IsNullOrWhiteSpace(x) && !x.Contains("javapath_target_") && File.Exists(x))
             .Select(Path.GetDirectoryName).Distinct();
-        return [.. (await Task.WhenAll(validPaths.Select(static validPath => JavaRuntime.CreateJavaEntityAsync(validPath!))))
-        .Where(r => r is { Compability: not JavaCompability.Error })!];
+        return
+        [
+            .. (await Task.WhenAll(validPaths.Select(static validPath =>
+                JavaRuntime.CreateJavaEntityAsync(validPath!))))
+            .Where(r => r is { Compability: not JavaCompability.Error })!
+        ];
     }
 
     private static void FetchJavaw(DirectoryInfo directory, ref List<string> results)
@@ -103,11 +110,11 @@ public static class Windows
             if (File.Exists(javaw)) results.Add(javaw);
             try
             {
-                foreach (DirectoryInfo item in directory.EnumerateDirectories())
+                foreach (var item in directory.EnumerateDirectories())
                 {
                     if (!item.Attributes.HasFlag(FileAttributes.ReparsePoint))
                     {
-                        string name = item.Name.ToLower();
+                        var name = item.Name.ToLower();
                         if (item.Parent!.Name.ToLower() == "users" || _windowJavaSearchTerms.Any(name.Contains))
                         {
                             FetchJavaw(item, ref results);

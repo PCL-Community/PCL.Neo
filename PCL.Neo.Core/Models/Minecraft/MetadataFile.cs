@@ -16,13 +16,22 @@ public class MetadataFile
         public enum ActionEnum
         {
             Unknown,
-            [JsonStringEnumMemberName("allow")] Allow,
-            [JsonStringEnumMemberName("disallow")] Disallow
+
+            [JsonStringEnumMemberName("allow")]
+            Allow,
+
+            [JsonStringEnumMemberName("disallow")]
+            Disallow
         }
 
-        [JsonPropertyName("action")] public ActionEnum Action { get; set; } = ActionEnum.Allow;
-        [JsonPropertyName("features")] public Dictionary<string, bool>? Features { get; set; } = null;
-        [JsonPropertyName("os")] public OsModel? Os { get; set; } = null;
+        [JsonPropertyName("action")]
+        public ActionEnum Action { get; set; } = ActionEnum.Allow;
+
+        [JsonPropertyName("features")]
+        public Dictionary<string, bool>? Features { get; set; } = null;
+
+        [JsonPropertyName("os")]
+        public OsModel? Os { get; set; } = null;
 
         public class OsModel
         {
@@ -30,29 +39,47 @@ public class MetadataFile
             public enum ArchEnum
             {
                 Unknown,
-                [JsonStringEnumMemberName("x64")] X64,
-                [JsonStringEnumMemberName("x86")] X86
+
+                [JsonStringEnumMemberName("x64")]
+                X64,
+
+                [JsonStringEnumMemberName("x86")]
+                X86
             }
 
             [JsonConverter(typeof(JsonStringEnumConverter))]
             public enum NameEnum
             {
                 Unknown,
-                [JsonStringEnumMemberName("windows")] Windows,
-                [JsonStringEnumMemberName("linux")] Linux,
-                [JsonStringEnumMemberName("osx")] Osx
+
+                [JsonStringEnumMemberName("windows")]
+                Windows,
+
+                [JsonStringEnumMemberName("linux")]
+                Linux,
+
+                [JsonStringEnumMemberName("osx")]
+                Osx
             }
 
-            [JsonPropertyName("arch")] public ArchEnum? Arch { get; set; } = null;
-            [JsonPropertyName("name")] public NameEnum? Name { get; set; } = null;
-            [JsonPropertyName("version")] public string? Version { get; set; } = null; // regex
+            [JsonPropertyName("arch")]
+            public ArchEnum? Arch { get; set; } = null;
+
+            [JsonPropertyName("name")]
+            public NameEnum? Name { get; set; } = null;
+
+            [JsonPropertyName("version")]
+            public string? Version { get; set; } = null; // regex
         }
     }
 
     public class ConditionalArg
     {
-        [JsonPropertyName("rules")] public List<Rule>? Rules { get; set; }
-        [JsonPropertyName("value")] public List<string> Value { get; set; }
+        [JsonPropertyName("rules")]
+        public List<Rule>? Rules { get; set; }
+
+        [JsonPropertyName("value")]
+        public List<string> Value { get; set; }
     }
 
     public class ArgumentsModel
@@ -63,35 +90,58 @@ public class MetadataFile
 
     public class JavaVersionModel
     {
-        [JsonPropertyName("component")] public string Component { get; set; } = string.Empty;
-        [JsonPropertyName("majorVersion")] public int MajorVersion { get; set; } = 0;
+        [JsonPropertyName("component")]
+        public string Component { get; set; } = string.Empty;
+
+        [JsonPropertyName("majorVersion")]
+        public int MajorVersion { get; set; }
     }
 
     public class RemoteFileModel
     {
-        [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
-        [JsonPropertyName("path")] public string? Path { get; set; } = null;
-        [JsonPropertyName("sha1")] public string Sha1 { get; set; } = string.Empty;
-        [JsonPropertyName("size")] public int Size { get; set; }
-        [JsonPropertyName("url")] public string Url { get; set; } = string.Empty;
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = string.Empty;
+
+        [JsonPropertyName("path")]
+        public string? Path { get; set; } = null;
+
+        [JsonPropertyName("sha1")]
+        public string Sha1 { get; set; } = string.Empty;
+
+        [JsonPropertyName("size")]
+        public int Size { get; set; }
+
+        [JsonPropertyName("url")]
+        public string Url { get; set; } = string.Empty;
     }
 
     public class AssetIndexModel : RemoteFileModel
     {
-        [JsonPropertyName("totalSize")] public int TotalSize { get; set; } = 0;
+        [JsonPropertyName("totalSize")]
+        public int TotalSize { get; set; }
     }
 
     public class LibraryModel
     {
-        [JsonPropertyName("downloads")] public DownloadsModel Downloads { get; set; } = new();
-        [JsonPropertyName("extract")] public ExtractModel? Extract { get; set; } = null;
-        [JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
-        [JsonPropertyName("natives")] public Dictionary<string, string>? Natives { get; set; } = null;
-        [JsonPropertyName("rules")] public List<Rule>? Rules { get; set; } = null;
+        [JsonPropertyName("downloads")]
+        public DownloadsModel Downloads { get; set; } = new();
+
+        [JsonPropertyName("extract")]
+        public ExtractModel? Extract { get; set; } = null;
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("natives")]
+        public Dictionary<string, string>? Natives { get; set; } = null;
+
+        [JsonPropertyName("rules")]
+        public List<Rule>? Rules { get; set; } = null;
 
         public class DownloadsModel
         {
-            [JsonPropertyName("artifact")] public RemoteFileModel? Artifact { get; set; } = null;
+            [JsonPropertyName("artifact")]
+            public RemoteFileModel? Artifact { get; set; } = null;
 
             [JsonPropertyName("classifiers")]
             public Dictionary<string, RemoteFileModel>? Classifiers { get; set; } = null;
@@ -99,15 +149,21 @@ public class MetadataFile
 
         public class ExtractModel
         {
-            [JsonPropertyName("exclude")] public List<string> Exclude { get; set; } = [];
+            [JsonPropertyName("exclude")]
+            public List<string> Exclude { get; set; } = [];
         }
     }
 
     public class LoggingModel
     {
-        [JsonPropertyName("argument")] public string Argument { get; set; } = string.Empty;
-        [JsonPropertyName("file")] public RemoteFileModel File { get; set; } = new();
-        [JsonPropertyName("type")] public string Type { get; set; } = string.Empty;
+        [JsonPropertyName("argument")]
+        public string Argument { get; set; } = string.Empty;
+
+        [JsonPropertyName("file")]
+        public RemoteFileModel File { get; set; } = new();
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = string.Empty;
     }
 
     #endregion
@@ -138,11 +194,15 @@ public class MetadataFile
 // ReSharper disable AssignNullToNotNullAttribute
 #nullable disable
 #pragma warning disable IL2026
-    public static MetadataFile Parse(string json) =>
-        Parse(JsonNode.Parse(json)!.AsObject());
+    public static MetadataFile Parse(string json)
+    {
+        return Parse(JsonNode.Parse(json)!.AsObject());
+    }
 
-    public static MetadataFile Parse(JsonNode json) =>
-        Parse(json.AsObject());
+    public static MetadataFile Parse(JsonNode json)
+    {
+        return Parse(json.AsObject());
+    }
 
     public static MetadataFile Parse(JsonObject json)
     {
@@ -221,8 +281,7 @@ public class MetadataFile
         return mf;
     }
 #pragma warning restore IL2026
-#nullable restore
-// ReSharper restore AssignNullToNotNullAttribute
+    // ReSharper restore AssignNullToNotNullAttribute
 // ReSharper restore PossibleNullReferenceException
 
     #endregion

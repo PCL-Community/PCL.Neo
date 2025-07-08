@@ -1,10 +1,9 @@
-namespace PCL.Neo.Animations.Easings
+namespace PCL.Neo.Animations.Easings;
+
+public enum EasePower
 {
-    public enum EasePower
-    {
-        Weak = 2,
-        Middle = 3,
-        Strong = 4,
-        ExtraStrong = 5
-    }
+    Weak = 2,
+    Middle = 3,
+    Strong = 4,
+    ExtraStrong = 5
 }

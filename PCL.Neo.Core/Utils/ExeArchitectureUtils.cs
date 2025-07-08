@@ -30,7 +30,7 @@ public enum JavaCompability
     /// <summary>
     /// 初始化失败或者不是 Java 可执行文件
     /// </summary>
-    Error,
+    Error
 }
 
 public static class ExeArchitectureUtils
@@ -68,15 +68,15 @@ public static class ExeArchitectureUtils
 
         // 检查是否为有效的 PE 文件
         fs.Seek(0x3C, SeekOrigin.Begin); // PE header 偏移地址
-        int peHeaderOffset = reader.ReadInt32();
+        var peHeaderOffset = reader.ReadInt32();
         fs.Seek(peHeaderOffset, SeekOrigin.Begin);
 
-        uint peSignature = reader.ReadUInt32();
+        var peSignature = reader.ReadUInt32();
         if (peSignature != 0x00004550) // "PE\0\0"
             return ExeArchitecture.Unknown;
 
         // 读取机器类型
-        ushort machine = reader.ReadUInt16();
+        var machine = reader.ReadUInt16();
         return machine switch
         {
             0x014C => ExeArchitecture.X86, // IMAGE_FILE_MACHINE_I386
@@ -91,16 +91,16 @@ public static class ExeArchitectureUtils
         using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
         using var reader = new BinaryReader(fs);
 
-        byte[] elfMagic = reader.ReadBytes(4);
+        var elfMagic = reader.ReadBytes(4);
         if (elfMagic[0] != 0x7F || elfMagic[1] != 'E' || elfMagic[2] != 'L' || elfMagic[3] != 'F')
             return ExeArchitecture.Unknown;
 
         fs.Seek(4, SeekOrigin.Begin); // Skip EI_MAG
-        byte eiClass = reader.ReadByte(); // 1=32-bit, 2=64-bit
+        var eiClass = reader.ReadByte(); // 1=32-bit, 2=64-bit
 
         // Skip data encoding (ei_data), version (ei_version), etc.
         fs.Seek(0x12, SeekOrigin.Begin); // e_machine offset for ELF32/ELF64
-        ushort machine = reader.ReadUInt16();
+        var machine = reader.ReadUInt16();
 
         return machine switch
         {
@@ -113,10 +113,10 @@ public static class ExeArchitectureUtils
 
     private static ExeArchitecture ReadMachOHeader(string filePath)
     {
-        using var fs     = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
         using var reader = new BinaryReader(fs);
 
-        uint magic = reader.ReadUInt32();
+        var magic = reader.ReadUInt32();
 
         // 判断是否为 Fat File
         if (magic == 0xBEBAFECA) // FAT_MAGIC or FAT_MAGIC_64
@@ -124,7 +124,7 @@ public static class ExeArchitectureUtils
             return ExeArchitecture.FatFile;
         }
 
-        bool is64Bit = false;
+        var is64Bit = false;
         switch (magic)
         {
             case 0xFEEDFACE: // MH_MAGIC
@@ -139,7 +139,7 @@ public static class ExeArchitectureUtils
         }
 
         fs.Seek(is64Bit ? 4 : 0, SeekOrigin.Begin); // Skip magic
-        uint cputype = reader.ReadUInt32();
+        var cputype = reader.ReadUInt32();
 
         return cputype switch
         {
@@ -161,17 +161,17 @@ public static class ExeArchitectureUtils
         {
             return JavaCompability.Yes;
         }
-        else
-            return SystemUtils.Os switch
-            {
-                SystemUtils.RunningOs.Windows when SystemUtils.Architecture is Architecture.X64 or Architecture.Arm64 =>
-                    JavaCompability.UnderTranslation,
-                SystemUtils.RunningOs.MacOs when SystemUtils.Architecture is Architecture.Arm64 &&
-                                                 arch is ExeArchitecture.X64 => JavaCompability.UnderTranslation,
-                SystemUtils.RunningOs.MacOs when arch is ExeArchitecture.FatFile => JavaCompability.Yes,
-                SystemUtils.RunningOs.Linux => JavaCompability.No,
-                SystemUtils.RunningOs.Unknown => JavaCompability.Unknown,
-                _ => JavaCompability.Unknown
-            };
+
+        return SystemUtils.Os switch
+        {
+            SystemUtils.RunningOs.Windows when SystemUtils.Architecture is Architecture.X64 or Architecture.Arm64 =>
+                JavaCompability.UnderTranslation,
+            SystemUtils.RunningOs.MacOs when SystemUtils.Architecture is Architecture.Arm64 &&
+                                             arch is ExeArchitecture.X64 => JavaCompability.UnderTranslation,
+            SystemUtils.RunningOs.MacOs when arch is ExeArchitecture.FatFile => JavaCompability.Yes,
+            SystemUtils.RunningOs.Linux => JavaCompability.No,
+            SystemUtils.RunningOs.Unknown => JavaCompability.Unknown,
+            _ => JavaCompability.Unknown
+        };
     }
 }

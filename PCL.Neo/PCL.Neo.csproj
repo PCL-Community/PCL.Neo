@@ -21,10 +21,10 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
-      <AvaloniaXaml Remove="Models\Minecraft\**" />
-      <Compile Remove="Models\Minecraft\**" />
-      <EmbeddedResource Remove="Models\Minecraft\**" />
-      <None Remove="Models\Minecraft\**" />
+    <AvaloniaXaml Remove="Models\Minecraft\**" />
+    <Compile Remove="Models\Minecraft\**" />
+    <EmbeddedResource Remove="Models\Minecraft\**" />
+    <None Remove="Models\Minecraft\**" />
     <None Remove="Resources\Font.ttf" />
   </ItemGroup>
 
@@ -44,9 +44,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
     <PackageReference Include="LZMA-SDK" Version="22.1.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.5" />
-      <PackageReference Include="System.Reactive" Version="6.0.1" />
-      <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
-      <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.0.10" />
+    <PackageReference Include="System.Reactive" Version="6.0.1" />
+    <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
+    <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.1" />
   </ItemGroup>
 
   <ItemGroup>

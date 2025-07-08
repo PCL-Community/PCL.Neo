@@ -45,7 +45,7 @@ public static class SystemUtils
             Architecture.X64 => "x86",
             Architecture.X86 => "x86",
             Architecture.Arm64 => "arm64",
-            _ => "",
+            _ => ""
         };
     }
 
@@ -54,36 +54,31 @@ public static class SystemUtils
     /// <summary>
     /// 根据 MOJANG API 命名
     /// </summary>
-    public static string Platform
-    {
-        get
+    public static string Platform =>
+        Os switch
         {
-            return Os switch
+            RunningOs.Windows => Architecture switch
             {
-                RunningOs.Windows => Architecture switch
-                {
-                    Architecture.X64 => "windows-x64",
-                    Architecture.X86 => "windows-x86",
-                    Architecture.Arm64 => "windows-arm64",
-                    _ => "unknown"
-                },
-                RunningOs.Linux => Architecture switch
-                {
-                    Architecture.X64 => "linux",
-                    Architecture.X86 => "linux-i386",
-                    _ => "unknown"
-                },
-                RunningOs.MacOs => Architecture switch
-                {
-                    Architecture.X64 => "mac-os",
-                    Architecture.Arm64 => "mac-os-arm64",
-                    _ => "unknown"
-                },
-                RunningOs.Unknown => "unknown",
+                Architecture.X64 => "windows-x64",
+                Architecture.X86 => "windows-x86",
+                Architecture.Arm64 => "windows-arm64",
                 _ => "unknown"
-            };
-        }
-    }
+            },
+            RunningOs.Linux => Architecture switch
+            {
+                Architecture.X64 => "linux",
+                Architecture.X86 => "linux-i386",
+                _ => "unknown"
+            },
+            RunningOs.MacOs => Architecture switch
+            {
+                Architecture.X64 => "mac-os",
+                Architecture.Arm64 => "mac-os-arm64",
+                _ => "unknown"
+            },
+            RunningOs.Unknown => "unknown",
+            _ => "unknown"
+        };
 
     /// <summary>
     /// 获取系统最大可用内存 (MB)
@@ -114,11 +109,13 @@ public static class SystemUtils
         {
             return Environment.Is64BitOperatingSystem ? "natives-windows-64" : "natives-windows-32";
         }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             return "natives-linux";
         }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             return "natives-osx";
         }

@@ -14,4 +14,4 @@ public partial class ModifyView : UserControl
     {
         AvaloniaXamlLoader.Load(this);
     }
-} 
+}

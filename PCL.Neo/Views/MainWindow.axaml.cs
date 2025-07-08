@@ -1,22 +1,15 @@
 using Avalonia;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
 using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using CommunityToolkit.Mvvm.Messaging;
-using PCL.Neo.Animations;
 using PCL.Neo.Animations.Easings;
-using PCL.Neo.Controls;
 using PCL.Neo.Helpers;
 using PCL.Neo.Messages;
 using PCL.Neo.Services;
-using PCL.Neo.ViewModels;
 using System;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -38,7 +31,7 @@ public partial class MainWindow : Window
         {
             if (e.GetCurrentPoint(i as Control).Properties.IsLeftButtonPressed)
             {
-                this.BeginMoveDrag(e);
+                BeginMoveDrag(e);
             }
         };
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -75,7 +68,7 @@ public partial class MainWindow : Window
             };
 
             // 获取导航控件的CompositionVisual，用于动画
-            _leftNavigationControlVisual  = ElementComposition.GetElementVisual(LeftNavigationControl);
+            _leftNavigationControlVisual = ElementComposition.GetElementVisual(LeftNavigationControl);
             _rightNavigationControlVisual = ElementComposition.GetElementVisual(RightNavigationControl);
 
             if (_leftNavigationControlVisual != null)
@@ -85,7 +78,7 @@ public partial class MainWindow : Window
         };
 
         GridRoot.Opacity = 0; // 在此处初始化透明度，不然将闪现
-        this.Loaded += (_, _) =>
+        Loaded += (_, _) =>
         {
             // 订阅导航事件
             WeakReferenceMessenger.Default.Register<NavigationMessage, Guid>(
@@ -95,7 +88,7 @@ public partial class MainWindow : Window
             AnimationIn();
         };
         // 取消订阅导航事件
-        this.Unloaded += (_, _) => WeakReferenceMessenger.Default.Unregister<NavigationMessage>(this);
+        Unloaded += (_, _) => WeakReferenceMessenger.Default.Unregister<NavigationMessage>(this);
     }
 
     private void OnNavigated(NavigationMessage e)
@@ -109,6 +102,7 @@ public partial class MainWindow : Window
             // 前进动画
             PlayForwardNavigationAnimation();
         }
+
         if (e is { NavigationType: NavigationType.Backward, IsMainViewModelChanged: true })
         {
             // 后退动画
@@ -216,6 +210,7 @@ public partial class MainWindow : Window
             }
         };
     }
+
     /// <summary>
     /// 进入窗口的动画。
     /// </summary>
@@ -259,10 +254,12 @@ public partial class MainWindow : Window
         animationGroup.Add(translateTransformYAnimation);
 
         var size = mainWindowCompositionVisual.Size;
-        mainWindowCompositionVisual.CenterPoint = new Vector3D((float)size.X / 2, (float)size.Y / 2, (float)mainWindowCompositionVisual.CenterPoint.Z);
+        mainWindowCompositionVisual.CenterPoint = new Vector3D((float)size.X / 2, (float)size.Y / 2,
+            (float)mainWindowCompositionVisual.CenterPoint.Z);
 
         mainWindowCompositionVisual.StartAnimationGroup(animationGroup);
     }
+
     /// <summary>
     /// 关闭窗口的动画。
     /// </summary>
@@ -316,7 +313,8 @@ public partial class MainWindow : Window
         animationGroup.Add(scaleTransformAnimation);
 
         var size = mainWindowCompositionVisual.Size;
-        mainWindowCompositionVisual.CenterPoint = new Vector3D((float)size.X / 2, (float)size.Y / 2, (float)mainWindowCompositionVisual.CenterPoint.Z);
+        mainWindowCompositionVisual.CenterPoint = new Vector3D((float)size.X / 2, (float)size.Y / 2,
+            (float)mainWindowCompositionVisual.CenterPoint.Z);
 
         mainWindowCompositionVisual.StartAnimationGroup(animationGroup);
     }

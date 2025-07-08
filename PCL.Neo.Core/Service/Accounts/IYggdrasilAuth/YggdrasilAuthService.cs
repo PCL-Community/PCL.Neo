@@ -1,7 +1,6 @@
 using PCL.Neo.Core.Service.Accounts.Exceptions;
 using PCL.Neo.Core.Service.Accounts.IYggdrasilAuth.Data;
 using PCL.Neo.Core.Service.Accounts.Storage;
-using PCL.Neo.Core.Utils;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -16,7 +15,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
 {
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
-        PropertyNamingPolicy   = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
@@ -25,7 +24,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
         string serverUrl,
         string username,
         string password,
-        int    timeoutMs = 10000)
+        int timeoutMs = 10000)
     {
         if (string.IsNullOrEmpty(serverUrl))
             throw new ArgumentException("服务器URL不能为空", nameof(serverUrl));
@@ -37,7 +36,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
             throw new ArgumentException("密码不能为空", nameof(password));
 
         // 格式化服务器URL，去除末尾的斜杠
-        var baseUrl      = serverUrl.TrimEnd('/');
+        var baseUrl = serverUrl.TrimEnd('/');
         var authEndpoint = $"{baseUrl}/authserver/authenticate";
 
         this.LogYggdrasilInfo($"开始外置登录认证: {username} @ {serverUrl}");
@@ -48,9 +47,9 @@ public class YggdrasilAuthService : IYggdrasilAuthService
         // 构建认证请求
         var authRequest = new YggdrasilAuthRequest
         {
-            Agent       = new YggdrasilAgent { Name = "Minecraft", Version = 1 },
-            Username    = username,
-            Password    = password,
+            Agent = new YggdrasilAgent { Name = "Minecraft", Version = 1 },
+            Username = username,
+            Password = password,
             ClientToken = clientToken,
             RequestUser = true
         };
@@ -63,10 +62,10 @@ public class YggdrasilAuthService : IYggdrasilAuthService
 
             // 序列化请求体
             var requestJson = JsonSerializer.Serialize(authRequest, _jsonOptions);
-            var content     = new StringContent(requestJson, Encoding.UTF8, "application/json");
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
             // 发送请求
-            var response        = await Shared.HttpClient.PostAsync(authEndpoint, content).ConfigureAwait(false);
+            var response = await Shared.HttpClient.PostAsync(authEndpoint, content).ConfigureAwait(false);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -82,7 +81,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
                     // 忽略解析错误
                 }
 
-                var errorType    = errorResponse?.Error ?? "unknown";
+                var errorType = errorResponse?.Error ?? "unknown";
                 var errorMessage = errorResponse?.ErrorMessage ?? "未知错误";
 
                 this.LogYggdrasilError($"外置登录认证失败: {response.StatusCode} - {errorType}: {errorMessage}");
@@ -134,17 +133,17 @@ public class YggdrasilAuthService : IYggdrasilAuthService
             // 构建账户对象
             var account = new YggdrasilAccount
             {
-                Uuid           = authResponse.SelectedProfile.Id,
-                UserName       = authResponse.SelectedProfile.Name,
-                McAccessToken  = authResponse.AccessToken,
-                ClientToken    = authResponse.ClientToken,
-                ServerUrl      = baseUrl,
-                ServerName     = GetServerName(baseUrl),
-                ExpiresAt      = DateTime.UtcNow.AddHours(12), // Yggdrasil通常没有明确的过期时间，使用12小时作为默认值
-                AddedTime      = DateTime.Now,
-                LastUsed       = DateTime.Now,
-                Skins          = [], // 初始化为空列表
-                Capes          = [], // 初始化为空列表
+                Uuid = authResponse.SelectedProfile.Id,
+                UserName = authResponse.SelectedProfile.Name,
+                McAccessToken = authResponse.AccessToken,
+                ClientToken = authResponse.ClientToken,
+                ServerUrl = baseUrl,
+                ServerName = GetServerName(baseUrl),
+                ExpiresAt = DateTime.UtcNow.AddHours(12), // Yggdrasil通常没有明确的过期时间，使用12小时作为默认值
+                AddedTime = DateTime.Now,
+                LastUsed = DateTime.Now,
+                Skins = [], // 初始化为空列表
+                Capes = [], // 初始化为空列表
                 UserProperties = GetUserProperties(authResponse.User?.Properties)
             };
 
@@ -191,7 +190,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
         if (string.IsNullOrEmpty(account.ClientToken))
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
 
-        var baseUrl         = account.ServerUrl;
+        var baseUrl = account.ServerUrl;
         var refreshEndpoint = $"{baseUrl}/authserver/refresh";
 
         this.LogYggdrasilInfo($"开始刷新外置登录令牌: {account.UserName} @ {account.ServerUrl}");
@@ -209,10 +208,10 @@ public class YggdrasilAuthService : IYggdrasilAuthService
 
             // 序列化请求体
             var requestJson = JsonSerializer.Serialize(refreshRequest, _jsonOptions);
-            var content     = new StringContent(requestJson, Encoding.UTF8, "application/json");
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
             // 发送请求
-            var response        = await Shared.HttpClient.PostAsync(refreshEndpoint, content).ConfigureAwait(false);
+            var response = await Shared.HttpClient.PostAsync(refreshEndpoint, content).ConfigureAwait(false);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -228,7 +227,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
                     // 忽略解析错误
                 }
 
-                var errorType    = errorResponse?.Error ?? "unknown";
+                var errorType = errorResponse?.Error ?? "unknown";
                 var errorMessage = errorResponse?.ErrorMessage ?? "未知错误";
 
                 this.LogYggdrasilError($"刷新外置登录令牌失败: {response.StatusCode} - {errorType}: {errorMessage}");
@@ -258,7 +257,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
             this.LogYggdrasilInfo($"外置登录令牌刷新成功: {account.UserName}");
 
             // 更新账户信息
-            string userProperties = GetUserProperties(refreshResponse.User?.Properties);
+            var userProperties = GetUserProperties(refreshResponse.User?.Properties);
             var updatedAccount = account with
             {
                 McAccessToken = refreshResponse.AccessToken,
@@ -317,7 +316,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
         }
 
-        var baseUrl          = account.ServerUrl;
+        var baseUrl = account.ServerUrl;
         var validateEndpoint = $"{baseUrl}/authserver/validate";
 
         this.LogYggdrasilDebug($"验证外置登录令牌: {account.UserName} @ {account.ServerUrl}");
@@ -332,7 +331,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
 
             // 序列化请求体
             var requestJson = JsonSerializer.Serialize(validateRequest, _jsonOptions);
-            var content     = new StringContent(requestJson, Encoding.UTF8, "application/json");
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
             // 发送请求
             var response = await Shared.HttpClient.PostAsync(validateEndpoint, content).ConfigureAwait(false);
@@ -379,7 +378,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
         }
 
-        var baseUrl         = account.ServerUrl;
+        var baseUrl = account.ServerUrl;
         var signoutEndpoint = $"{baseUrl}/authserver/signout";
 
         this.LogYggdrasilInfo($"注销外置登录: {account.UserName} @ {account.ServerUrl}");
@@ -418,7 +417,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
             throw new ArgumentException("账户没有客户端令牌", nameof(account));
         }
 
-        var baseUrl            = account.ServerUrl;
+        var baseUrl = account.ServerUrl;
         var invalidateEndpoint = $"{baseUrl}/authserver/invalidate";
 
         this.LogYggdrasilInfo($"使外置登录令牌失效: {account.UserName} @ {account.ServerUrl}");
@@ -433,7 +432,7 @@ public class YggdrasilAuthService : IYggdrasilAuthService
 
             // 序列化请求体
             var requestJson = JsonSerializer.Serialize(invalidateRequest, _jsonOptions);
-            var content     = new StringContent(requestJson, Encoding.UTF8, "application/json");
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
             // 发送请求
             var response = await Shared.HttpClient.PostAsync(invalidateEndpoint, content).ConfigureAwait(false);

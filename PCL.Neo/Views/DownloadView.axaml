@@ -8,32 +8,31 @@
              x:Class="PCL.Neo.Views.DownloadView"
              x:DataType="vm:DownloadViewModel">
     <StackPanel Orientation="Vertical">
-        <TextBlock Text="DownloadLeftView"/>
+        <TextBlock Text="DownloadLeftView" />
         <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
         <pc:MyButton
             Text="Navigate to GameView"
             ColorType="Highlight"
             Height="50"
             Margin="10"
-            Command="{Binding NavigateToDownloadGameCommand}"/>
+            Command="{Binding NavigateToDownloadGameCommand}" />
         <pc:MyButton
             Text="Navigate to ModView"
             ColorType="Highlight"
             Height="50"
             Margin="10"
-            Command="{Binding NavigateToDownloadModCommand}"/>
+            Command="{Binding NavigateToDownloadModCommand}" />
         <pc:MyButton
             Text="Test1"
             ColorType="Highlight"
             Height="50"
             Margin="10"
-            Command="{Binding Btn_Test1Command}"/>
+            Command="{Binding Btn_Test1Command}" />
         <pc:MyButton
             Text="Test2"
             ColorType="Highlight"
             Height="50"
             Margin="10"
-            Command="{Binding Btn_Test2Command}"/>
+            Command="{Binding Btn_Test2Command}" />
     </StackPanel>
 </UserControl>
-

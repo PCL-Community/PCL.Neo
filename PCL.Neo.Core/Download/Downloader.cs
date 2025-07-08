@@ -64,21 +64,29 @@ public class Downloader(int degreeOfParallelism = 8) : IDisposable
                 CancellationToken = _cancellationTokenSource.Token
             });
 
-        foreach (DownloadReceipt r in immutableReceipts)
+        foreach (var r in immutableReceipts)
         {
             receiptExecutor.Post(r);
         }
+
         receiptExecutor.Complete();
 
         try
         {
             await receiptExecutor.Completion.WaitAsync(CancellationToken.None);
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) {}
     }
 
-    public void Cancel() => _cancellationTokenSource.Cancel();
-    public async Task CancelAsync() => await _cancellationTokenSource.CancelAsync();
+    public void Cancel()
+    {
+        _cancellationTokenSource.Cancel();
+    }
+
+    public async Task CancelAsync()
+    {
+        await _cancellationTokenSource.CancelAsync();
+    }
 
     public void Dispose()
     {

@@ -1,9 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.IO;
 
 namespace PCL.Neo.Core.Service.Audio;
 
@@ -14,7 +9,7 @@ public class LinuxAudioService : AudioService
 {
     private readonly bool _hasPulseAudio;
     private readonly bool _hasAlsa;
-    
+
     /// <summary>
     /// 构造函数
     /// </summary>
@@ -24,10 +19,10 @@ public class LinuxAudioService : AudioService
         // 检测音频系统
         _hasPulseAudio = CheckCommand("pactl", "--version");
         _hasAlsa = CheckCommand("amixer", "--version");
-        
+
         LogInfo($"Linux音频系统初始化: PulseAudio={_hasPulseAudio}, ALSA={_hasAlsa}");
     }
-    
+
     /// <summary>
     /// 检查命令是否可用
     /// </summary>
@@ -45,7 +40,7 @@ public class LinuxAudioService : AudioService
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-            
+
             process.Start();
             process.WaitForExit(1000); // 等待最多1秒
             return process.ExitCode == 0;
@@ -55,7 +50,7 @@ public class LinuxAudioService : AudioService
             return false;
         }
     }
-    
+
     /// <summary>
     /// 执行Shell命令
     /// </summary>
@@ -73,11 +68,11 @@ public class LinuxAudioService : AudioService
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-            
+
             process.Start();
-            string output = process.StandardOutput.ReadToEnd();
+            var output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-            
+
             return output.Trim();
         }
         catch (Exception ex)
@@ -86,7 +81,7 @@ public class LinuxAudioService : AudioService
             return string.Empty;
         }
     }
-    
+
     /// <summary>
     /// 开始播放（Linux特定实现）
     /// </summary>
@@ -104,10 +99,10 @@ public class LinuxAudioService : AudioService
             return await Task.Run(() =>
             {
                 // 根据文件扩展名选择播放器
-                string fileExtension = Path.GetExtension(filePath).ToLowerInvariant();
+                var fileExtension = Path.GetExtension(filePath).ToLowerInvariant();
                 string playerCommand;
                 string playerArgs;
-                
+
                 if (fileExtension == ".mp3")
                 {
                     if (CheckCommand("mpg123", "--version"))
@@ -144,9 +139,9 @@ public class LinuxAudioService : AudioService
                         return false;
                     }
                 }
-                
+
                 LogInfo($"Linux播放文件: {filePath}，使用: {playerCommand}");
-                
+
                 var process = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -160,14 +155,14 @@ public class LinuxAudioService : AudioService
                     },
                     EnableRaisingEvents = true
                 };
-                
+
                 process.Exited += (sender, args) =>
                 {
                     OnPlaybackFinished(this);
                     process.Dispose();
                 };
 
-                bool started = process.Start();
+                var started = process.Start();
                 if (!started)
                 {
                     LogError($"无法启动{playerCommand}进程");
@@ -176,7 +171,7 @@ public class LinuxAudioService : AudioService
 
                 // 储存当前进程
                 _currentProcess = process;
-                
+
                 // 创建取消令牌链接
                 cancellationToken.Register(() =>
                 {
@@ -187,9 +182,12 @@ public class LinuxAudioService : AudioService
                             process.Kill();
                         }
                     }
-                    catch { /* 忽略错误 */ }
+                    catch
+                    {
+                        /* 忽略错误 */
+                    }
                 });
-                
+
                 return true;
             });
         }
@@ -212,11 +210,11 @@ public class LinuxAudioService : AudioService
         {
             if (_currentProcess == null || _currentProcess.HasExited)
                 return false;
-            
+
             try
             {
                 LogInfo("Linux暂停播放");
-                int pid = _currentProcess.Id;
+                var pid = _currentProcess.Id;
                 // 发送SIGSTOP信号暂停进程
                 ExecuteCommand("kill", $"-STOP {pid}");
                 return true;
@@ -241,11 +239,11 @@ public class LinuxAudioService : AudioService
         {
             if (_currentProcess == null || _currentProcess.HasExited)
                 return false;
-            
+
             try
             {
                 LogInfo("Linux继续播放");
-                int pid = _currentProcess.Id;
+                var pid = _currentProcess.Id;
                 // 发送SIGCONT信号继续进程
                 ExecuteCommand("kill", $"-CONT {pid}");
                 return true;
@@ -267,7 +265,7 @@ public class LinuxAudioService : AudioService
         {
             if (_currentProcess == null)
                 return true;
-                
+
             try
             {
                 LogInfo("Linux停止播放");
@@ -275,6 +273,7 @@ public class LinuxAudioService : AudioService
                 {
                     _currentProcess.Kill();
                 }
+
                 _currentProcess.Dispose();
                 _currentProcess = null;
                 return true;
@@ -303,26 +302,25 @@ public class LinuxAudioService : AudioService
             try
             {
                 // 将0-1范围的音量映射到0-100%
-                int volumePercent = (int)(volume * 100);
+                var volumePercent = (int)(volume * 100);
                 LogInfo($"设置Linux音量: {volumePercent}%");
-                
+
                 if (_hasPulseAudio)
                 {
                     // 使用PulseAudio设置音量
                     ExecuteCommand("pactl", $"set-sink-volume @DEFAULT_SINK@ {volumePercent}%");
                     return true;
                 }
-                else if (_hasAlsa)
+
+                if (_hasAlsa)
                 {
                     // 使用ALSA设置音量
                     ExecuteCommand("amixer", $"set Master {volumePercent}% unmute");
                     return true;
                 }
-                else
-                {
-                    LogError("Linux系统未找到支持的音量控制方法");
-                    return false;
-                }
+
+                LogError("Linux系统未找到支持的音量控制方法");
+                return false;
             }
             catch (Exception ex)
             {
@@ -331,4 +329,4 @@ public class LinuxAudioService : AudioService
             }
         });
     }
-} 
+}

@@ -24,8 +24,11 @@ public record FileIntegrity(
         if (ExpectedSize >= 0)
         {
             if (!stream.CanSeek)
+            {
                 throw new InvalidOperationException(
                     $"{nameof(ExpectedSize)} >= 0 but {nameof(stream)} is not seekable");
+            }
+
             if (stream.Length != ExpectedSize)
                 return false;
         }
@@ -39,12 +42,19 @@ public record FileIntegrity(
         return (await hasher.ComputeHashAsync(stream, token)).SequenceEqual(HashBytes);
     }
 
-    public bool Verify(string filepath) => VerifyAsync(filepath).Result;
-    public bool Verify(Stream stream) => VerifyAsync(stream).Result;
+    public bool Verify(string filepath)
+    {
+        return VerifyAsync(filepath).Result;
+    }
+
+    public bool Verify(Stream stream)
+    {
+        return VerifyAsync(stream).Result;
+    }
 
     public bool Verify(byte[] data)
     {
-        if (ExpectedSize >= 0 && data.Length != this.ExpectedSize)
+        if (ExpectedSize >= 0 && data.Length != ExpectedSize)
             return false;
         if (string.IsNullOrEmpty(Hash)) // skip hash check if no hash specified
             return true;

@@ -1,14 +1,11 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
-namespace PCL.Neo.Views
+namespace PCL.Neo.Views;
+
+public partial class LocateErrorView : UserControl
 {
-    public partial class LocateErrorView : UserControl
+    public LocateErrorView()
     {
-        public LocateErrorView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

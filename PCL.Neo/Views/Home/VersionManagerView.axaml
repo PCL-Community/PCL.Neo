@@ -8,113 +8,113 @@
              x:Class="PCL.Neo.Views.Home.VersionManagerView"
              x:DataType="vm:VersionManagerViewModel"
              x:Name="root">
-    
+
     <Grid RowDefinitions="Auto,*">
         <!-- 顶部操作区域 -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="10">
-            <TextBlock Text="游戏版本管理" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
-            
-            <Button Grid.Column="1" 
-                    Content="添加目录" 
-                    Command="{Binding AddDirectoryCommand}" 
+            <TextBlock Text="游戏版本管理" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
+
+            <Button Grid.Column="1"
+                    Content="添加目录"
+                    Command="{Binding AddDirectoryCommand}"
                     Margin="10,0"
-                    Padding="10,5"/>
-            
-            <Button Grid.Column="2" 
-                    Content="下载版本" 
-                    Command="{Binding DownloadVersionCommand}" 
+                    Padding="10,5" />
+
+            <Button Grid.Column="2"
+                    Content="下载版本"
+                    Command="{Binding DownloadVersionCommand}"
                     Margin="0,0,10,0"
-                    Padding="10,5"/>
-            
-            <Button Grid.Column="3" 
-                    Content="刷新" 
-                    Command="{Binding RefreshCommand}" 
-                    Padding="10,5"/>
+                    Padding="10,5" />
+
+            <Button Grid.Column="3"
+                    Content="刷新"
+                    Command="{Binding RefreshCommand}"
+                    Padding="10,5" />
         </Grid>
-        
+
         <!-- 版本列表区域 -->
         <Grid Grid.Row="1" ColumnDefinitions="250,*" Margin="10,0,10,10">
             <!-- 左侧目录列表 -->
             <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto">
-                <TextBlock Grid.Row="0" Text="游戏目录" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                
-                <ListBox Grid.Row="1" 
-                         ItemsSource="{Binding Directories}" 
+                <TextBlock Grid.Row="0" Text="游戏目录" FontWeight="SemiBold" Margin="0,0,0,5" />
+
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding Directories}"
                          SelectedItem="{Binding SelectedDirectory}"
                          Margin="0,0,10,0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Text="{Binding DisplayName}" TextWrapping="Wrap"/>
-                                <Button Grid.Column="1" 
-                                        Content="×" 
-                                        Command="{Binding Path=RemoveDirectoryCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}" 
+                                <TextBlock Grid.Column="0" Text="{Binding DisplayName}" TextWrapping="Wrap" />
+                                <Button Grid.Column="1"
+                                        Content="×"
+                                        Command="{Binding Path=RemoveDirectoryCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}"
                                         CommandParameter="{Binding}"
                                         Padding="5,0"
                                         Margin="5,0,0,0"
                                         Background="Transparent"
                                         BorderThickness="0"
-                                        Foreground="Red"/>
+                                        Foreground="Red" />
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                
-                <Button Grid.Row="2" 
-                        Content="扫描选中目录" 
+
+                <Button Grid.Row="2"
+                        Content="扫描选中目录"
                         Command="{Binding ScanSelectedDirectoryCommand}"
                         HorizontalAlignment="Stretch"
                         Margin="0,5,10,0"
-                        Padding="0,5"/>
+                        Padding="0,5" />
             </Grid>
-            
+
             <!-- 右侧版本列表 -->
             <Grid Grid.Column="1" RowDefinitions="Auto,*">
                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,5">
-                    <TextBlock Grid.Column="0" Text="版本列表" FontWeight="SemiBold"/>
-                    
+                    <TextBlock Grid.Column="0" Text="版本列表" FontWeight="SemiBold" />
+
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <TextBlock Text="筛选:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <ComboBox ItemsSource="{Binding VersionFilters}" 
+                        <TextBlock Text="筛选:" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        <ComboBox ItemsSource="{Binding VersionFilters}"
                                   SelectedItem="{Binding SelectedVersionFilter}"
                                   Width="120"
-                                  Margin="0,0,10,0"/>
-                        
-                        <TextBox Text="{Binding SearchText}" 
-                                 Watermark="搜索版本..." 
-                                 Width="150"/>
+                                  Margin="0,0,10,0" />
+
+                        <TextBox Text="{Binding SearchText}"
+                                 Watermark="搜索版本..."
+                                 Width="150" />
                     </StackPanel>
                 </Grid>
-                
-                <DataGrid Grid.Row="1" 
-                          ItemsSource="{Binding FilteredVersions}" 
+
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding FilteredVersions}"
                           SelectedItem="{Binding SelectedVersion}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTextColumn Header="版本" Binding="{Binding Id}" Width="100"/>
-                        <DataGridTextColumn Header="类型" Binding="{Binding Type}" Width="80"/>
-                        <DataGridTextColumn Header="目录" Binding="{Binding Directory}" Width="120"/>
+                        <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="版本" Binding="{Binding Id}" Width="100" />
+                        <DataGridTextColumn Header="类型" Binding="{Binding Type}" Width="80" />
+                        <DataGridTextColumn Header="目录" Binding="{Binding Directory}" Width="120" />
                         <DataGridTemplateColumn Header="操作" Width="180">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button Content="启动" 
-                                                Command="{Binding Path=LaunchVersionCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}" 
+                                        <Button Content="启动"
+                                                Command="{Binding Path=LaunchVersionCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}"
                                                 CommandParameter="{Binding}"
                                                 Margin="2"
-                                                Padding="8,2"/>
-                                        <Button Content="设置" 
-                                                Command="{Binding Path=SettingsCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}" 
+                                                Padding="8,2" />
+                                        <Button Content="设置"
+                                                Command="{Binding Path=SettingsCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}"
                                                 CommandParameter="{Binding}"
                                                 Margin="2"
-                                                Padding="8,2"/>
-                                        <Button Content="删除" 
-                                                Command="{Binding Path=DeleteVersionCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}" 
+                                                Padding="8,2" />
+                                        <Button Content="删除"
+                                                Command="{Binding Path=DeleteVersionCommand, RelativeSource={RelativeSource AncestorType=views:VersionManagerView}}"
                                                 CommandParameter="{Binding}"
                                                 Margin="2"
-                                                Padding="8,2"/>
+                                                Padding="8,2" />
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

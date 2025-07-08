@@ -13,7 +13,7 @@ public abstract class Job
         Pending,
         Running,
         Completed,
-        Canceled,
+        Canceled
     }
 
     public class Stage
@@ -25,28 +25,46 @@ public abstract class Job
 
         public string Name { get; init; } = "N/A";
         public double Weighting { get; init; } = 1.0;
-        public double Progress { get; set; } = 0.0;
+        public double Progress { get; set; }
         public StageStatus Status { get; set; } = StageStatus.Pending;
 
         public Progress<double> ProgressHandler { get; init; }
 
-        public void ReportProgress(double progress) => ((IProgress<double>)ProgressHandler).Report(progress);
+        public void ReportProgress(double progress)
+        {
+            ((IProgress<double>)ProgressHandler).Report(progress);
+        }
 
-        public void Pending() => Status = StageStatus.Pending;
-        public void Running() => Status = StageStatus.Running;
-        public void Complete() => Status = StageStatus.Completed;
-        public void Canceled() => Status = StageStatus.Canceled;
+        public void Pending()
+        {
+            Status = StageStatus.Pending;
+        }
+
+        public void Running()
+        {
+            Status = StageStatus.Running;
+        }
+
+        public void Complete()
+        {
+            Status = StageStatus.Completed;
+        }
+
+        public void Canceled()
+        {
+            Status = StageStatus.Canceled;
+        }
     }
 
     public Job()
     {
         Stages ??=
-            this.GetType()
+            GetType()
                 .GetFields()
                 .Where(x => x.FieldType.IsAssignableTo(typeof(Stage)))
                 .Select(x => (Stage)x.GetValue(this)!)
                 .ToArray();
-        foreach (Stage s in Stages)
+        foreach (var s in Stages)
         {
             s.ProgressHandler.ProgressChanged += (_, _) => ProgressChanged?.Invoke(this, Progress);
         }
@@ -77,11 +95,20 @@ public abstract class Job
 
     public abstract Task RunAsync();
 
-    public void Run() => RunAsync().Wait(CancellationToken);
+    public void Run()
+    {
+        RunAsync().Wait(CancellationToken);
+    }
 
-    public Task RunInNewTask() => Task.Run(RunAsync, CancellationToken);
+    public Task RunInNewTask()
+    {
+        return Task.Run(RunAsync, CancellationToken);
+    }
 
-    public void Cancel() => CancellationTokenSource.Cancel();
+    public void Cancel()
+    {
+        CancellationTokenSource.Cancel();
+    }
 }
 
 public class JobService
@@ -111,5 +138,8 @@ public class JobService
         Jobs.Remove(job);
     }
 
-    public void Clear() => Jobs.Clear();
+    public void Clear()
+    {
+        Jobs.Clear();
+    }
 }

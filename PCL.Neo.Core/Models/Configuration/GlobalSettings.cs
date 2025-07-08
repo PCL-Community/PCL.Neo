@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace PCL.Neo.Core.Models.Configuration;
 
 /// <summary>
@@ -26,4 +24,4 @@ public static class GlobalSettings
     {
         return Path.Combine(AppContext.BaseDirectory, "Configs", fileName);
     }
-} 
+}

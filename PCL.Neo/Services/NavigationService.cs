@@ -66,11 +66,16 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
             var mainAttr = typeof(T).GetCustomAttribute<MainViewModelAttribute>();
             var subAttr = typeof(T).GetCustomAttribute<SubViewModelAttribute>();
             if (mainAttr is null && subAttr is null)
+            {
                 throw new InvalidOperationException(
                     $"ViewModel {typeof(T).Name} does not have a {nameof(MainViewModelAttribute)} or a {nameof(SubViewModelAttribute)}");
+            }
+
             if (mainAttr is not null && subAttr is not null)
+            {
                 throw new InvalidOperationException(
                     $"ViewModel {typeof(T).Name} has both {nameof(MainViewModelAttribute)} and {nameof(SubViewModelAttribute)}");
+            }
 
             Type? mainVmType;
             Type? subVmType;
@@ -142,7 +147,7 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
     /// <param name="sub">SubViewModel</param>
     /// <param name="navigationType">导航方向</param>
     protected async Task NavigateToAsync(ViewModelBase? main, ViewModelBase? sub,
-        NavigationType                             navigationType = NavigationType.Forward)
+        NavigationType navigationType = NavigationType.Forward)
     {
         var oldMainVm = CurrentMainViewModel;
         var oldSubVm = CurrentSubViewModel;
@@ -157,9 +162,11 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
             navigationType), NavigationMessage.Channels.Navigating);
 
         if (navigationType == NavigationType.Forward)
+        {
             PushHistory(
                 oldMainVm?.GetType() ?? null,
                 oldSubVm?.GetType() ?? null);
+        }
 
         CurrentMainViewModel = main;
         CurrentSubViewModel = sub;
@@ -201,7 +208,10 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
     /// <summary>
     /// 清除导航历史
     /// </summary>
-    public void ClearHistory() => _navigationHistory.Clear();
+    public void ClearHistory()
+    {
+        _navigationHistory.Clear();
+    }
 
     /// <summary>
     /// 压入历史 ViewModels
@@ -229,7 +239,7 @@ public class NavigationService(IServiceProvider serviceProvider) : INavigationSe
         if (!CanGoBack)
         {
             main = null;
-            sub  = null;
+            sub = null;
             return false;
         }
 

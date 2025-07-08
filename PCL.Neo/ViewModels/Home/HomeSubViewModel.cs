@@ -1,12 +1,11 @@
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using PCL.Neo.Models.Minecraft.Game;
-using PCL.Neo.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game;
+using PCL.Neo.Core.Service.Accounts.Storage;
+using PCL.Neo.Jobs;
 using PCL.Neo.Models.User;
 using PCL.Neo.Services;
-using PCL.Neo.ViewModels;
 using PCL.Neo.ViewModels.Download;
 using System;
 using System.Collections.Generic;
@@ -14,13 +13,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Runtime.InteropServices;
-using PCL.Neo.Core.Models.Minecraft.Game;
-using PCL.Neo.Core.Models.Minecraft.Java;
-using PCL.Neo.Core.Service.Accounts.Storage;
-using PCL.Neo.Jobs;
-using System.Diagnostics;
 
 namespace PCL.Neo.ViewModels.Home;
 
@@ -78,13 +70,13 @@ public partial class HomeSubViewModel : ViewModelBase
     private bool _isDefaultLayoutVisible = true;
 
     [ObservableProperty]
-    private bool _isNewsLayoutVisible = false;
+    private bool _isNewsLayoutVisible;
 
     [ObservableProperty]
-    private bool _isInfoLayoutVisible = false;
+    private bool _isInfoLayoutVisible;
 
     [ObservableProperty]
-    private bool _isSimpleLayoutVisible = false;
+    private bool _isSimpleLayoutVisible;
 
     public HomeSubViewModel(
         INavigationService navigationService,
@@ -158,7 +150,7 @@ public partial class HomeSubViewModel : ViewModelBase
         SelectedUser = _userService.CurrentUser;
 
         // 监听用户切换
-        this.PropertyChanged += (sender, args) =>
+        PropertyChanged += (sender, args) =>
         {
             if (args.PropertyName == nameof(SelectedUser) && SelectedUser != null)
             {
@@ -180,8 +172,8 @@ public partial class HomeSubViewModel : ViewModelBase
         var js = Ioc.Default.GetRequiredService<JobService>();
         js.Clear();
         _ = js.Submit(new TestJob1()).RunInNewTask();
-        _ = js.Submit(new TestJob1 {IntervalFactor = 2.0}).RunInNewTask();
-        await this._navigationService.GoToAsync<JobViewModel>();
+        _ = js.Submit(new TestJob1 { IntervalFactor = 2.0 }).RunInNewTask();
+        await _navigationService.GoToAsync<JobViewModel>();
     }
 
     [RelayCommand]
@@ -212,7 +204,7 @@ public partial class HomeSubViewModel : ViewModelBase
         try
         {
             // TODO: 实现添加用户的UI
-            var username = "NewPlayer";  // 这里应该从UI获取输入
+            var username = "NewPlayer"; // 这里应该从UI获取输入
 
             var newUser = await _userService.AddUserAsync(username);
 
@@ -278,7 +270,7 @@ public partial class HomeSubViewModel : ViewModelBase
             };
 
             // 创建完善的启动选项
-            var launchOptions = new PCL.Neo.Core.Models.Minecraft.Game.LaunchOptions
+            var launchOptions = new LaunchOptions
             {
                 VersionId = SelectedGameVersion.Id,
                 JavaPath = _gameSettingsViewModel.JavaPath,
@@ -293,7 +285,7 @@ public partial class HomeSubViewModel : ViewModelBase
                 WindowHeight = _gameSettingsViewModel.GameHeight,
                 FullScreen = _gameSettingsViewModel.IsFullScreen,
                 IsOfflineMode = SelectedUser.StorageType ==
-                                PCL.Neo.Core.Service.Accounts.Storage.UserTypeConstants.Offline,
+                                UserTypeConstants.Offline,
 
                 // 添加额外的JVM参数
                 ExtraJvmArgs = string.IsNullOrEmpty(_gameSettingsViewModel.JvmArguments)
@@ -330,7 +322,7 @@ public partial class HomeSubViewModel : ViewModelBase
             }
 
             // 启动游戏
-            Process process = await _gameLauncher.LaunchAsync(launchOptions);
+            var process = await _gameLauncher.LaunchAsync(launchOptions);
             StatusMessage = "游戏已启动";
 
             // 如果设置了启动后关闭启动器
@@ -367,7 +359,8 @@ public partial class HomeSubViewModel : ViewModelBase
     {
         try
         {
-            var filePath = await _storageService.SaveFile("导出游戏日志", $"PCL.Neo游戏日志_{DateTime.Now:yyyyMMdd_HHmmss}", ".log");
+            var filePath =
+                await _storageService.SaveFile("导出游戏日志", $"PCL.Neo游戏日志_{DateTime.Now:yyyyMMdd_HHmmss}", ".log");
 
             if (!string.IsNullOrEmpty(filePath))
             {

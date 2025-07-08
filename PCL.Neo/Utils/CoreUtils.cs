@@ -3,10 +3,8 @@ using System.Threading;
 
 namespace PCL.Neo.Utils;
 
-
 public static class CoreUtils
 {
-
     private static int _uuid = 1;
 
     public static int GetUuid()
@@ -23,14 +21,14 @@ public static class CoreUtils
     /// 指示用户手动取消了操作，或用户已知晓操作被取消的原因。
     /// </summary>
     public class CancelledException : Exception;
-    
+
     public enum LoadState
     {
         Waiting,
         Loading,
         Finished,
         Failed,
-        Aborted,
+        Aborted
     }
 
     public enum Result

@@ -1,5 +1,5 @@
-using System;
 using PCL.Neo.Utils;
+using System;
 
 namespace PCL.Neo.Helpers;
 
@@ -14,7 +14,7 @@ public class DevelopHelper
 
         Logger.InitLogger(Const.Path);
         var L = Logger.GetInstance();
-        L.SetDelegate(Logger.LogLevel.Feedback, (s) =>
+        L.SetDelegate(Logger.LogLevel.Feedback, s =>
         {
             Console.WriteLine($"FEEDBACK:{s}");
         });

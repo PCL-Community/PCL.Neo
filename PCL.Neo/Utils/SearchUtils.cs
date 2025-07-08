@@ -55,7 +55,7 @@ public static class SearchUtils
                 // 对每个 sp 作为开始位置计算最大子串
                 var len = 0;
                 while (qp + len < queryLength
-                       && (sp + len) < sourceLength
+                       && sp + len < sourceLength
                        && source[sp + len] == query[qp + len])
                     len += 1;
 
@@ -69,22 +69,25 @@ public static class SearchUtils
                 // 根据结果增加 sp
                 sp += Math.Max(1, len);
             }
+
             if (lenMax > 0)
             {
                 source = source[..spMax] +
                          (sourceLength > spMax + lenMax ? source[(spMax + lenMax)..] : string.Empty);
                 // 存储 lenSum
-                var incWeight = (Math.Pow(1.4, 3 + lenMax) - 3.6); // 根据长度加成
-                incWeight *= (1 + 0.3 * Math.Max(0, 3 - Math.Abs(qp - spMax))); // 根据位置加成
+                var incWeight = Math.Pow(1.4, 3 + lenMax) - 3.6; // 根据长度加成
+                incWeight *= 1 + 0.3 * Math.Max(0, 3 - Math.Abs(qp - spMax)); // 根据位置加成
                 lenSum += incWeight;
             }
+
             // 根据结果增加 qp
             qp += Math.Max(1, lenMax);
         }
 
-        return (lenSum / queryLength) * (3 / Math.Pow(sourceLength + 15, 0.5)) *
+        return lenSum / queryLength * (3 / Math.Pow(sourceLength + 15, 0.5)) *
                (queryLength <= 2 ? 3 - queryLength : 1);
     }
+
     /// <summary>
     /// 获取多段文本加权后的相似度。
     /// </summary>
@@ -97,10 +100,12 @@ public static class SearchUtils
             sum += SearchSimilarity(pair.Key, query) * pair.Value;
             totalWeight += pair.Value;
         }
+
         return sum / totalWeight;
     }
 
-    public static List<SearchEntry<T>> Search<T>(List<SearchEntry<T>> entries, string query, int maxBlurCount = 5, double minBlurSimilarity = 0.1)
+    public static List<SearchEntry<T>> Search<T>(List<SearchEntry<T>> entries, string query, int maxBlurCount = 5,
+        double minBlurSimilarity = 0.1)
     {
         // 初始化
         var resultList = new List<SearchEntry<T>>();
@@ -109,9 +114,10 @@ public static class SearchUtils
         foreach (var entry in entries)
         {
             entry.Similarity = SearchSimilarityWeighted(entry.SearchSource, query);
-            entry.AbsoluteRight = query.Split(" ").All((queryPart) => entry.SearchSource.Any((source) =>
+            entry.AbsoluteRight = query.Split(" ").All(queryPart => entry.SearchSource.Any(source =>
                 source.Key.Replace(" ", "").Contains(queryPart, StringComparison.OrdinalIgnoreCase)));
         }
+
         // 按照相似度进行排序
         entries.Sort((left, right) =>
         {
@@ -119,10 +125,8 @@ public static class SearchUtils
             {
                 return left.AbsoluteRight ? -1 : 1;
             }
-            else
-            {
-                return left.Similarity > right.Similarity ? -1 : 1;
-            }
+
+            return left.Similarity > right.Similarity ? -1 : 1;
         });
         // 返回结果
         var blurCount = 0;
@@ -139,6 +143,7 @@ public static class SearchUtils
                 blurCount++;
             }
         }
+
         return resultList;
     }
 }

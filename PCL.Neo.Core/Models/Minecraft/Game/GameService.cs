@@ -2,6 +2,7 @@ using PCL.Neo.Core.Download;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils;
+using System.Text.Json;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game;
 
@@ -27,7 +28,7 @@ public class GameService
     public static async Task<List<VersionInfo>> GetVersionsAsync(string? minecraftDirectory = null,
         bool forceRefresh = false)
     {
-        string directory = minecraftDirectory ?? DefaultGameDirectory;
+        var directory = minecraftDirectory ?? DefaultGameDirectory;
         // 获取本地版本
         var localVersions = await Versions.GetLocalVersionsAsync(directory);
         // 如果需要强制刷新或者本地版本为空，则获取远程版本
@@ -114,7 +115,7 @@ public class GameService
 
         // 解析assets索引文件
         var assetsIndexJson = await File.ReadAllTextAsync(assetsIndexPath);
-        var assetsIndex = System.Text.Json.JsonSerializer.Deserialize<AssetIndex>(assetsIndexJson);
+        var assetsIndex = JsonSerializer.Deserialize<AssetIndex>(assetsIndexJson);
 
         if (assetsIndex?.Objects == null)
         {
@@ -122,8 +123,8 @@ public class GameService
         }
 
         // 下载assets文件
-        int totalAssets = assetsIndex.Objects.Count;
-        int downloadedAssets = 0;
+        var totalAssets = assetsIndex.Objects.Count;
+        var downloadedAssets = 0;
 
         foreach (var asset in assetsIndex.Objects)
         {
@@ -153,8 +154,8 @@ public class GameService
         Directory.CreateDirectory(librariesDir);
 
         var libraries = versionInfo.Libraries;
-        int totalLibraries = libraries.Count;
-        int downloadedLibraries = 0;
+        var totalLibraries = libraries.Count;
+        var downloadedLibraries = 0;
 
         foreach (var library in libraries)
         {
@@ -212,11 +213,11 @@ public class GameService
     /// </summary>
     private static bool EvaluateRules(List<Rule> rules)
     {
-        bool allow = true;
+        var allow = true;
 
         foreach (var rule in rules)
         {
-            bool matches = true;
+            var matches = true;
 
             if (rule.Os != null)
             {
@@ -236,9 +237,9 @@ public class GameService
     /// </summary>
     public bool IsVersionInstalled(string versionId, string? minecraftDirectory = null)
     {
-        string directory = minecraftDirectory ?? DefaultGameDirectory;
-        string versionJsonPath = Path.Combine(directory, "versions", versionId, $"{versionId}.json");
-        string versionJarPath = Path.Combine(directory, "versions", versionId, $"{versionId}.jar");
+        var directory = minecraftDirectory ?? DefaultGameDirectory;
+        var versionJsonPath = Path.Combine(directory, "versions", versionId, $"{versionId}.json");
+        var versionJarPath = Path.Combine(directory, "versions", versionId, $"{versionId}.jar");
 
         return File.Exists(versionJsonPath) && File.Exists(versionJarPath);
     }
@@ -248,8 +249,8 @@ public class GameService
     /// </summary>
     public static async Task DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
     {
-        string directory = minecraftDirectory ?? DefaultGameDirectory;
-        string versionDir = Path.Combine(directory, "versions", versionId);
+        var directory = minecraftDirectory ?? DefaultGameDirectory;
+        var versionDir = Path.Combine(directory, "versions", versionId);
 
         if (Directory.Exists(versionDir))
         {
@@ -271,7 +272,7 @@ public class GameService
     public bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion)
     {
         // 先获取Java版本
-        string javaVersionString = javaRuntime.Version;
+        var javaVersionString = javaRuntime.Version;
 
         // 如果无法获取版本信息，直接返回不兼容
         if (string.IsNullOrEmpty(javaVersionString) || javaVersionString == "未知" || javaVersionString == "无法获取")
@@ -289,8 +290,8 @@ public class GameService
         else
         {
             // 新版Java格式：11.0.x, 17.0.x等
-            int dotIndex = javaVersionString.IndexOf('.');
-            string majorString = dotIndex > 0 ? javaVersionString.Substring(0, dotIndex) : javaVersionString;
+            var dotIndex = javaVersionString.IndexOf('.');
+            var majorString = dotIndex > 0 ? javaVersionString.Substring(0, dotIndex) : javaVersionString;
 
             if (!int.TryParse(majorString, out javaMajorVersion))
             {
@@ -299,7 +300,7 @@ public class GameService
         }
 
         // 获取Minecraft版本对应的需求Java版本
-        int requiredJavaVersion = GetRequiredJavaVersion(minecraftVersion);
+        var requiredJavaVersion = GetRequiredJavaVersion(minecraftVersion);
 
         // 比较版本
         return javaMajorVersion >= requiredJavaVersion;
@@ -311,9 +312,9 @@ public class GameService
     private int GetRequiredJavaVersion(string minecraftVersion)
     {
         // 解析Minecraft版本号
-        string[] parts = minecraftVersion.Split('.');
-        if (parts.Length < 2 || !int.TryParse(parts[0], out int majorVersion) ||
-            !int.TryParse(parts[1], out int minorVersion))
+        var parts = minecraftVersion.Split('.');
+        if (parts.Length < 2 || !int.TryParse(parts[0], out var majorVersion) ||
+            !int.TryParse(parts[1], out var minorVersion))
         {
             return 8; // 默认要求Java 8
         }
@@ -325,9 +326,7 @@ public class GameService
             return 16;
         }
         // Minecraft 1.16及以下需要Java 8
-        else
-        {
-            return 8;
-        }
+
+        return 8;
     }
 }

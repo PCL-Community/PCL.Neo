@@ -13,8 +13,9 @@ namespace PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 public class MicrosoftAuthService : IMicrosoftAuthService
 {
     /// <inheritdoc />
-    public IObservable<DeviceFlowState> StartDeviceCodeFlow() =>
-        Observable.Create<DeviceFlowState>(async (observer) =>
+    public IObservable<DeviceFlowState> StartDeviceCodeFlow()
+    {
+        return Observable.Create<DeviceFlowState>(async observer =>
         {
             // get device code
             var deviceCodeResult = await RequestDeviceCodeAsync().ConfigureAwait(false);
@@ -61,7 +62,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
 
             var accountInfo = accountInfoResult.Value;
 
-            var account = new MsaAccount()
+            var account = new MsaAccount
             {
                 McAccessToken = mcToken.Value,
                 OAuthToken = new OAuthTokenData(tokenInfo.AccessToken, tokenInfo.RefreshToken, tokenInfo.ExpiresIn),
@@ -75,6 +76,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             observer.OnNext(new DeviceFlowSucceeded(account));
             observer.OnCompleted();
         });
+    }
 
     /// <inheritdoc />
     public async Task<Result<DeviceCodeData.DeviceCodeInfo, HttpError>> RequestDeviceCodeAsync()
@@ -206,9 +208,9 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         try
         {
             var playerInfo = await MinecraftInfo.GetPlayerUuidAsync(accessToken).ConfigureAwait(false);
-            var capes      = MinecraftInfo.CollectCapes(playerInfo.Capes);
-            var skins      = MinecraftInfo.CollectSkins(playerInfo.Skins);
-            var uuid       = playerInfo.Uuid;
+            var capes = MinecraftInfo.CollectCapes(playerInfo.Capes);
+            var skins = MinecraftInfo.CollectSkins(playerInfo.Skins);
+            var uuid = playerInfo.Uuid;
 
             return Result<DeviceCodeData.McAccountInfo, Exception>.Ok(
                 new DeviceCodeData.McAccountInfo(skins, capes, playerInfo.Name, uuid));
