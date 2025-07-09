@@ -8,6 +8,7 @@ using PCL.Neo.Controls.MyMsg;
 using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Java;
+using PCL.Neo.Core.Service.Game;
 using PCL.Neo.Core.Utils;
 using PCL.Neo.Services;
 >>>>>>> 17b9b08 (refactor(game service): refactor game service. big commit!)
@@ -361,7 +362,7 @@ public partial class MainWindowViewModel : ViewModelBase
                     "-Djdk.lang.Process.allowAmbiguousCommands=true",
                     "-Dfml.ignoreInvalidMinecraftCertificates=True",
                     "-Dfml.ignorePatchDiscrepancies=True",
-                    "-Doolloo.jlw.tmpdir=\"C:\\Users\\WhiteCAT\\Desktop\\Games\\PCL2\\PCL\""
+                    @"-Doolloo.jlw.tmpdir=C:\Users\WhiteCAT\Desktop\Games\PCL2\PCL"
                 ],
 
                 // 添加额外的游戏参数
@@ -383,14 +384,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 Information = new GameInfo
                 {
                     GameDirectory =
-                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
+                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
                     RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                    Name = "Create",
+                    Name = "1.20.4-Fabric 0.15.11-[轻量通用]",
                 }
             });
 
-
-            var result = await gameEntity.StartGameAsync();
+            await gameEntity.StartGameAsync();
         }
     }
 

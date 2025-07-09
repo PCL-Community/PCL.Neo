@@ -6,6 +6,8 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Java;
+using PCL.Neo.ViewModels;
+using PCL.Neo.Views;
 using PCL.Neo.Core.Service.Accounts;
 using PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 using PCL.Neo.Services;
@@ -49,12 +51,12 @@ public class App : Application
             .AddTransient<JobSubViewModel>()
             .AddSingleton<INavigationService, NavigationService>()
             .AddSingleton<StorageService>()
-            .AddSingleton<IJavaManager, JavaManager>()
-            .AddSingleton<GameService>()
-            .AddSingleton<GameLauncher>()
             .AddSingleton<UserService>()
             .AddSingleton<JobService>()
             .AddSingleton<IAccountService, AccountService>()
+            .AddSingleton<IJavaManager, JavaManager>()
+            .AddSingleton<IGameService, GameService>()
+            .AddSingleton<IGameLauncherService, GameLauncherService>()
             .AddSingleton<IMicrosoftAuthService, MicrosoftAuthService>()
             .BuildServiceProvider();
     }

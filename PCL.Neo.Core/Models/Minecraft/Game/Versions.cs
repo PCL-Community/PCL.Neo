@@ -130,15 +130,17 @@ public static class Versions
             var gameDir = Path.Combine(rootDir, "versions", versionId); // get version dir
             var jsonPath = Path.Combine(gameDir, $"{versionId}.json");
 
-            if (File.Exists(jsonPath))
-            if (File.Exists(jsonPath))
+            if (!File.Exists(jsonPath))
             {
-                try
-                {
-                    var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                    var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
+                return null;
+            }
 
-                if (versionInfo != null)
+            try
+            {
+                var jsonContent = await File.ReadAllTextAsync(jsonPath);
+                var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
+
+                if (versionInfo is not null)
                 {
                     if (string.IsNullOrEmpty(versionInfo.Name))
                     {
@@ -146,7 +148,7 @@ public static class Versions
                     }
 
                     // 添加JsonData属性
-                    versionInfo.JsonData = jsonContent;
+                    versionInfo.JsonOriginData = jsonContent;
 
                     return versionInfo;
                 }
@@ -155,7 +157,6 @@ public static class Versions
             {
                 // 忽略解析失败的版本文件
             }
-        }
 
         return null;
     }

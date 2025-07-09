@@ -3,12 +3,12 @@ using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game;
+namespace PCL.Neo.Core.Service.Game;
 
 /// <summary>
 /// 游戏启动器接口，定义启动与日志导出功能
 /// </summary>
-public interface IGameLauncher
+public interface IGameLauncherService
 {
     /// <summary>
     /// Version manifes information.

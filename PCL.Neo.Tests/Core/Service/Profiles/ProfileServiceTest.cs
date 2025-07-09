@@ -1,10 +1,11 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using NUnit.Framework.Legacy;
+using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Service.Profiles;
 using PCL.Neo.Core.Service.Profiles.Data;
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace PCL.Neo.Tests.Core.Service.Profiles
 {
@@ -20,24 +21,55 @@ namespace PCL.Neo.Tests.Core.Service.Profiles
         public void SetUp()
         {
             _service = new ProfileService();
+            if (!Path.Exists(SaveTempDir))
+            {
+                Directory.CreateDirectory(SaveTempDir);
+            }
         }
 
         [Test]
-        public async Task LoadProfileAsync_ShouldLoadAllGames()
+        public async Task SaveProfilesDefaultAsync_ShouldLoadAllGamesAndSave()
         {
-            var profile = await _service.LoadProfileAsync(TempDir);
+            var profile = await _service.GetProfileAsync(TempDir, "Test_SaveProfiles");
             Assert.That(profile, Is.Not.Null);
-            Assert.That(profile.Games.Count, Is.EqualTo(29));
+            Assert.That(profile.Games.Count, Is.EqualTo(33));
 
             await _service.SaveProfilesDefaultAsync(profile);
+
+            var profiles = await _service.LoadProfilesDefaultAsync();
+            foreach (var pro in profiles)
+            {
+                foreach (var gameInfo in pro.Games)
+                {
+                    Console.WriteLine(gameInfo.Name);
+                    Console.WriteLine(gameInfo.Type);
+                    Console.WriteLine(new string('-', 10));
+                }
+            }
         }
 
         [Test]
-        public void LoadProfileAsync_ShouldThrowOnInvalidDir()
+        public async Task GetProfileAsync_ShouldSuccess()
+        {
+            var profiles =
+                await _service.GetProfileAsync(@"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
+                    "Test_LoadAndGetProfile");
+            Assert.That(profiles, Is.Not.Null);
+            await _service.SaveProfilesDefaultAsync(profiles);
+
+            var secProfiles = await _service.LoadProfilesDefaultAsync();
+
+            Assert.That(secProfiles, Is.Not.Null);
+
+            var content = JsonSerializer.Serialize(secProfiles, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        [Test]
+        public void GetProfileAsync_ShouldThrowOnInvalidDir()
         {
             var invalidDir = Path.Combine(TempDir, "not_exist");
             var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _service.LoadProfileAsync(invalidDir));
+                await _service.GetProfileAsync(invalidDir, "Test_GetProfile"));
             StringAssert.Contains("missing required subdirectories", ex!.Message);
         }
 
@@ -89,7 +121,7 @@ namespace PCL.Neo.Tests.Core.Service.Profiles
                 RootDirectory = TempDir,
                 GameDirectory = "gd",
                 IsIndie = false,
-                Loader = ModLoader.None
+                Type = GameType.Vanilla
             };
             var result = await _service.SaveGameInfoToProfileDefaultAsync(profile, game);
             Assert.That(result, Is.True);
@@ -109,7 +141,7 @@ namespace PCL.Neo.Tests.Core.Service.Profiles
                 RootDirectory = TempDir,
                 GameDirectory = "gd2",
                 IsIndie = true,
-                Loader = ModLoader.None
+                Type = GameType.Vanilla
             };
             var result = await _service.SaveGameInfoToProfileAsync(profile, game, SaveTempDir);
             Assert.That(result, Is.True);
@@ -127,7 +159,7 @@ namespace PCL.Neo.Tests.Core.Service.Profiles
                 GameDirectory = string.Empty,
                 RootDirectory = string.Empty,
                 IsIndie = true,
-                Loader = ModLoader.None,
+                Type = GameType.Vanilla,
                 Name = "None"
             };
 

@@ -23,6 +23,7 @@
   <ItemGroup>
     <Folder Include="Core\Models\Minecraft\Game\Data\" />
     <Folder Include="Core\Models\Utils\Logger\" />
+    <Folder Include="Core\Service\Game\" />
   </ItemGroup>
 
 </Project>

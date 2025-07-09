@@ -42,8 +42,6 @@ namespace PCL.Neo.Core.Service.Game
         /// <returns>是否兼容</returns>
         bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion);
 
-        Task<bool> DownloadJavaWrapperAsync(string targetDir);
-
         /// <summary>
         /// 默认Java运行时组合
         /// </summary>

@@ -6,13 +6,26 @@ namespace PCL.Neo.Core.Service.Profiles;
 public interface IProfileService
 {
     /// <summary>
+    /// Load profiles from the configuration directory.
+    /// </summary>
+    /// <returns>Loaded profiles.</returns>
+    Task<IEnumerable<ProfileInfo>> LoadProfilesDefaultAsync();
+
+    /// <summary>
+    /// Load profiles from the specified directory.
+    /// </summary>
+    /// <returns>Loaded profiles.</returns>
+    Task<IEnumerable<ProfileInfo>> LoadProfilesAsync(string profilePath);
+
+    /// <summary>
     /// Load profile from the specified directory.
     /// </summary>
     /// <param name="targetDir">The directory where profile are located.</param>
+    /// <param name="profileName">Profile name.</param>
     /// <returns>A collection of game profile.</returns>
     /// <exception cref="InvalidOperationException">Target directory is not vaild.</exception>
     /// <exception cref="FileNotFoundException">Game '.jar' and '.json' file not found.</exception>
-    Task<ProfileInfo> LoadProfileAsync(string targetDir);
+    Task<ProfileInfo> GetProfileAsync(string targetDir, string profileName);
 
     /// <summary>
     /// Load profile from the specified directory by profile name.

@@ -1,6 +1,6 @@
-using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Java;
+using PCL.Neo.Core.Service.Game;
 using PCL.Neo.Core.Utils;
 using System;
 using System.Collections.Generic;
@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
 {
     [TestFixture]
-    [TestOf(typeof(GameLauncher))]
-    public class GameLauncherTest
+    [TestOf(typeof(GameLauncherService))]
+    public class GameLauncherServiceTest
     {
         [Test]
         public async Task GameArgumentsTest()
@@ -46,15 +46,15 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                 CloseAfterLaunch = false
             };
 
-            var launcher = new GameLauncher(new GameProfile
+            var launcher = new GameLauncherService(new GameProfile
             {
                 Options = launchOptions,
                 Information = new GameInfo
                 {
                     GameDirectory =
-                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
+                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
                     RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                    Name = "Create",
+                    Name = "1.20.4-Fabric 0.15.11-[轻量通用]",
                 }
             });
 

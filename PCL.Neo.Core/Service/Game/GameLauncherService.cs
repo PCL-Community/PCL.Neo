@@ -1,3 +1,4 @@
+using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
 using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
@@ -7,9 +8,9 @@ using System.Diagnostics;
 using System.Text;
 using System.Text;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game;
+namespace PCL.Neo.Core.Service.Game;
 
-public class GameLauncher : IGameLauncher
+public class GameLauncherService : IGameLauncherService
 {
     /// <inheritdoc />
     public VersionManifes? Manifes { get; private set; }
@@ -21,7 +22,7 @@ public class GameLauncher : IGameLauncher
 
     private readonly Lazy<Task<VersionManifes>> _manifestLazy;
 
-    public GameLauncher(GameProfile profile)
+    public GameLauncherService(GameProfile profile)
     {
         Profile = profile ?? throw new ArgumentNullException(nameof(profile));
 
@@ -73,9 +74,6 @@ public class GameLauncher : IGameLauncher
         // 添加JVM参数
         var jvmArgs = GenerateJvmArguments(Profile, Manifes, _adapter);
         args.AddRange(jvmArgs);
-
-        // 添加Java包装器
-        AddJavaWrapper(args);
 
         // 添加主类
         args.Add(Manifes.MainClass);
@@ -636,7 +634,7 @@ public class GameLauncher : IGameLauncher
     {
         var extraArgs = new Dictionary<string, string>
         {
-            { "${natives_directory}", DirectoryUtil.ForceQuotePath(nativesDir) },
+            { "${natives_directory}", nativesDir },
             { "${launcher_name}", "PCL.Neo" },
             { "${launcher_version}", "1.0.0" },
             { "${library_directory}", libPath },
@@ -657,18 +655,6 @@ public class GameLauncher : IGameLauncher
         args.Add($"-Xms{Profile.Options.MinMemoryMB}M");
         args.Add("-XX:+UseG1GC");
         args.Add("-XX:-UseAdaptiveSizePolicy");
-    }
-
-    /// <summary>
-    /// 添加Java包装器
-    /// </summary>
-    private static void AddJavaWrapper(Collection<string> args)
-    {
-#warning "Replace JavaWrapper path with Neo's"
-        const string javaWrapperPath = @"C:\Users\WhiteCAT\Desktop\java_launch_wrapper-1.4.3.jar";
-
-        args.Add("-jar");
-        args.Add(javaWrapperPath);
     }
 
     /// <summary>

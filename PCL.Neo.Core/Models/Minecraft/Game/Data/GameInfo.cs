@@ -20,21 +20,9 @@ public record GameInfo
     public required string Name { get; set; }
 
     /// <summary>
-    /// The loader type.
+    /// The game type.
     /// </summary>
-    public VersionInfo JsonContent { get; set; }
-
-
-    /// <summary>
-    /// If <see cref="Type"/> is <see cref="VersionCardType"/>.Moddable, Loader will have value that is used to display in the UI.
-    /// </summary>
-    public ModLoader Loader { get; set; }
-
-
-    /// <summary>
-    /// Demonstrater is the game started by user. Used to display in the UI.
-    /// </summary>
-    public bool IsStared { get; set; } = false;
+    public GameType Type { get; set; } = GameType.Unknown;
 
     /// <summary>
     /// Demonstrate is the version has been loader (runed).
@@ -70,16 +58,4 @@ public record GameInfo
     /// The Game Jar File Path.
     /// </summary>
     public required string JarPath { get; set; }
-}
-
-public class GameEntity
-{
-    public required GameEntityInfo Entity { get; set; }
-    public Process GameProcess { get; set; } = new();
-
-    public GameEntity(GameEntityInfo entityInfo)
-    {
-        Entity = entityInfo;
-        GameProcess.StartInfo = new ProcessStartInfo { FileName = Entity.JarPath };
-    }
 }
