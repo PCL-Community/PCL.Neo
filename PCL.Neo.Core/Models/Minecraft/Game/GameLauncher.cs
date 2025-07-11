@@ -1,6 +1,4 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Utils;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -33,14 +31,14 @@ public class GameLauncher : IGameLauncher
     /// </summary>
     public async Task<Collection<string>> BuildLaunchCommandAsync()
     {
-        Manifes = await _manifestLazy.Value;
+        var manifest = await _manifestLazy.Value;
 
         var nativesDir = PrepareNativesDirectory();
         var libPath = Path.Combine(Profile.Information.RootDirectory, "libraries");
 
-        ArgumentNullException.ThrowIfNull(Manifes.Libraries); // enure libraries is not null
+        ArgumentNullException.ThrowIfNull(manifest.Libraries); // enure libraries is not null
 
-        var libCommand = await BuildLibrariesCommandAsync(Manifes.Libraries, Profile.Information.RootDirectory);
+        var libCommand = await BuildLibrariesCommandAsync(manifest.Libraries, Profile.Information.RootDirectory);
         var classPath = BuildClassPath(libCommand);
 
         _adapter = CreateArgumentsAdapter(nativesDir, libPath, classPath);
@@ -51,17 +49,15 @@ public class GameLauncher : IGameLauncher
         AddBasicJvmArguments(args);
 
         // 添加JVM参数
-        var jvmArgs = GenerateJvmArguments(Profile, Manifes, _adapter);
+        var jvmArgs = GenerateJvmArguments(Profile, manifest, _adapter);
         args.AddRange(jvmArgs);
 
-        // 添加Java包装器
-        AddJavaWrapper(args);
 
         // 添加主类
-        args.Add(Manifes.MainClass);
+        args.Add(manifest.MainClass);
 
         // 添加游戏参数
-        var gameArgs = GenerateGameArguments(Profile, Manifes, _adapter);
+        var gameArgs = GenerateGameArguments(Profile, manifest, _adapter);
         args.AddRange(gameArgs);
 
         return args;
@@ -91,9 +87,6 @@ public class GameLauncher : IGameLauncher
 
             versionManifest = MergeVersionInfo(versionManifest, parentManifest);
         }
-
-        Manifes = versionManifest;
-        return versionManifest;
     }
 
     private void ValidateDirctories()
@@ -110,7 +103,12 @@ public class GameLauncher : IGameLauncher
                 $"Minecraft game directory not found: {Profile.Information.GameDirectory}");
         }
     }
-
+    /// <summary>
+    /// 合并库文件列表
+    /// </summary>
+    private static List<Library> MergeLibraries(List<Library>? childLibraries, List<Library>? parentLibraries)
+    {
+        var libraries = new List<Library>();
     /// <summary>
     /// 合并版本信息（处理继承关系）
     /// </summary>
@@ -139,7 +137,6 @@ public class GameLauncher : IGameLauncher
     private static List<Library> MergeLibraries(List<Library>? childLibraries, List<Library>? parentLibraries)
     {
         var libraries = new List<Library>();
-
         if (parentLibraries != null)
         {
             libraries.AddRange(parentLibraries);
@@ -156,6 +153,34 @@ public class GameLauncher : IGameLauncher
                     libraries.Add(lib);
                 }
             }
+        }
+
+        return libraries;
+    }
+
+    /// <summary>
+    /// 创建游戏进程
+    /// </summary>
+    private static Process CreateGameProcess(string javaExe, string gameDir, Collection<string> arguments)
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = javaExe,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WorkingDirectory = gameDir,
+                StandardErrorEncoding = Encoding.UTF8,
+                StandardOutputEncoding = Encoding.UTF8
+            }
+        };
+
+        foreach (var arg in arguments)
+        {
+            process.StartInfo.ArgumentList.Add(arg);
         }
 
         return libraries;
@@ -266,6 +291,8 @@ public class GameLauncher : IGameLauncher
                     // 如果action为allow，那就说明除os.name指定的系统外其余的全都不添加
                     if (currentOsName != ruleOsName)
                     {
+                        permitAdd = false;
+                        break;
                         permitAdd = false;
                         break;
                     }
@@ -401,9 +428,7 @@ public class GameLauncher : IGameLauncher
             { "${classpath}", classPath }
         };
 
-        ArgumentNullException.ThrowIfNull(Manifes);
-
-        return new ArgumentsAdapter(Profile.Information, Profile.Options, extraArgs, Manifes);
+        return new ArgumentsAdapter(Profile.Information, Profile.Options, extraArgs);
     }
 
     /// <summary>
@@ -415,18 +440,6 @@ public class GameLauncher : IGameLauncher
         args.Add($"-Xms{Profile.Options.MinMemoryMB}M");
         args.Add("-XX:+UseG1GC");
         args.Add("-XX:-UseAdaptiveSizePolicy");
-    }
-
-    /// <summary>
-    /// 添加Java包装器
-    /// </summary>
-    private static void AddJavaWrapper(Collection<string> args)
-    {
-#warning "Replace JavaWrapper path with Neo's"
-        const string javaWrapperPath = @"C:\Users\WhiteCAT\Desktop\java_launch_wrapper-1.4.3.jar";
-
-        args.Add("-jar");
-        args.Add(javaWrapperPath);
     }
 
     /// <summary>
@@ -468,6 +481,10 @@ public class GameLauncher : IGameLauncher
     {
         if (versionManifest.Logging?.Client != null)
         {
+            var loggingInfo = versionManifest.Logging.Client;
+            var logPath = Path.Combine(profile.Information.GameDirectory, loggingInfo.File.Id);
+
+            if (File.Exists(logPath))
             var loggingInfo = versionManifest.Logging.Client;
             var logPath = Path.Combine(profile.Information.GameDirectory, loggingInfo.File.Id);
 
@@ -543,5 +560,6 @@ public class GameLauncher : IGameLauncher
             "--userType", clientType,
             "--versionType", versionManifest.Type
         ]);
+        return args;
     }
 }

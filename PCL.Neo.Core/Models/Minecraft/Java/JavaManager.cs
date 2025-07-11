@@ -58,31 +58,32 @@ public sealed partial class JavaManager : IJavaManager
     /// <summary>
     /// 获取适合游戏版本的Java
     /// </summary>
-    /// <param name="version">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <returns>排序后的Java兼容性列表</returns>
-    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(VersionManifes version)
+    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameInfo gameInfo)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {
             return [];
         }
 
-        return JavaSelector.SelectJavaForGame(version, JavaList);
+        return JavaSelector.SelectJavaForGame(gameInfo, JavaList);
     }
+
 
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
-    /// <param name="version">游戏实体</param>
+    /// <param name="gameInfo">游戏实体</param>
     /// <returns>最佳的Java或null</returns>
-    public JavaRuntime? GetBestJavaForGame(VersionManifes version)
+    public JavaRuntime? GetBestJavaForGame(GameInfo gameInfo)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {
             return null;
         }
 
-        var compatibleJavas = JavaSelector.SelectJavaForGame(version, JavaList);
+        var compatibleJavas = JavaSelector.SelectJavaForGame(gameInfo, JavaList);
         return compatibleJavas.FirstOrDefault()?.Runtime;
     }
 
@@ -139,7 +140,7 @@ public sealed partial class JavaManager : IJavaManager
                 Console.WriteLine("[Java] 初始化未找到可用的 Java，将自动触发搜索");
                 JavaList = (await SearchJavaAsync()).ToList();
                 Console.Write($"[Java] 搜索完成 ");
-
+                
                 // 验证找到的Java
                 await VerifyAllJavaRuntimes();
             }
