@@ -21,10 +21,80 @@
     xmlns:vm="using:PCL.Neo.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid Name="GridRoot">
-        <Border
-            BoxShadow="0 0 15 5 #50000000"
-            CornerRadius="8"
-            Margin="18" />
+        <Grid Margin="10" Name="GridResize" RowDefinitions="14,*,14" ColumnDefinitions="14,*,14">
+            <Border Name="TopLeft" Grid.Column="0" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush Center="100%,100%" GradientOrigin="100%,100%" RadiusX="100%" RadiusY="100%">
+                        <GradientStop Color="#21000000" Offset="0.43" />
+                        <GradientStop Color="#11000000" Offset="0.6" />
+                        <GradientStop Color="#00000000" Offset="1" />
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Name="TopRight" Grid.Column="2" Grid.Row="0">
+                <Border.Background>
+                    <RadialGradientBrush Center="0%,100%" GradientOrigin="0%,100%" RadiusX="100%" RadiusY="100%">
+                        <GradientStop Color="#21000000" Offset="0.43" />
+                        <GradientStop Color="#11000000" Offset="0.6" />
+                        <GradientStop Color="#00000000" Offset="1" />
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Name="BottomLeft" Grid.Column="0" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush Center="100%,0%" GradientOrigin="100%,0%" RadiusX="100%" RadiusY="100%">
+                        <GradientStop Color="#21000000" Offset="0.43" />
+                        <GradientStop Color="#11000000" Offset="0.6" />
+                        <GradientStop Color="#00000000" Offset="1" />
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Name="BottomRight" Grid.Column="2" Grid.Row="2">
+                <Border.Background>
+                    <RadialGradientBrush Center="0%,0%" GradientOrigin="0%,0%" RadiusX="100%" RadiusY="100%">
+                        <GradientStop Color="#21000000" Offset="0.43" />
+                        <GradientStop Color="#11000000" Offset="0.6" />
+                        <GradientStop Color="#00000000" Offset="1" />
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Name="Top" Grid.Column="1" Grid.Row="0" Height="8" VerticalAlignment="Top">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Color="#00000000" Offset="0" />
+                        <GradientStop Color="#11000000" Offset="0.7" />
+                        <GradientStop Color="#21000000" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Name="Right" Grid.Column="2" Grid.Row="1" Width="8" HorizontalAlignment="Right">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="100%,0%" EndPoint="0%,0%">
+                        <GradientStop Color="#00000000" Offset="0" />
+                        <GradientStop Color="#11000000" Offset="0.7" />
+                        <GradientStop Color="#21000000" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Name="Bottom" Grid.Column="1" Grid.Row="2" Height="8" VerticalAlignment="Bottom">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
+                        <GradientStop Color="#00000000" Offset="0" />
+                        <GradientStop Color="#11000000" Offset="0.7" />
+                        <GradientStop Color="#21000000" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Name="Left" Grid.Column="0" Grid.Row="1" Width="8" HorizontalAlignment="Left">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                        <GradientStop Color="#00000000" Offset="0" />
+                        <GradientStop Color="#11000000" Offset="0.7" />
+                        <GradientStop Color="#21000000" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+        </Grid>
         <Border
             CornerRadius="15,15,8,8"
             Margin="18"
@@ -35,7 +105,7 @@
                 </Transitions>
             </Border.Transitions>
 
-            <Border ClipToBounds="True" CornerRadius="8">
+            <Border ClipToBounds="True" CornerRadius="6">
                 <Grid RowDefinitions="Auto 1*">
                     <!--  title  -->
                     <StackPanel
@@ -278,58 +348,5 @@
                 </Grid>
             </Border>
         </Border>
-        <Grid Margin="10" Name="GridResize">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="8" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="8" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="8" />
-            </Grid.ColumnDefinitions>
-
-            <Border
-                Background="Transparent"
-                Grid.Column="0"
-                Grid.Row="0"
-                Name="TopLeft" />
-            <Border
-                Background="Transparent"
-                Grid.Column="2"
-                Grid.Row="0"
-                Name="TopRight" />
-            <Border
-                Background="Transparent"
-                Grid.Column="0"
-                Grid.Row="2"
-                Name="BottomLeft" />
-            <Border
-                Background="Transparent"
-                Grid.Column="2"
-                Grid.Row="2"
-                Name="BottomRight" />
-            <Border
-                Background="Transparent"
-                Grid.Column="1"
-                Grid.Row="0"
-                Name="Top" />
-            <Border
-                Background="Transparent"
-                Grid.Column="2"
-                Grid.Row="1"
-                Name="Right" />
-            <Border
-                Background="Transparent"
-                Grid.Column="1"
-                Grid.Row="2"
-                Name="Bottom" />
-            <Border
-                Background="Transparent"
-                Grid.Column="0"
-                Grid.Row="1"
-                Name="Left" />
-        </Grid>
     </Grid>
 </Window>
