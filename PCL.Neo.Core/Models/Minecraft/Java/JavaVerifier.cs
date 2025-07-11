@@ -327,15 +327,17 @@ public static class JavaVerifier
         // 创建一个简单的Java程序进行测试
         var tempDir = Path.Combine(Path.GetTempPath(), "JavaVerification_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
+        
+        string javaFilePath = Path.Combine(tempDir, "Test.java");
+        const string javaCode = """
 
-        var javaFilePath = Path.Combine(tempDir, "Test.java");
-        var javaCode = @"
-public class Test {
-    public static void main(String[] args) {
-        System.out.println(""JavaVerificationSuccess"");
-    }
-}
-";
+                                public class Test {
+                                    public static void main(String[] args) {
+                                        System.out.println("JavaVerificationSuccess");
+                                    }
+                                }
+
+                                """;
         try
         {
             await File.WriteAllTextAsync(javaFilePath, javaCode);
@@ -419,12 +421,12 @@ public class Test {
     {
         var tempDir = Path.Combine(Path.GetTempPath(), "JavaVerification_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
+        
+        string manifestPath = Path.Combine(tempDir, "MANIFEST.MF");
+        const string manifestContent = "Main-Class: TestJar\r\n\r\n";
 
-        var manifestPath = Path.Combine(tempDir, "MANIFEST.MF");
-        var manifestContent = "Main-Class: TestJar\r\n\r\n";
-
-        var classPath = Path.Combine(tempDir, "TestJar.class");
-
+        string classPath = Path.Combine(tempDir, "TestJar.class");
+        
         try
         {
             // 直接使用预编译的class文件的base64编码

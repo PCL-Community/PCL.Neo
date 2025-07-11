@@ -4,6 +4,7 @@ using System.Text;
 namespace PCL.Neo.Core.Utils.Logger;
 
 public sealed class McLogFileLogger : IDisposable
+public sealed class McLogFileLogger : IDisposable
 {
     private readonly StreamWriter _writer;
     private readonly Process _process;
@@ -11,7 +12,11 @@ public sealed class McLogFileLogger : IDisposable
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     private bool _disposed = false;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
+    private bool _disposed = false;
+
+    public McLogFileLogger(string targetDir, Process process)
     public McLogFileLogger(string targetDir, Process process)
     {
         if (Directory.Exists(targetDir) == false)
@@ -23,6 +28,7 @@ public sealed class McLogFileLogger : IDisposable
 
         _logDir = targetDir;
 
+        _writer = new StreamWriter(logFilePath, false, Encoding.UTF8) { AutoFlush = true };
         _writer = new StreamWriter(logFilePath, false, Encoding.UTF8) { AutoFlush = true };
 
         _process = process;
@@ -38,6 +44,7 @@ public sealed class McLogFileLogger : IDisposable
     {
         ReadStdOut();
         ReadStdErr();
+        _ = GameWatchDog();
         _ = GameWatchDog();
     }
 
@@ -70,13 +77,21 @@ public sealed class McLogFileLogger : IDisposable
         ArgumentException.ThrowIfNullOrEmpty(logFile, nameof(logFile));
 
         // create log file if not exists
+        // create log file if not exists
         if (File.Exists(targetFilePath) == false)
         {
+            using (File.Create(targetFilePath)) { }
             using (File.Create(targetFilePath)) { }
         }
 
         // copy content
         File.Copy(logFile, targetFilePath, true);
+    }
+
+    private async Task GameWatchDog()
+    {
+        await _process.WaitForExitAsync(_cancellationTokenSource.Token);
+        Cancel();
     }
 
     private async Task GameWatchDog()
@@ -95,6 +110,8 @@ public sealed class McLogFileLogger : IDisposable
                 {
                     await AppendContent(line);
                 }
+
+                Dispose();
 
                 Dispose();
             }
@@ -117,12 +134,19 @@ public sealed class McLogFileLogger : IDisposable
                 }
 
                 Dispose();
+
+                Dispose();
             }
             catch (Exception ex)
             {
                 NewLogger.Logger.LogError("Error reading standard error.", ex);
             }
         });
+    }
+
+    public void Cancel()
+    {
+        _cancellationTokenSource.Cancel();
     }
 
     public void Cancel()
@@ -138,9 +162,17 @@ public sealed class McLogFileLogger : IDisposable
             return;
         }
 
+        if (_disposed)
+        {
+            return;
+        }
+
         _writer.Flush();
         _writer.Close();
         _writer.Dispose();
+        _cancellationTokenSource.Dispose();
+
+        _disposed = true;
         _cancellationTokenSource.Dispose();
 
         _disposed = true;

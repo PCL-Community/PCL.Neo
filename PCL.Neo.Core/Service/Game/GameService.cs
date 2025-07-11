@@ -159,9 +159,11 @@ public class GameService(IJavaManager javaManager) : IGameService
         var librariesDir = Path.Combine(DefaultGameDirectory, "libraries");
         Directory.CreateDirectory(librariesDir);
 
-        var libraries = versionInfo.Libraries;
-        var totalLibraries = libraries.Count;
-        var downloadedLibraries = 0;
+        var libraries = versionManifes.Libraries ??
+                        throw new ArgumentNullException(nameof(versionManifes.Libraries),
+                            "The libraries property is null.");
+        int totalLibraries = libraries.Count;
+        int downloadedLibraries = 0;
 
         foreach (var library in libraries)
         {
@@ -329,9 +331,10 @@ public class GameService(IJavaManager javaManager) : IGameService
     private static int GetRequiredJavaVersion(string minecraftVersion)
     {
         // 解析Minecraft版本号
-        var parts = minecraftVersion.Split('.');
-        if (parts.Length < 2 || !int.TryParse(parts[0], out var majorVersion) ||
-            !int.TryParse(parts[1], out var minorVersion))
+        string[] parts = minecraftVersion.Split('.');
+        if (parts.Length < 2
+            || !int.TryParse(parts[0], out int majorVersion)
+            || !int.TryParse(parts[1], out int minorVersion))
         {
             return 8; // 默认要求Java 8
         }

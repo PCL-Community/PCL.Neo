@@ -24,5 +24,5 @@ public record AppSettings
     /// <summary>
     /// 记住的Java路径
     /// </summary>
-    public List<string> JavaPaths { get; set; } = new();
-}
+    public List<string> JavaPaths { get; set; } = [];
+} 

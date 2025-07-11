@@ -25,7 +25,7 @@ public record GameInfo
     public GameType Type { get; set; } = GameType.Unknown;
 
     /// <summary>
-    /// Demonstrate is the version has been loader (runed).
+    /// Demonstrate if the version has been loaded (runed).
     /// </summary>
 
     [JsonIgnore]
@@ -53,9 +53,4 @@ public record GameInfo
 
         set { _isIndie = value; }
     }
-
-    /// <summary>
-    /// The Game Jar File Path.
-    /// </summary>
-    public required string JarPath { get; set; }
 }

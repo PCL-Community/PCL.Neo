@@ -7,6 +7,7 @@ namespace PCL.Neo.Core.Models.Configuration;
 /// 配置管理器，负责管理应用配置项
 /// </summary>
 public sealed class ConfigurationManager : IConfigurationManager
+public sealed class ConfigurationManager : IConfigurationManager
 {
     private static readonly JsonSerializerOptions DefaultOptions = new()
     {
@@ -24,7 +25,11 @@ public sealed class ConfigurationManager : IConfigurationManager
         try
         {
             var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+        {
+            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
 
+            if (attribute == null)
+            {
             if (attribute == null)
             {
                 return null;
@@ -73,6 +78,10 @@ public sealed class ConfigurationManager : IConfigurationManager
             var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
             if (attribute == null)
             {
+        {
+            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+            if (attribute == null)
+            {
                 return false;
             }
 
@@ -87,7 +96,9 @@ public sealed class ConfigurationManager : IConfigurationManager
             {
                 Directory.CreateDirectory(directory);
             }
+            }
 
+            var jsonContent = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             var jsonContent = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             await File.WriteAllTextAsync(configPath, jsonContent);
             return true;
@@ -105,7 +116,11 @@ public sealed class ConfigurationManager : IConfigurationManager
         try
         {
             var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+        {
+            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
 
+            if (attribute == null)
+            {
             if (attribute == null)
             {
                 return false;
@@ -140,7 +155,9 @@ public sealed class ConfigurationManager : IConfigurationManager
     /// <param name="attributePath">特性中指定的路径</param>
     /// <returns>最终使用的配置路径</returns>
     private static string GetConfigPath<T>(string attributePath)
+    private static string GetConfigPath<T>(string attributePath)
     {
+        return typeof(T).Name switch
         return typeof(T).Name switch
         {
             return GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile);
@@ -226,7 +243,9 @@ public sealed class ConfigurationManager : IConfigurationManager
             {
                 Directory.CreateDirectory(directory);
             }
+            }
 
+            var content = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             var content = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             await File.WriteAllTextAsync(filePath, content);
             return true;

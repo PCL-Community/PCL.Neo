@@ -1,5 +1,7 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Service.Profiles.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Service.Profiles.Data;
 
 namespace PCL.Neo.Core.Service.Profiles;
 

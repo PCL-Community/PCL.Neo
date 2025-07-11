@@ -2,6 +2,7 @@ using PCL.Neo.Core.Utils;
 using System;
 
 namespace PCL.Neo.Tests.Core.Models.Utils
+namespace PCL.Neo.Tests.Core.Models.Utils
 {
     [TestFixture]
     [TestOf(typeof(Uuid))]

@@ -8,9 +8,12 @@ namespace PCL.Neo.Core.Models.Minecraft.Java;
 
 public sealed partial class JavaManager
 {
-    // TODO)) 应该设置多个下载源，从配置文件中获取
-    private static string MetaUrl =>
-        "https://piston-meta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
+    // TODO: 应该设置多个下载源，从配置文件中获取
+    private static string MetaUrl
+    {
+        get =>
+            "https://piston-meta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
+    }
 
     /// <summary>
     /// MOJANG 提供的平台记录
@@ -46,11 +49,11 @@ public sealed partial class JavaManager
         using (var document = JsonDocument.Parse(allJson))
         {
             var root = document.RootElement;
-            if (root.TryGetProperty(platform, out var platformElement) &&
-                platformElement.TryGetProperty(version.Value, out var gammaArray) &&
-                gammaArray.GetArrayLength() > 0 &&
-                gammaArray[0].TryGetProperty("manifest", out var manifestElement) &&
-                manifestElement.TryGetProperty("url", out var manifestUriElement))
+            if (root.TryGetProperty(platform, out JsonElement platformElement) && // get platform property
+                platformElement.TryGetProperty(version.Value, out var gammaArray) && // get target version property
+                gammaArray.GetArrayLength() > 0 && // has value
+                gammaArray[0].TryGetProperty("manifest", out JsonElement manifestElement) && // get manifest property
+                manifestElement.TryGetProperty("url", out var manifestUriElement)) // get url property
             {
                 var manifestUri = manifestUriElement.GetString(); // convert to string
                 if (!string.IsNullOrEmpty(manifestUri))
@@ -88,8 +91,11 @@ public sealed partial class JavaManager
                 continue;
 
             var downloads = downloadsNode!.AsObject();
-            var isExecutable = fileInfo.TryGetPropertyValue("executable", out var execNode) &&
-                               execNode!.GetValue<bool>();
+
+            bool isExecutable =
+                fileInfo.TryGetPropertyValue("executable", out var execNode) &&
+                execNode!.GetValue<bool>();
+
             string? urlRaw = null, sha1Raw = null, urlLzma = null, sha1Lzma = null;
 
             if (downloads.TryGetPropertyValue("raw", out var rawNode))

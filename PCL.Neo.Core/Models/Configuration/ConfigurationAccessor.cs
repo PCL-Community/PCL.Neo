@@ -46,11 +46,13 @@ public class ConfigurationAccessor<T> where T : class, new()
         return await _manager.UpdateConfiguration(_currentConfig, null);
     }
 
+
     /// <summary>
     /// 更新配置
     /// </summary>
     /// <param name="updateAction">更新操作</param>
     /// <returns>是否成功</returns>
+    public async Task<bool> UpdateAsync(Action<T> updateAction)
     public async Task<bool> UpdateAsync(Action<T> updateAction)
     {
         var config = await GetConfigAsync();
