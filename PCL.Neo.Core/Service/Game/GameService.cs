@@ -3,79 +3,33 @@ using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils;
-using Serilog;
+using PCL.Neo.Core.Utils.Logger;
 
 namespace PCL.Neo.Core.Service.Game;
-
-using DefaultJavaRuntimeCombine = (JavaRuntime? Java8, JavaRuntime? Java17, JavaRuntime? Java21);
 
 /// <summary>
 /// 提供了 Minecraft 各版本的本地/远程获取、下载、校验、删除等一站式服务，并结合 Java 运行环境的管理，确保游戏运行环境的完整性和兼容性。
 /// </summary>
 public class GameService(IJavaManager javaManager) : IGameService
 {
-    private IJavaManager JavaManager { get; } = javaManager;
-
     public static string DefaultGameDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".minecraft");
 
-    public DefaultJavaRuntimeCombine DefaultJavaRuntimes => JavaManager.DefaultJavaRuntimes;
-
-    /// <summary>
-    /// 获取游戏版本列表
-    /// </summary>
-    public async Task<List<VersionManifes>> GetVersionsAsync(string? minecraftDirectory = null,
-        bool forceRefresh = false)
-    {
-        var directory = minecraftDirectory ?? DefaultGameDirectory;
-        // 获取本地版本
-        var localVersions = await Versions.GetLocalVersionsAsync(directory);
-        // 如果需要强制刷新或者本地版本为空，则获取远程版本
-        if (forceRefresh || localVersions.Count == 0)
-        {
-            try
-            {
-                var remoteVersions = await Versions.GetRemoteVersionsAsync();
-
-                // 合并版本列表，保留本地版本的信息
-                Dictionary<string, VersionManifes> versionDict = new();
-
-                foreach (var version in localVersions)
-                {
-                    versionDict[version.Id] = version;
-                }
-
-                foreach (var version in remoteVersions)
-                {
-                    versionDict.TryAdd(version.Id, version);
-                }
-
-                return [..versionDict.Values];
-            }
-            catch
-            {
-                // 如果获取远程版本失败，则返回本地版本
-                return localVersions;
-            }
-        }
-
-        return localVersions;
-    }
 
     /// <inheritdoc/>
-    public async Task<bool> DownloadVersionAsync(string versionId, IProgress<int>? progressCallback = null)
+    public async Task<bool> DownloadVersionAsync(string gameName, IProgress<int>? progressCallback = null)
     {
         // 获取版本信息
-        var versionInfo = await Versions.GetRemoteVersionInfoAsync(versionId);
+        var versionInfo = await Versions.GetRemoteVersionInfoAsync(gameName);
         if (versionInfo == null)
         {
             return false;
         }
 
         // 保存版本信息到本地
-        var versionDir = Path.Combine(DefaultGameDirectory, "versions", versionId);
+        var versionDir = Path.Combine(DefaultGameDirectory, "versions", gameName);
         Directory.CreateDirectory(versionDir);
-        var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
+        var versionJsonPath = Path.Combine(versionDir, $"{gameName}.json");
         await File.WriteAllTextAsync(versionJsonPath, versionInfo.JsonOriginData);
 
         // 下载资源文件
@@ -89,7 +43,7 @@ public class GameService(IJavaManager javaManager) : IGameService
         ArgumentNullException.ThrowIfNull(versionInfo.Downloads.Client);
 
         var jarUrl = versionInfo.Downloads.Client.Url;
-        var jarPath = Path.Combine(versionDir, $"{versionId}.jar");
+        var jarPath = Path.Combine(versionDir, $"{gameName}.jar");
         await DownloadReceipt.FastDownloadAsync(jarUrl, jarPath);
 
         return true;
@@ -261,10 +215,10 @@ public class GameService(IJavaManager javaManager) : IGameService
     }
 
     /// <inheritdoc/>
-    public void DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
+    public void DeleteVersionAsync(string gameName, string? minecraftDirectory = null)
     {
         string directory = minecraftDirectory ?? DefaultGameDirectory;
-        string versionDir = Path.Combine(directory, "versions", versionId);
+        string versionDir = Path.Combine(directory, "versions", gameName);
 
         if (Directory.Exists(versionDir))
         {
@@ -274,7 +228,7 @@ public class GameService(IJavaManager javaManager) : IGameService
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, $"删除版本 {versionId} 失败");
+                NewLogger.Logger.LogError($"删除版本 {gameName} 失败", ex);
                 throw;
             }
         }

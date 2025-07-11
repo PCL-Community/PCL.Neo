@@ -75,7 +75,7 @@ public class GameLauncherService : IGameLauncherService
         ValidateDirctories();
 
         var versionManifest =
-            await Versions.GetVersionByIdAsync(Information.RootDirectory, Information.Name);
+            await Versions.GetVersionByIdAsync(Information.GameDirectory, Information.Name);
 
         if (versionManifest == null)
         {
@@ -85,7 +85,7 @@ public class GameLauncherService : IGameLauncherService
         if (!string.IsNullOrEmpty(versionManifest.InheritsFrom))
         {
             var parentManifest =
-                await Versions.GetVersionByIdAsync(Information.RootDirectory, versionManifest.InheritsFrom);
+                await Versions.GetVersionByIdAsync(Information.GameDirectory, versionManifest.InheritsFrom);
 
             if (parentManifest == null)
             {

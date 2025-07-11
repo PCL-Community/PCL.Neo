@@ -107,35 +107,36 @@ public static class Versions
     /// <summary>
     /// 通过ID获取特定版本信息
     /// </summary>
-    public static async Task<VersionManifes?> GetVersionByIdAsync(string rootDir, string versionId)
+    public static async Task<VersionManifes?> GetVersionByIdAsync(string gameDir, string versionId)
     {
-        var gameDir = Path.Combine(rootDir, "versions", versionId); // get version dir
         var jsonPath = Path.Combine(gameDir, $"{versionId}.json");
 
-        if (File.Exists(jsonPath))
+        if (!File.Exists(jsonPath))
         {
-            try
-            {
-                var jsonContent = await File.ReadAllTextAsync(jsonPath);
-                var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
+            return null;
+        }
 
-                if (versionInfo != null)
+        try
+        {
+            var jsonContent = await File.ReadAllTextAsync(jsonPath);
+            var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
+
+            if (versionInfo != null)
+            {
+                if (string.IsNullOrEmpty(versionInfo.Name))
                 {
-                    if (string.IsNullOrEmpty(versionInfo.Name))
-                    {
-                        versionInfo.Name = versionInfo.Id;
-                    }
-
-                    // 添加JsonData属性
-                    versionInfo.JsonOriginData = jsonContent;
-
-                    return versionInfo;
+                    versionInfo.Name = versionInfo.Id;
                 }
+
+                // 添加JsonData属性
+                versionInfo.JsonOriginData = jsonContent;
+
+                return versionInfo;
             }
-            catch (Exception)
-            {
-                // 忽略解析失败的版本文件
-            }
+        }
+        catch (Exception)
+        {
+            // 忽略解析失败的版本文件
         }
 
         return null;
