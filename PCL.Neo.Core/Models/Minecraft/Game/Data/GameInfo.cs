@@ -1,30 +1,34 @@
+using System.Text.Json.Serialization;
+
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 public record GameInfo
 {
-    /// <summary>
-    /// Game ID.
-    /// </summary>
-    public required string Name { get; set; }
-
     /// <summary>
     /// .minecraft folder path.
     /// </summary>
     public required string GameDirectory { get; set; }
 
     /// <summary>
-    /// Game version path.
+    /// Gane version path.
     /// </summary>
     public required string RootDirectory { get; set; }
 
     /// <summary>
+    /// The name of the game version.
+    /// </summary>
+    public required string Name { get; set; }
+
+    /// <summary>
     /// The loader type.
     /// </summary>
-    public GameType Loader { get; set; } = GameType.Unknown;
+    public GameType Type { get; set; } = GameType.Unknown;
 
     /// <summary>
     /// Demonstrate if the version has been loaded (runed).
     /// </summary>
+
+    [JsonIgnore]
     public bool IsRunning { get; set; } = false;
 
     private bool? _isIndie;

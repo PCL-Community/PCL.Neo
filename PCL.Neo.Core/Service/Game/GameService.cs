@@ -27,7 +27,7 @@ public class GameService(IJavaManager javaManager) : IGameService
     public async Task<List<VersionManifes>> GetVersionsAsync(string? minecraftDirectory = null,
         bool forceRefresh = false)
     {
-        var directory = minecraftDirectory ?? DefaultGameDirectory;
+        string directory = minecraftDirectory ?? DefaultGameDirectory;
         // 获取本地版本
         var localVersions = await Versions.GetLocalVersionsAsync(directory);
         // 如果需要强制刷新或者本地版本为空，则获取远程版本
@@ -120,7 +120,7 @@ public class GameService(IJavaManager javaManager) : IGameService
 
         // 解析assets索引文件
         var assetsIndexJson = await File.ReadAllTextAsync(assetsIndexPath);
-        var assetsIndex = JsonSerializer.Deserialize<AssetIndex>(assetsIndexJson);
+        var assetsIndex = System.Text.Json.JsonSerializer.Deserialize<AssetIndex>(assetsIndexJson);
 
         if (assetsIndex?.Objects == null)
         {
@@ -128,8 +128,8 @@ public class GameService(IJavaManager javaManager) : IGameService
         }
 
         // 下载assets文件
-        var totalAssets = assetsIndex.Objects.Count;
-        var downloadedAssets = 0;
+        int totalAssets = assetsIndex.Objects.Count;
+        int downloadedAssets = 0;
 
         foreach (var asset in assetsIndex.Objects)
         {
@@ -141,7 +141,7 @@ public class GameService(IJavaManager javaManager) : IGameService
             if (!File.Exists(assetObjectPath))
             {
                 Directory.CreateDirectory(assetObjectDir);
-                var assetUrl = $"https://resources.download.minecraft.net/{prefix}/{hash}"; // TODO: support BMCL source
+                var assetUrl = $"https://resources.download.minecraft.net/{prefix}/{hash}";
                 await DownloadReceipt.FastDownloadAsync(assetUrl, assetObjectPath);
             }
 
@@ -225,11 +225,11 @@ public class GameService(IJavaManager javaManager) : IGameService
     /// </summary>
     private static bool EvaluateRules(List<Rule> rules)
     {
-        var allow = true;
+        bool allow = true;
 
         foreach (var rule in rules)
         {
-            var matches = true;
+            bool matches = true;
 
             if (rule.Os != null)
             {
@@ -253,9 +253,9 @@ public class GameService(IJavaManager javaManager) : IGameService
     [Obsolete]
     public static bool IsVersionInstalled(string versionId, string? minecraftDirectory = null)
     {
-        var directory = minecraftDirectory ?? DefaultGameDirectory;
-        var versionJsonPath = Path.Combine(directory, "versions", versionId, $"{versionId}.json");
-        var versionJarPath = Path.Combine(directory, "versions", versionId, $"{versionId}.jar");
+        string directory = minecraftDirectory ?? DefaultGameDirectory;
+        string versionJsonPath = Path.Combine(directory, "versions", versionId, $"{versionId}.json");
+        string versionJarPath = Path.Combine(directory, "versions", versionId, $"{versionId}.jar");
 
         return File.Exists(versionJsonPath) && File.Exists(versionJarPath);
     }
@@ -263,8 +263,8 @@ public class GameService(IJavaManager javaManager) : IGameService
     /// <inheritdoc/>
     public void DeleteVersionAsync(string versionId, string? minecraftDirectory = null)
     {
-        var directory = minecraftDirectory ?? DefaultGameDirectory;
-        var versionDir = Path.Combine(directory, "versions", versionId);
+        string directory = minecraftDirectory ?? DefaultGameDirectory;
+        string versionDir = Path.Combine(directory, "versions", versionId);
 
         if (Directory.Exists(versionDir))
         {
@@ -284,7 +284,7 @@ public class GameService(IJavaManager javaManager) : IGameService
     public bool IsJavaCompatibleWithGame(JavaRuntime javaRuntime, string minecraftVersion)
     {
         // 先获取Java版本
-        var javaVersionString = javaRuntime.Version;
+        string javaVersionString = javaRuntime.Version;
 
         // 如果无法获取版本信息，直接返回不兼容
         if (string.IsNullOrEmpty(javaVersionString) || javaVersionString == "未知" || javaVersionString == "无法获取")
@@ -309,8 +309,7 @@ public class GameService(IJavaManager javaManager) : IGameService
         else
         {
             // 新版Java格式：11.0.x, 17.0.x等
-            var dotIndex = javaVersionString.IndexOf('.');
-            var majorString = dotIndex > 0 ? javaVersionString.Substring(0, dotIndex) : javaVersionString;
+            string majorString = spilted[0];
 
             if (!int.TryParse(majorString, out javaMajorVersion))
             {
@@ -319,7 +318,7 @@ public class GameService(IJavaManager javaManager) : IGameService
         }
 
         // 获取Minecraft版本对应的需求Java版本
-        var requiredJavaVersion = GetRequiredJavaVersion(minecraftVersion);
+        int requiredJavaVersion = GetRequiredJavaVersion(minecraftVersion);
 
         // 比较版本
         return javaMajorVersion >= requiredJavaVersion;

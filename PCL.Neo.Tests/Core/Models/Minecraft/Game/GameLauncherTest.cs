@@ -1,6 +1,6 @@
-using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Java;
+using PCL.Neo.Core.Service.Game;
 using PCL.Neo.Core.Utils;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
 {
     [TestFixture]
-    [TestOf(typeof(GameLauncher))]
+    [TestOf(typeof(GameLauncherService))]
     public class GameLauncherTest
     {
         [Test]
@@ -17,7 +17,6 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
         {
             var launchOptions = new LaunchOptions
             {
-                VersionId = "Create",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
                         @"C:\Users\WhiteCAT\Documents\Java\zulu17.58.21-ca-jdk17.0.15-win_x64\bin"),
@@ -47,7 +46,7 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                 CloseAfterLaunch = false
             };
 
-            var launcher = new GameLauncher(new GameProfile
+            var launcher = new GameLauncherService(new GameProfile
             {
                 Options = launchOptions,
                 Information = new GameInfo
@@ -55,7 +54,7 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                     GameDirectory =
                         @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
                     RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                    Name = "None",
+                    Name = "Create",
                 }
             });
 

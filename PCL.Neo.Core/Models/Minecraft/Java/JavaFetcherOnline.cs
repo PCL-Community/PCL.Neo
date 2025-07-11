@@ -45,7 +45,7 @@ public sealed partial class JavaManager
         // TODO: 根据配置文件切换下载源
         Uri metaUrl = new(MetaUrl);
         var allJson = await Shared.HttpClient.GetStringAsync(metaUrl, cancellationToken);
-        var manifestJson = string.Empty;
+        string manifestJson = string.Empty;
         using (var document = JsonDocument.Parse(allJson))
         {
             var root = document.RootElement;
@@ -79,7 +79,7 @@ public sealed partial class JavaManager
         var files = filesNode!.AsObject();
         var tasks = new List<Task>(files.Count);
         var executableFiles = new List<string>(files.Count);
-        foreach (var (filePath, value) in files)
+        foreach ((string filePath, JsonNode? value) in files)
         {
             var fileInfo = value!.AsObject();
 
@@ -115,7 +115,7 @@ public sealed partial class JavaManager
                 sha1Lzma = lzma["sha1"]!.ToString();
             }
 
-            var localFilePath = Path.Combine(destinationFolder,
+            string localFilePath = Path.Combine(destinationFolder,
                 filePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
 
             if (isExecutable)
@@ -166,8 +166,8 @@ public sealed partial class JavaManager
 
         if (progress != null)
         {
-            var completed = 0;
-            var total = tasks.Count;
+            int completed = 0;
+            int total = tasks.Count;
             while (total - completed > 0)
             {
                 var finishedTask = await Task.WhenAny(tasks);

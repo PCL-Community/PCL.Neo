@@ -3,20 +3,18 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace PCL.Neo.Tests.Models.Configuration;
+namespace PCL.Neo.Tests.Core.Models.Configuration;
 
-namespace PCL.Neo.Tests.Core.Models.Configuration
+[TestFixture]
+[TestOf(typeof(ConfigurationManager))]
+public class ConfigurationManagerTest
 {
-    [TestFixture]
-    [TestOf(typeof(ConfigurationManager))]
-    public class ConfigurationManagerTest
+    [ConfigurationInfo("testConfig.json")]
+    private class TestConfiguration
     {
-        [ConfigurationInfo("testConfig.json")]
-        public class TestConfiguration
-        {
-            public string Name { get; set; } = "TestConfig";
-            public int Value { get; set; } = 42;
-        }
+        public string Name { get; set; } = "TestConfig";
+        public int Value { get; set; } = 42;
+    }
 
 
     [Test]

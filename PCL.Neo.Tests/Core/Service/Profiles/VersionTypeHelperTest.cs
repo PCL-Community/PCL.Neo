@@ -1,7 +1,6 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Service.Profiles;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace PCL.Neo.Tests.Core.Service.Profiles

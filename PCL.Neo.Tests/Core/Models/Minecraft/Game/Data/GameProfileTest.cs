@@ -19,7 +19,6 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game.Data
         {
             var launchOptions = new LaunchOptions
             {
-                VersionId = "1.20.1",
                 RunnerJava =
                     await JavaRuntime.CreateJavaEntityAsync(
                         @"C:\Users\WhiteCAT\Documents\Java\zulu17.48.15-ca-jdk17.0.10-win_x64\bin\"),
@@ -57,7 +56,7 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game.Data
                     GameDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
                     RootDirectory =
                         @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
-                    Name = "None",
+                    Name = "1.20.4-Fabric 0.15.11-[轻量通用]",
                 }
             };
 

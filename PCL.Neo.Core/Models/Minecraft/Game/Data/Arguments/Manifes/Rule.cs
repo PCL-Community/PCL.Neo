@@ -34,6 +34,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes
     /// </summary>
     public class FeaturesSpec
     {
-        [JsonExtensionData] public Dictionary<string, JsonElement> Feature { get; init; }
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? Feature { get; init; }
     }
 }

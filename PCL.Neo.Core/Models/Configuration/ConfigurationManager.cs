@@ -7,7 +7,6 @@ namespace PCL.Neo.Core.Models.Configuration;
 /// 配置管理器，负责管理应用配置项
 /// </summary>
 public sealed class ConfigurationManager : IConfigurationManager
-public sealed class ConfigurationManager : IConfigurationManager
 {
     private static readonly JsonSerializerOptions DefaultOptions = new()
     {
@@ -24,44 +23,40 @@ public sealed class ConfigurationManager : IConfigurationManager
     {
         try
         {
-            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
-        {
-            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+            {
+                var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
 
-            if (attribute == null)
-            {
-            if (attribute == null)
-            {
-                return null;
+                if (attribute == null)
+                {
+                    return null;
+                }
+
+                // 获取配置路径，优先使用GlobalSettings中的路径
+                var configPath = GetConfigPath<TResult>(attribute.FilePath);
+
+                // 确保配置目录存在
+                var directory = Path.GetDirectoryName(configPath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                if (!File.Exists(configPath))
+                {
+                    return null;
+                }
+
+                var jsonContent = File.ReadAllText(configPath);
+                var result = JsonSerializer.Deserialize<TResult>(jsonContent);
+
+                // 应用迁移
+                if (result != null)
+                {
+                    ApplyMigrations(result);
+                }
+
+                return result;
             }
-
-            // 获取配置路径，优先使用GlobalSettings中的路径
-            string configPath = GetConfigPath<TResult>(attribute.FilePath);
-
-            var configPath = GetConfigPath<TResult>(attribute.FilePath);
-
-            // 确保配置目录存在
-            var directory = Path.GetDirectoryName(configPath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            if (!File.Exists(configPath))
-            {
-                return null;
-            }
-
-            var jsonContent = File.ReadAllText(configPath);
-            var result = JsonSerializer.Deserialize<TResult>(jsonContent);
-
-            // 应用迁移
-            if (result != null)
-            {
-                ApplyMigrations(result);
-            }
-
-            return result;
         }
         catch (Exception)
         {
@@ -78,16 +73,10 @@ public sealed class ConfigurationManager : IConfigurationManager
             var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
             if (attribute == null)
             {
-        {
-            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
-            if (attribute == null)
-            {
                 return false;
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
-            string configPath = GetConfigPath<TResult>(attribute.FilePath);
-
             var configPath = GetConfigPath<TResult>(attribute.FilePath);
 
             // 确保配置目录存在
@@ -96,9 +85,7 @@ public sealed class ConfigurationManager : IConfigurationManager
             {
                 Directory.CreateDirectory(directory);
             }
-            }
 
-            var jsonContent = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             var jsonContent = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             await File.WriteAllTextAsync(configPath, jsonContent);
             return true;
@@ -116,19 +103,13 @@ public sealed class ConfigurationManager : IConfigurationManager
         try
         {
             var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
-        {
-            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
 
-            if (attribute == null)
-            {
             if (attribute == null)
             {
                 return false;
             }
 
             // 获取配置路径，优先使用GlobalSettings中的路径
-            string configPath = GetConfigPath<TResult>(attribute.FilePath);
-
             var configPath = GetConfigPath<TResult>(attribute.FilePath);
 
             // 确保配置目录存在
@@ -155,24 +136,17 @@ public sealed class ConfigurationManager : IConfigurationManager
     /// <param name="attributePath">特性中指定的路径</param>
     /// <returns>最终使用的配置路径</returns>
     private static string GetConfigPath<T>(string attributePath)
-    private static string GetConfigPath<T>(string attributePath)
     {
         return typeof(T).Name switch
-        return typeof(T).Name switch
         {
-            return GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile);
-        }
-
-        if (typeof(T).Name == "OAuth2Configurations")
-        {
-            return GlobalSettings.GetConfigFilePath(GlobalSettings.OAuth2ConfigurationFile);
-        }
-
-        // 默认使用特性中的路径
-        return attributePath.Contains(Path.DirectorySeparatorChar) ||
-               attributePath.Contains(Path.AltDirectorySeparatorChar)
-            ? attributePath // 已经是完整路径
-            : GlobalSettings.GetConfigFilePath(attributePath); // 只是文件名，需要添加路径
+            // 特殊处理已知的配置类型
+            "AppSettings" => GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile),
+            "OAuth2Configurations" => GlobalSettings.GetConfigFilePath(GlobalSettings.OAuth2ConfigurationFile),
+            _ => attributePath.Contains(Path.DirectorySeparatorChar) ||
+                 attributePath.Contains(Path.AltDirectorySeparatorChar)
+                ? attributePath // 已经是完整路径
+                : GlobalSettings.GetConfigFilePath(attributePath)
+        };
     }
 
     /// <summary>
@@ -243,9 +217,7 @@ public sealed class ConfigurationManager : IConfigurationManager
             {
                 Directory.CreateDirectory(directory);
             }
-            }
 
-            var content = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             var content = JsonSerializer.Serialize(config, options ?? DefaultOptions);
             await File.WriteAllTextAsync(filePath, content);
             return true;

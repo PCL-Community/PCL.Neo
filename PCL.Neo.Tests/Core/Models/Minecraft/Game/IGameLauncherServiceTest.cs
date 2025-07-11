@@ -23,8 +23,10 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                 MaxMemoryMB = 4096,
                 MinMemoryMB = 512, // 最小内存设为最大内存的1/4，但不低于512MB
                 Username = "Steve",
-                UUID = Uuid.GenerateUuid("Steve", Uuid.UuidGenerateType.Standard),
-                AccessToken = Guid.NewGuid().ToString(),
+                UUID = Uuid.GenerateUuid("Steve",
+                    Uuid.UuidGenerateType.Standard),
+                AccessToken = Guid.NewGuid()
+                    .ToString(),
                 WindowWidth = 854,
                 WindowHeight = 480,
                 FullScreen = false,
@@ -39,11 +41,13 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                 // 环境变量
                 EnvironmentVariables = new Dictionary<string, string>
                 {
-                    { "JAVA_TOOL_OPTIONS", "-Dfile.encoding=UTF-8" }
+                    {
+                        "JAVA_TOOL_OPTIONS", "-Dfile.encoding=UTF-8"
+                    }
                 },
 
                 // 是否启动后关闭启动器
-                CloseAfterLaunch = false
+                CloseAfterLaunch = false,
             };
 
             var launcher = new GameLauncherService(new GameProfile

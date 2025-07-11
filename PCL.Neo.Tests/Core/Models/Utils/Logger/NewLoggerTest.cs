@@ -1,7 +1,7 @@
 using PCL.Neo.Core.Utils.Logger;
 using System;
 
-namespace PCL.Neo.Tests.Core.Models.Utils.Logger
+namespace PCL.Neo.Tests.Core.Models.Utils.Logger;
 
 [TestFixture]
 [TestOf(typeof(NewLogger))]

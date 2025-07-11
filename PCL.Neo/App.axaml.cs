@@ -4,18 +4,12 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Java;
-using PCL.Neo.ViewModels;
-using PCL.Neo.Views;
 using PCL.Neo.Core.Service.Accounts;
 using PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
+using PCL.Neo.Core.Service.Game;
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels;
-using PCL.Neo.ViewModels.Download;
-using PCL.Neo.ViewModels.Home;
-using PCL.Neo.ViewModels.Job;
-using PCL.Neo.ViewModels.Setup;
 using PCL.Neo.Views;
 using System;
 using System.Linq;
@@ -37,18 +31,6 @@ public class App : Application
     {
         return new ServiceCollection()
             .AddTransient<MainWindowViewModel>()
-            .AddTransient<HomeViewModel>()
-            .AddTransient<HomeSubViewModel>()
-            .AddTransient<VersionManagerViewModel>()
-            .AddTransient<GameSettingsViewModel>()
-            .AddTransient<DownloadViewModel>()
-            .AddTransient<DownloadGameViewModel>()
-            .AddTransient<DownloadModViewModel>()
-            .AddTransient<LogViewModel>()
-            .AddTransient<SetupViewModel>()
-            .AddTransient<SetupLaunchViewModel>()
-            .AddTransient<JobViewModel>()
-            .AddTransient<JobSubViewModel>()
             .AddSingleton<INavigationService, NavigationService>()
             .AddSingleton<StorageService>()
             .AddSingleton<UserService>()
@@ -74,8 +56,8 @@ public class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow { DataContext = vm };
             // 由于导航改成了异步方法，在构造函数中无法正常导向首页，需要在此处导向
-            Ioc.Default.GetRequiredService<INavigationService>().GoToAsync<HomeViewModel>()
-                .Wait(); // TODO: idk if this is appropriate
+            //Ioc.Default.GetRequiredService<INavigationService>().GoToAsync<HomeViewModel>()
+            //    .Wait(); // TODO: idk if this is appropriate
         }
 
         base.OnFrameworkInitializationCompleted();

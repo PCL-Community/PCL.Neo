@@ -44,9 +44,13 @@ public static partial class ArgumentProcessor
         return true;
     }
 
-    private static bool CheckFeaturesRule(Dictionary<string, JsonElement> ruleFeature, ArgumentsAdapter adapter) =>
-        adapter.Features.FeatureCustomValue.TryGetValue(ruleFeature.First().Key, out bool value) &&
-        value; // only use the first feature
+    private static bool CheckFeaturesRule(Dictionary<string, JsonElement>? ruleFeature, ArgumentsAdapter adapter)
+    {
+        if (ruleFeature == null) { return false; }
+
+        // has value and value is true, if the rule is not satisfied, it will return false.
+        return adapter.Features.TryGetValue(ruleFeature.First().Key, out bool value) && value;
+    }
 
     private static bool AreRulesSatisfied(List<Rule> rulesList, ArgumentsAdapter adapter)
     {
@@ -59,7 +63,7 @@ public static partial class ArgumentProcessor
 
         foreach (var rule in rulesList)
         {
-            if (string.IsNullOrEmpty(rule.Action)) continue; // Skip malformed rules
+            if (string.IsNullOrEmpty(rule.Action)) { continue; } // Skip malformed rules
 
             bool osConditionsMet = CheckOsRule(rule.Os);
             bool featureConditionsMet = rule.Features == null || CheckFeaturesRule(rule.Features.Feature, adapter);
@@ -131,19 +135,21 @@ public static partial class ArgumentProcessor
     private static string ArgumentStrProcesser(string argument, ArgumentsAdapter adapter)
     {
         var regexMatchResult = ArgumentMatchPattern().Matches(argument);
-        if (regexMatchResult.Count > 0)
+        if (regexMatchResult.Count <= 0)
         {
-            var replacePattern = regexMatchResult.Select(it => it.Value).ToArray().Distinct();
-            foreach (var it in replacePattern)
+            return argument;
+        }
+
+        var replacePattern = regexMatchResult.Select(it => it.Value).ToArray().Distinct();
+        foreach (var it in replacePattern)
+        {
+            if (TryGetTargetArgument(it, adapter, out var value))
             {
-                if (TryGetTargetArgument(it, adapter, out var value))
-                {
-                    argument = argument.Replace(it, value);
-                }
-                else
-                {
-                    throw new ArgumentException($"Argument '{it}' not found in Arguments");
-                }
+                argument = argument.Replace(it, value);
+            }
+            else
+            {
+                throw new ArgumentException($"Argument '{it}' not found in Arguments");
             }
         }
 
@@ -170,14 +176,12 @@ public static partial class ArgumentProcessor
                     finalArgs.Add(ArgumentStrProcesser(strArg.Value, adapter));
                     break;
                 case RuledArgument ruledArg:
+                    if (AreRulesSatisfied(ruledArg.Rules, adapter))
                     {
-                        if (AreRulesSatisfied(ruledArg.Rules, adapter))
-                        {
-                            finalArgs.AddRange(ruledArg.Value.Select(arg => ArgumentStrProcesser(arg, adapter)));
-                        }
-
-                        break;
+                        finalArgs.AddRange(ruledArg.Value.Select(arg => ArgumentStrProcesser(arg, adapter)));
                     }
+
+                    break;
             }
         }
 

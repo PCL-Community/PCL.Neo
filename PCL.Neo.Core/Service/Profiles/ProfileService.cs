@@ -12,29 +12,26 @@ public class ProfileService : IProfileService
     /// <inheritdoc />
     public async Task<IEnumerable<ProfileInfo>> LoadProfilesDefaultAsync()
     {
-        var profileConfigPath = GetDefaultProfileConfigPath(); // %AppData%/PCL.Neo/profiles
-        return await LoadProfilesAsync(profileConfigPath);
+        var path = GetDefaultProfileConfigPath();
+        return await LoadProfilesAsync(path);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<ProfileInfo>> LoadProfilesAsync(string profilePath)
+    public async Task<IEnumerable<ProfileInfo>> LoadProfilesAsync(string targetDir)
     {
-        if (!Directory.Exists(profilePath))
-        {
-            throw new DirectoryNotFoundException($"Profile directory not found: {profilePath}");
-        }
+        var profiles = Directory.GetFiles(targetDir, "*.json", SearchOption.TopDirectoryOnly);
+        var contents = new List<string>();
 
-        var profiles = GetJsonFiles(profilePath);
-        var profileContents = new List<string>();
         foreach (var profile in profiles)
         {
-            profileContents.Add(await File.ReadAllTextAsync(profile));
+            contents.Add(await File.ReadAllTextAsync(profile));
         }
 
-        return profileContents
+        return contents
             .Select(content => JsonSerializer.Deserialize<ProfileInfo>(content))
             .OfType<ProfileInfo>();
     }
+
 
     /// <inheritdoc />
     public async Task<ProfileInfo> GetProfileAsync(string targetDir, string profileName)
@@ -50,13 +47,13 @@ public class ProfileService : IProfileService
 
         var profiles = new ProfileInfo { ProfileName = profileName, TargetDir = targetDir, Games = [] };
 
-        foreach (var gameDir in versions)
+        foreach (var version in versions)
         {
-            var gamename = Path.GetFileName(gameDir);
-            ArgumentException.ThrowIfNullOrEmpty(gamename, nameof(gamename));
+            var versionName = Path.GetFileName(version);
+            ArgumentException.ThrowIfNullOrEmpty(versionName, nameof(versionName));
 
-            var jarFile = Path.Combine(gameDir, $"{gamename}.jar");
-            var jsonFile = Path.Combine(gameDir, $"{gamename}.json");
+            var jarFile = Path.Combine(version, $"{versionName}.jar");
+            var jsonFile = Path.Combine(version, $"{versionName}.json");
 
             if (!ValidateVersionDir(jarFile, jsonFile))
             {
@@ -64,9 +61,9 @@ public class ProfileService : IProfileService
                     $"Game files not found. Expected files:\n- {jarFile}\n- {jsonFile}");
             }
 
-            var isIndie = Directory.Exists(Path.Combine(gameDir, "saves"));
-            var gameType = await GetGameType(gameDir, gamename);
-            profiles.Games.Add(CreateGameInfo(targetDir, gameDir, gamename, isIndie, gameType));
+            var isIndie = Directory.Exists(Path.Combine(version, "saves"));
+            var gameType = await GetGameType(version, versionName);
+            profiles.Games.Add(CreateGameInfo(targetDir, version, versionName, isIndie, gameType));
         }
 
         return profiles;
@@ -105,29 +102,27 @@ public class ProfileService : IProfileService
     }
 
     /// <inheritdoc />
-    public async Task<bool> SaveProfilesDefaultAsync(ProfileInfo profile)
-    {
-        var profileConfigFolder = GetDefaultProfileConfigPath();
-        return await SaveProfilesAsync(profileConfigFolder, profile);
-    }
-
-    /// <inheritdoc />
     public Task<bool> SaveProfilesAsync(string targetDir, ProfileInfo profile)
     {
-        if (!Directory.Exists(targetDir))
-        {
-            throw new DirectoryNotFoundException($"Target profile directory is not found: {targetDir}");
-        }
-
         var profilePath = GetProfileFilePath(targetDir, profile.ProfileName);
         return SaveProfileToFileAsync(profile, profilePath);
     }
 
     /// <inheritdoc />
-    public async Task<bool> SaveGameInfoToProfileDefaultAsync(ProfileInfo profile, GameInfo game)
+    public Task<bool> SaveProfilesDefaultAsync(ProfileInfo profile)
     {
         var profileConfigFolder = GetDefaultProfileConfigPath();
-        return await SaveGameInfoToProfileAsync(profile, game, profileConfigFolder);
+        var profileFilePath = GetProfileFilePath(profileConfigFolder, profile.ProfileName);
+        return SaveProfileToFileAsync(profile, profileFilePath);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> SaveGameInfoToProfileDefaultAsync(ProfileInfo profile, GameInfo game)
+    {
+        profile.Games.Add(game);
+        var profileConfigFolder = GetDefaultProfileConfigPath();
+        var profileFilePath = GetProfileFilePath(profileConfigFolder, profile.ProfileName);
+        return SaveProfileToFileAsync(profile, profileFilePath);
     }
 
     /// <inheritdoc />
@@ -200,11 +195,7 @@ public class ProfileService : IProfileService
         }
     }
 
-    private static GameInfo CreateGameInfo(
-        string targetDir,
-        string gameDir,
-        string versionName,
-        bool isIndie,
+    private static GameInfo CreateGameInfo(string targetDir, string gameDir, string versionName, bool isIndie,
         GameType type) =>
         new()
         {
@@ -215,14 +206,6 @@ public class ProfileService : IProfileService
             Type = type
         };
 
-    private static async Task<GameType> GetGameType(string gameDir, string gameName)
-    {
-        var type = await VersionTypeHelper.GetGameType(gameDir, gameName);
-        return type;
-    }
-
-    private static IEnumerable<string> GetJsonFiles(string path)
-    {
-        return Directory.GetFiles(path, "*.json", SearchOption.TopDirectoryOnly);
-    }
+    private static async Task<GameType> GetGameType(string gameDir, string gameName) =>
+        await VersionTypeHelper.GetGameType(gameDir, gameName);
 }

@@ -6,56 +6,42 @@ namespace PCL.Neo.Core.Service.Profiles;
 
 internal class VersionTypeHelper
 {
-    /// <summary>
-    /// Get game type from the version manifest file.
-    /// </summary>
-    /// <param name="gamePath">Game path.</param>
-    /// <param name="gameName">Game name.</param>
-    /// <returns>Game type.</returns>
-    /// <exception cref="FileNotFoundException">Failed to get verision manifest file.</exception>
-    /// <exception cref="ArgumentNullException">Failed to get release time property.</exception>
     public static async Task<GameType> GetGameType(string gamePath, string gameName)
     {
-        var versionManifestName = $"{gameName}.json";
-        var versionManifestPath = Path.Combine(gamePath, versionManifestName);
+        var manifestName = $"{gameName}.json";
+        var manifestPath = Path.Combine(gamePath, manifestName);
 
-        if (!File.Exists(versionManifestPath))
+        if (!File.Exists(manifestPath))
         {
-            var ex = new FileNotFoundException("Version manifest file not found.", versionManifestName);
+            var ex = new FileNotFoundException("Version manifest file not found.", manifestName);
             NewLogger.Logger.LogError("Version manifest file not found.", ex);
             throw ex;
         }
 
-        var manifest = await File.ReadAllTextAsync(versionManifestPath);
-        using var jsonDoc = JsonDocument.Parse(manifest);
+        var manifestContent = await File.ReadAllTextAsync(manifestPath);
+        using var jsonDoc = JsonDocument.Parse(manifestContent);
         var root = jsonDoc.RootElement;
-
         var releaseTime = root.GetProperty("releaseTime").GetString() ??
                           throw new ArgumentNullException(nameof(root), "Game release time not found.");
 
-        GameType gameType = GameType.Unknown;
-
+        GameType type = GameType.Unknown;
 
         if (IsFool(releaseTime))
         {
-            gameType |= GameType.Fool;
+            type |= GameType.Fool;
         }
 
-        gameType |= DetermineLoaderType(ref root, ref manifest);
+        var jsonType = root.GetProperty("type").GetString() ??
+                       throw new ArgumentNullException(nameof(root), "Game type not found.");
 
-        var type = root.GetProperty("type").GetString() ??
-                   throw new ArgumentNullException(nameof(root), "Game type not found.");
-
-        if (IsSnapshot(type))
+        if (IsSnapshot(jsonType))
         {
-            gameType |= GameType.Snapshot;
-        }
-        else
-        {
-            gameType |= GameType.Release;
+            type |= GameType.Snapshot;
         }
 
-        return gameType;
+        type |= GetLoaderType(manifestContent);
+
+        return type;
     }
 
     private static bool IsFool(string timeStamp)
@@ -68,35 +54,38 @@ internal class VersionTypeHelper
     private static bool IsSnapshot(string type) =>
         string.Equals(type, "snapshot", StringComparison.OrdinalIgnoreCase);
 
-    private static GameType DetermineLoaderType(ref JsonElement root, ref string originContent)
+    private static GameType GetLoaderType(string jsonContent)
     {
-        if (root.TryGetProperty("labymod_data", out JsonElement value))
+        var type = GameType.Unknown;
+        if (jsonContent.Contains("optifine", StringComparison.OrdinalIgnoreCase))
         {
-            return GameType.Labymod;
+            type |= GameType.Optifine;
         }
-        else if (originContent.Contains("net.neoforged", StringComparison.OrdinalIgnoreCase))
+
+        if (jsonContent.Contains("liteloader", StringComparison.OrdinalIgnoreCase))
         {
-            return GameType.NeoForge;
+            type |= GameType.LiteLoader;
         }
-        else if (originContent.Contains("net.fabricmc:fabric-loader", StringComparison.OrdinalIgnoreCase))
+
+        type |= jsonContent switch
         {
-            return GameType.Fabric;
-        }
-        else if (originContent.Contains("minecraftforge", StringComparison.OrdinalIgnoreCase))
-        {
-            return GameType.Forge;
-        }
-        else if (originContent.Contains("org.quiltmc:quilt-loader", StringComparison.OrdinalIgnoreCase))
-        {
-            return GameType.Quit;
-        }
-        else if (originContent.Contains("com.cleanroommc:cleanroom:", StringComparison.OrdinalIgnoreCase))
-        {
-            return GameType.Cleanroom;
-        }
-        else
-        {
-            return GameType.Vanilla;
-        }
+            _ when jsonContent.Contains("minecraftforge", StringComparison.OrdinalIgnoreCase) &&
+                   !jsonContent.Contains("net.neoforge") =>
+                GameType.Forge,
+            _ when jsonContent.Contains("net.neoforge", StringComparison.OrdinalIgnoreCase) =>
+                GameType.NeoForge,
+            _ when jsonContent.Contains("net.fabricmc:fabric-loader", StringComparison.OrdinalIgnoreCase) =>
+                GameType.Fabric,
+            _ when jsonContent.Contains("org.quiltmc:quilt-loader", StringComparison.OrdinalIgnoreCase) =>
+                GameType.Quilt,
+            _ when jsonContent.Contains("labymod_data", StringComparison.OrdinalIgnoreCase) =>
+                GameType.Labymod,
+            _ when jsonContent.Contains("com.cleanroommc:cleanroom:", StringComparison.OrdinalIgnoreCase) =>
+                GameType.Cleanroom,
+            _ => GameType.Vanilla
+        };
+
+        return type;
     }
 }
+

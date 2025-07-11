@@ -3,7 +3,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 /// <summary>
 /// 常规游戏版本的版本号，后续可能会拓展到模组版本
 /// </summary>
-public record GameVersionNum(byte Sub, byte? Fix = null) : IComparable<GameVersionNum>
+public record GameVersionId(byte Sub, byte? Fix = null) : IComparable<GameVersionId>
 {
     private readonly (byte Major, byte Sub, byte Fix) _version = (1, Sub, Fix ?? 0);
 
@@ -11,7 +11,7 @@ public record GameVersionNum(byte Sub, byte? Fix = null) : IComparable<GameVersi
     public byte Sub => _version.Sub;
     public byte? Fix => _version.Fix > 0 ? _version.Fix : null;
 
-    public int CompareTo(GameVersionNum? other) =>
+    public int CompareTo(GameVersionId? other) =>
         other == null ? 1 : (Major, Sub, Fix ?? 0).CompareTo((other.Major, other.Sub, other.Fix ?? 0));
 
     public override string ToString() =>
@@ -22,7 +22,7 @@ public record GameVersionNum(byte Sub, byte? Fix = null) : IComparable<GameVersi
         HashCode.Combine(_version.Major, _version.Sub, _version.Fix);
 
     /// <inheritdoc />
-    public virtual bool Equals(GameVersionNum? other)
+    public virtual bool Equals(GameVersionId? other)
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;

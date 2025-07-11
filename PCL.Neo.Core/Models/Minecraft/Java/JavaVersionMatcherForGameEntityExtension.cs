@@ -17,7 +17,6 @@ public static class JavaVersionMatcherForGameEntityExtension
         else if (versionManifes.Type == "snapshot")
         {
         }
-
         return (0, 0);
     }
 }

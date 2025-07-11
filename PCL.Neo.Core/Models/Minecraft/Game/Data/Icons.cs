@@ -1,4 +1,4 @@
-namespace PCL.Neo.ViewModels.Game;
+namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 
 public enum Icons : byte
 {

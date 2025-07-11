@@ -4,19 +4,13 @@ using System.Text;
 namespace PCL.Neo.Core.Utils.Logger;
 
 public sealed class McLogFileLogger : IDisposable
-public sealed class McLogFileLogger : IDisposable
 {
     private readonly StreamWriter _writer;
     private readonly Process _process;
     private readonly string _logDir;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-    private bool _disposed = false;
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-    private bool _disposed = false;
-
-    public McLogFileLogger(string targetDir, Process process)
     public McLogFileLogger(string targetDir, Process process)
     {
         if (Directory.Exists(targetDir) == false)
@@ -28,7 +22,6 @@ public sealed class McLogFileLogger : IDisposable
 
         _logDir = targetDir;
 
-        _writer = new StreamWriter(logFilePath, false, Encoding.UTF8) { AutoFlush = true };
         _writer = new StreamWriter(logFilePath, false, Encoding.UTF8) { AutoFlush = true };
 
         _process = process;
@@ -44,7 +37,6 @@ public sealed class McLogFileLogger : IDisposable
     {
         ReadStdOut();
         ReadStdErr();
-        _ = GameWatchDog();
         _ = GameWatchDog();
     }
 
@@ -86,12 +78,6 @@ public sealed class McLogFileLogger : IDisposable
 
         // copy content
         File.Copy(logFile, targetFilePath, true);
-    }
-
-    private async Task GameWatchDog()
-    {
-        await _process.WaitForExitAsync(_cancellationTokenSource.Token);
-        Cancel();
     }
 
     private async Task GameWatchDog()
@@ -149,10 +135,7 @@ public sealed class McLogFileLogger : IDisposable
         _cancellationTokenSource.Cancel();
     }
 
-    public void Cancel()
-    {
-        _cancellationTokenSource.Cancel();
-    }
+    private bool _disposed = false;
 
     /// <inheritdoc />
     public void Dispose()

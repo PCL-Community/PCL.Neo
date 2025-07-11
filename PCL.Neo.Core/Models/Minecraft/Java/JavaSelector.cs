@@ -111,7 +111,7 @@ public static class JavaSelector
         int maxJavaVersion,
         int specificJavaVersion)
     {
-        var score = 0;
+        int score = 0;
         string reason;
         RecommendationLevel level;
 
@@ -129,7 +129,7 @@ public static class JavaSelector
             else if (java.SlugVersion > specificJavaVersion)
             {
                 // 版本高于需求
-                var versionDiff = java.SlugVersion - specificJavaVersion;
+                int versionDiff = java.SlugVersion - specificJavaVersion;
                 if (versionDiff <= 3)
                 {
                     // 版本接近，可能兼容
@@ -148,7 +148,7 @@ public static class JavaSelector
             else
             {
                 // 版本低于需求
-                var versionDiff = specificJavaVersion - java.SlugVersion;
+                int versionDiff = specificJavaVersion - java.SlugVersion;
                 score -= 100 * versionDiff;
                 level = versionDiff > 3 ? RecommendationLevel.Incompatible : RecommendationLevel.Marginal;
                 reason = $"版本低于游戏需求(Java {specificJavaVersion})，不推荐使用";
@@ -167,15 +167,15 @@ public static class JavaSelector
                 // 特殊处理：偏好中间版本
                 if (maxJavaVersion > minJavaVersion)
                 {
-                    var idealVersion = (minJavaVersion + maxJavaVersion) / 2;
-                    var versionDiff = Math.Abs(java.SlugVersion - idealVersion);
+                    int idealVersion = (minJavaVersion + maxJavaVersion) / 2;
+                    int versionDiff = Math.Abs(java.SlugVersion - idealVersion);
                     score -= versionDiff * 10; // 越接近理想版本越好
                 }
             }
             else if (java.SlugVersion < minJavaVersion)
             {
                 // 版本过低
-                var versionDiff = minJavaVersion - java.SlugVersion;
+                int versionDiff = minJavaVersion - java.SlugVersion;
                 score -= 200 * versionDiff;
                 level = RecommendationLevel.Incompatible;
                 reason = $"版本过低，游戏需要至少Java {minJavaVersion}";
@@ -183,7 +183,7 @@ public static class JavaSelector
             else
             {
                 // 版本过高
-                var versionDiff = java.SlugVersion - maxJavaVersion;
+                int versionDiff = java.SlugVersion - maxJavaVersion;
                 if (versionDiff <= 3)
                 {
                     // 版本高但接近

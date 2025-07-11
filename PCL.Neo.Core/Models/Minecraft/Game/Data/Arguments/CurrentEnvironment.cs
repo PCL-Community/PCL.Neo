@@ -1,3 +1,4 @@
+using PCL.Neo.Core.Utils;
 using System.Runtime.InteropServices;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments
@@ -14,13 +15,13 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments
         // Factory method to get current system environment
         public static CurrentEnvironment GetCurrent()
         {
-            string osName = Const.Os switch
+            string osName = SystemUtils.Os switch
             {
-                Const.RunningOs.Windows => "windows",
-                Const.RunningOs.Linux => "linux",
-                Const.RunningOs.MacOs => "osx",
-                Const.RunningOs.Unknown => Environment.OSVersion.Platform.ToString().ToLowerInvariant(),
-                _ => throw new ArgumentOutOfRangeException(nameof(Const.Os))
+                SystemUtils.RunningOs.Windows => "windows",
+                SystemUtils.RunningOs.Linux => "linux",
+                SystemUtils.RunningOs.MacOs => "osx",
+                SystemUtils.RunningOs.Unknown => Environment.OSVersion.Platform.ToString().ToLowerInvariant(),
+                _ => throw new ArgumentOutOfRangeException(nameof(SystemUtils.Os))
             };
 
             string osArch = RuntimeInformation.ProcessArchitecture switch

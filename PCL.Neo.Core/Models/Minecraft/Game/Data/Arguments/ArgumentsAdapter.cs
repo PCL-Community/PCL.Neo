@@ -6,7 +6,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
 public class ArgumentsAdapter
 {
     public Dictionary<string, string> Arguments { get; } = new();
-    public CustomFeatures Features { get; } = new();
+    public Dictionary<string, bool> Features { get; } = new();
 
     public ArgumentsAdapter(
         GameInfo info,
@@ -36,7 +36,7 @@ public class ArgumentsAdapter
         // window arguments
         if (options.FullScreen == false)
         {
-            Features.HasCustomResolution = true;
+            Features.Add("has_custom_resolution", true);
             Arguments.Add("${resolution_width}", options.WindowWidth.ToString());
             Arguments.Add("${resolution_height}", options.WindowHeight.ToString());
         }

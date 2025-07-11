@@ -484,480 +484,481 @@ public class AccountService : IAccountService
             // 保存更新后的账户
             await SaveAccountAsync(updatedAccount);
 
-                return updatedAccount;
-            }
-            catch (Exception ex) when (ex is not ArgumentNullException)
-            {
-                this.LogAccountError($"刷新微软账户失败: {account.UserName}", ex);
-                throw;
-            }
+            return updatedAccount;
         }
-        
-        /// <inheritdoc />
-        public async Task<YggdrasilAccount> ValidateYggdrasilAccountAsync(string serverUrl, string username, string password)
+        catch (Exception ex) when (ex is not ArgumentNullException)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(serverUrl))
-                {
-                    this.LogAccountError("尝试验证外置登录账户时提供了空服务器URL");
-                    throw new ArgumentException("服务器URL不能为空");
-                }
-
-                if (string.IsNullOrEmpty(username))
-                {
-                    this.LogAccountError("尝试验证外置登录账户时提供了空用户名");
-                    throw new ArgumentException("用户名不能为空");
-                }
-
-                if (string.IsNullOrEmpty(password))
-                {
-                    this.LogAccountError("尝试验证外置登录账户时提供了空密码");
-                    throw new ArgumentException("密码不能为空");
-                }
-
-                // 外置登录服务端点
-                var authEndpoint = $"{serverUrl.TrimEnd('/')}/authserver/authenticate";
-                this.LogAccountDebug($"外置登录认证端点: {authEndpoint}");
-
-                // 生成客户端令牌
-                var clientToken = Guid.NewGuid().ToString();
-
-                // 构建认证请求
-                var authRequest = new
-                {
-                    username,
-                    password,
-                    clientToken,
-                    requestUser = true,
-                    agent = new { name = "Minecraft", version = 1 }
-                };
-
-                this.LogYggdrasilInfo($"开始外置登录验证: {username} @ {serverUrl}");
-
-                // TODO: 实现与Yggdrasil服务器的实际HTTP通信
-                // 以下代码仅为框架，需要替换为实际的HTTP请求逻辑
-
-                /*
-                使用HTTP客户端发送请求示例:
-
-                var client = new HttpClient();
-                client.Timeout = TimeSpan.FromMilliseconds(_yggdrasilApiTimeoutMs);
-
-                if (!string.IsNullOrEmpty(_yggdrasilApiKey))
-                {
-                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_yggdrasilApiKey}");
-                }
-
-                var content = new StringContent(
-                    JsonSerializer.Serialize(authRequest, _jsonOptions),
-                    System.Text.Encoding.UTF8,
-                    "application/json");
-
-                var response = await client.PostAsync(authEndpoint, content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    // 解析错误响应
-                    this.LogYggdrasilError($"外置登录验证失败: {response.StatusCode} - {errorContent}");
-                    throw new YggdrasilAuthException($"认证失败: {response.StatusCode} - {errorContent}");
-                }
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var authResponse = JsonSerializer.Deserialize<YggdrasilAuthResponse>(responseContent, _jsonOptions);
-
-                this.LogYggdrasilInfo($"外置登录验证成功: {authResponse.SelectedProfile.Name}");
-
-                // 返回账户信息
-                return new YggdrasilAccount
-                {
-                    Uuid = authResponse.SelectedProfile.Id,
-                    UserName = authResponse.SelectedProfile.Name,
-                    McAccessToken = authResponse.AccessToken,
-                    ClientToken = authResponse.ClientToken,
-                    ServerUrl = serverUrl,
-                    ExpiresAt = DateTime.UtcNow.AddHours(24), // 或者从响应中获取
-                    AddedTime = DateTime.Now,
-                    LastUsed = DateTime.Now
-                };
-                */
-
-                // 暂时抛出未实现异常
-                this.LogYggdrasilError("外置登录认证功能尚未实现");
-                throw new NotImplementedException("Yggdrasil认证尚未实现");
-            }
-            catch (Exception ex) when (!(ex is ArgumentException || ex is NotImplementedException))
-            {
-                this.LogYggdrasilError($"外置登录验证过程中发生未知错误: {serverUrl}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<YggdrasilAccount> RefreshYggdrasilAccountAsync(YggdrasilAccount account)
-        {
-            try
-            {
-                if (account == null)
-                {
-                    this.LogAccountError("尝试刷新空的外置登录账户");
-                    throw new ArgumentNullException(nameof(account));
-                }
-                    
-                if (string.IsNullOrEmpty(account.ServerUrl))
-                {
-                    this.LogAccountError("尝试刷新外置登录账户时服务器URL为空");
-                    throw new ArgumentException("服务器URL不能为空");
-                }
-                    
-                // 外置登录刷新端点
-                var refreshEndpoint = $"{account.ServerUrl.TrimEnd('/')}/authserver/refresh";
-                this.LogYggdrasilDebug($"外置登录刷新端点: {refreshEndpoint}");
-                
-                // 构建刷新请求
-                var refreshRequest = new
-                {
-                    accessToken = account.McAccessToken,
-                    clientToken = account.ClientToken
-                };
-                
-                this.LogYggdrasilInfo($"开始刷新外置登录令牌: {account.UserName} @ {account.ServerUrl}");
-                
-                // TODO: 实现与Yggdrasil服务器的实际HTTP通信
-                // 以下代码仅为框架，需要替换为实际的HTTP请求逻辑
-                
-                /*
-                使用HTTP客户端发送请求示例:
-                
-                var client = new HttpClient();
-                client.Timeout = TimeSpan.FromMilliseconds(_yggdrasilApiTimeoutMs);
-                
-                if (!string.IsNullOrEmpty(_yggdrasilApiKey))
-                {
-                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_yggdrasilApiKey}");
-                }
-                
-                var content = new StringContent(
-                    JsonSerializer.Serialize(refreshRequest, _jsonOptions),
-                    System.Text.Encoding.UTF8,
-                    "application/json");
-                    
-                var response = await client.PostAsync(refreshEndpoint, content);
-                
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    // 解析错误响应
-                    this.LogYggdrasilError($"刷新外置登录令牌失败: {response.StatusCode} - {errorContent}");
-                    throw new YggdrasilAuthException($"刷新令牌失败: {response.StatusCode} - {errorContent}");
-                }
-                
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var refreshResponse = JsonSerializer.Deserialize<YggdrasilRefreshResponse>(responseContent, _jsonOptions);
-                
-                this.LogYggdrasilInfo($"外置登录令牌刷新成功: {account.UserName}");
-                
-                // 返回更新后的账户
-                return account with
-                {
-                    McAccessToken = refreshResponse.AccessToken,
-                    ExpiresAt = DateTime.UtcNow.AddHours(24), // 或者从响应中获取
-                    LastUsed = DateTime.Now
-                };
-                */
-                
-                // 暂时抛出未实现异常
-                this.LogYggdrasilError("外置登录令牌刷新功能尚未实现");
-                throw new NotImplementedException("Yggdrasil令牌刷新尚未实现");
-            }
-            catch (Exception ex) when (!(ex is ArgumentException || ex is ArgumentNullException || ex is NotImplementedException))
-            {
-                this.LogYggdrasilError($"刷新外置登录令牌过程中发生未知错误: {account?.UserName ?? "未知账户"}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<List<string>> GetProfileIdsForAccountAsync(string uuid)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(uuid))
-                {
-                    this.LogAccountWarning("尝试获取档案IDs时提供了空的账户UUID");
-                    return [];
-                }
-                
-                var account = await GetAccountByUuidAsync(uuid);
-                if (account == null)
-                {
-                    this.LogAccountWarning($"尝试获取不存在账户的档案IDs: UUID {uuid}");
-                    return [];
-                }
-                
-                this.LogProfileDebug($"获取账户关联的档案IDs: {account.UserName}, 共 {account.ProfileIds.Count} 个档案");
-                return account.ProfileIds;
-            }
-            catch (Exception ex)
-            {
-                this.LogProfileError($"获取账户档案IDs失败: UUID {uuid}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task AddProfileToAccountAsync(string uuid, string profileId)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(uuid))
-                {
-                    this.LogAccountError("尝试添加档案时提供了空的账户UUID");
-                    throw new ArgumentException("账户UUID不能为空", nameof(uuid));
-                }
-                
-                if (string.IsNullOrEmpty(profileId))
-                {
-                    this.LogAccountError("尝试添加档案时提供了空的档案ID");
-                    throw new ArgumentException("档案ID不能为空", nameof(profileId));
-                }
-                
-                var account = await GetAccountByUuidAsync(uuid);
-                if (account == null)
-                {
-                    this.LogAccountError($"尝试向不存在的账户添加档案: UUID {uuid}");
-                    throw new ArgumentException($"账户不存在: {uuid}");
-                }
-                
-                if (!account.ProfileIds.Contains(profileId))
-                {
-                    var updatedAccount = account with { };
-                    updatedAccount.ProfileIds.Add(profileId);
-                    
-                    this.LogProfileInfo($"向账户 {account.UserName} 添加档案 {profileId}");
-                    
-                    if (updatedAccount.CurrentProfileId == null)
-                    {
-                        updatedAccount.CurrentProfileId = profileId;
-                        this.LogProfileInfo($"自动设置账户 {account.UserName} 的当前档案为 {profileId}");
-                    }
-                    
-                    await SaveAccountAsync(updatedAccount);
-                }
-                else
-                {
-                    this.LogProfileWarning($"档案 {profileId} 已关联到账户 {account.UserName}");
-                }
-            }
-            catch (Exception ex) when (!(ex is ArgumentException))
-            {
-                this.LogProfileError($"向账户添加档案失败: UUID {uuid}, ProfileID {profileId}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task RemoveProfileFromAccountAsync(string uuid, string profileId)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(uuid))
-                {
-                    this.LogAccountWarning("尝试移除档案时提供了空的账户UUID");
-                    return;
-                }
-                
-                if (string.IsNullOrEmpty(profileId))
-                {
-                    this.LogAccountWarning("尝试移除档案时提供了空的档案ID");
-                    return;
-                }
-                
-                var account = await GetAccountByUuidAsync(uuid);
-                if (account == null)
-                {
-                    this.LogAccountWarning($"尝试从不存在的账户移除档案: UUID {uuid}");
-                    return;
-                }
-                
-                if (account.ProfileIds.Contains(profileId))
-                {
-                    var updatedAccount = account with { };
-                    updatedAccount.ProfileIds.Remove(profileId);
-                    
-                    this.LogProfileInfo($"从账户 {account.UserName} 移除档案 {profileId}");
-                    
-                    if (account.CurrentProfileId == profileId)
-                    {
-                        updatedAccount.CurrentProfileId = updatedAccount.ProfileIds.FirstOrDefault();
-                        this.LogProfileInfo($"重置账户 {account.UserName} 的当前档案为 {updatedAccount.CurrentProfileId ?? "无"}");
-                    }
-                    
-                    await SaveAccountAsync(updatedAccount);
-                }
-                else
-                {
-                    this.LogProfileWarning($"账户 {account.UserName} 未关联档案 {profileId}");
-                }
-            }
-            catch (Exception ex)
-            {
-                this.LogProfileError($"从账户移除档案失败: UUID {uuid}, ProfileID {profileId}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<string?> GetCurrentProfileIdForAccountAsync(string uuid)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(uuid))
-                {
-                    this.LogAccountWarning("尝试获取当前档案ID时提供了空的账户UUID");
-                    return null;
-                }
-                
-                var account = await GetAccountByUuidAsync(uuid);
-                if (account == null)
-                {
-                    this.LogAccountWarning($"尝试获取不存在账户的当前档案ID: UUID {uuid}");
-                    return null;
-                }
-                
-                this.LogProfileDebug($"获取账户 {account.UserName} 的当前档案ID: {account.CurrentProfileId ?? "无"}");
-                return account.CurrentProfileId;
-            }
-            catch (Exception ex)
-            {
-                this.LogProfileError($"获取账户当前档案ID失败: UUID {uuid}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task SetCurrentProfileIdForAccountAsync(string uuid, string profileId)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(uuid))
-                {
-                    this.LogAccountError("尝试设置当前档案时提供了空的账户UUID");
-                    throw new ArgumentException("账户UUID不能为空", nameof(uuid));
-                }
-                
-                if (string.IsNullOrEmpty(profileId))
-                {
-                    this.LogAccountError("尝试设置当前档案时提供了空的档案ID");
-                    throw new ArgumentException("档案ID不能为空", nameof(profileId));
-                }
-                
-                var account = await GetAccountByUuidAsync(uuid);
-                if (account == null)
-                {
-                    this.LogAccountError($"尝试为不存在的账户设置当前档案: UUID {uuid}");
-                    throw new ArgumentException($"账户不存在: {uuid}");
-                }
-                
-                if (!account.ProfileIds.Contains(profileId))
-                {
-                    this.LogProfileInfo($"自动添加档案 {profileId} 到账户 {account.UserName}");
-                    account.ProfileIds.Add(profileId);
-                }
-                
-                var updatedAccount = account with
-                {
-                    CurrentProfileId = profileId
-                };
-                
-                this.LogProfileInfo($"设置账户 {account.UserName} 的当前档案为 {profileId}");
-                
-                await SaveAccountAsync(updatedAccount);
-            }
-            catch (Exception ex) when (!(ex is ArgumentException))
-            {
-                this.LogProfileError($"设置账户当前档案失败: UUID {uuid}, ProfileID {profileId}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<bool> IsAccountRefreshRequiredAsync(string uuid)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(uuid))
-                {
-                    this.LogAccountWarning("尝试检查账户是否需要刷新时提供了空UUID");
-                    return false;
-                }
-                
-                var account = await GetAccountByUuidAsync(uuid);
-                if (account == null)
-                {
-                    this.LogAccountWarning($"尝试检查不存在账户是否需要刷新: UUID {uuid}");
-                    throw new ArgumentException($"账户不存在: {uuid}");
-                }
-                
-                var needsRefresh = account switch
-                {
-                    MsaAccount msaAccount => msaAccount.IsExpired() || msaAccount.NeedsRefresh(),
-                    YggdrasilAccount yggdrasilAccount => yggdrasilAccount.IsExpired() || yggdrasilAccount.NeedsRefresh(),
-                    _ => false // 离线账户不需要刷新
-                };
-                
-                this.LogAccountDebug($"检查账户 {account.UserName} 是否需要刷新: {needsRefresh}");
-                return needsRefresh;
-            }
-            catch (Exception ex) when (!(ex is ArgumentException))
-            {
-                this.LogAccountError($"检查账户是否需要刷新失败: UUID {uuid}", ex);
-                throw;
-            }
-        }
-        
-        /// <inheritdoc />
-        public async Task<BaseAccount> RefreshAccountIfNeededAsync(string uuid)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(uuid))
-                {
-                    this.LogAccountError("尝试刷新账户时提供了空UUID");
-                    throw new ArgumentException("账户UUID不能为空", nameof(uuid));
-                }
-                
-                var account = await GetAccountByUuidAsync(uuid);
-                if (account == null)
-                {
-                    this.LogAccountError($"尝试刷新不存在的账户: UUID {uuid}");
-                    throw new ArgumentException($"账户不存在: {uuid}");
-                }
-                
-                if (!await IsAccountRefreshRequiredAsync(uuid))
-                {
-                    this.LogAccountDebug($"账户 {account.UserName} 不需要刷新");
-                    return account;
-                }
-                
-                this.LogAccountInfo($"开始刷新账户 {account.UserName} (类型: {account.StorageType})");
-                
-                var refreshedAccount = account switch
-                {
-                    MsaAccount msaAccount => await RefreshMicrosoftAccountAsync(msaAccount),
-                    YggdrasilAccount yggdrasilAccount => await RefreshYggdrasilAccountAsync(yggdrasilAccount),
-                    _ => account // 离线账户不需要刷新
-                };
-                
-                this.LogAccountInfo($"账户 {refreshedAccount.UserName} 刷新完成");
-                return refreshedAccount;
-            }
-            catch (Exception ex) when (!(ex is ArgumentException))
-            {
-                this.LogAccountError($"刷新账户失败: UUID {uuid}", ex);
-                throw;
-            }
+            this.LogAccountError($"刷新微软账户失败: {account.UserName}", ex);
+            throw;
         }
     }
-} 
+
+    /// <inheritdoc />
+    public async Task<YggdrasilAccount> ValidateYggdrasilAccountAsync(string serverUrl, string username,
+        string password)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(serverUrl))
+            {
+                this.LogAccountError("尝试验证外置登录账户时提供了空服务器URL");
+                throw new ArgumentException("服务器URL不能为空");
+            }
+
+            if (string.IsNullOrEmpty(username))
+            {
+                this.LogAccountError("尝试验证外置登录账户时提供了空用户名");
+                throw new ArgumentException("用户名不能为空");
+            }
+
+            if (string.IsNullOrEmpty(password))
+            {
+                this.LogAccountError("尝试验证外置登录账户时提供了空密码");
+                throw new ArgumentException("密码不能为空");
+            }
+
+            // 外置登录服务端点
+            var authEndpoint = $"{serverUrl.TrimEnd('/')}/authserver/authenticate";
+            this.LogAccountDebug($"外置登录认证端点: {authEndpoint}");
+
+            // 生成客户端令牌
+            var clientToken = Guid.NewGuid().ToString();
+
+            // 构建认证请求
+            var authRequest = new
+            {
+                username,
+                password,
+                clientToken,
+                requestUser = true,
+                agent = new { name = "Minecraft", version = 1 }
+            };
+
+            this.LogYggdrasilInfo($"开始外置登录验证: {username} @ {serverUrl}");
+
+            // TODO: 实现与Yggdrasil服务器的实际HTTP通信
+            // 以下代码仅为框架，需要替换为实际的HTTP请求逻辑
+
+            /*
+            使用HTTP客户端发送请求示例:
+
+            var client = new HttpClient();
+            client.Timeout = TimeSpan.FromMilliseconds(_yggdrasilApiTimeoutMs);
+
+            if (!string.IsNullOrEmpty(_yggdrasilApiKey))
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_yggdrasilApiKey}");
+            }
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(authRequest, _jsonOptions),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PostAsync(authEndpoint, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                // 解析错误响应
+                this.LogYggdrasilError($"外置登录验证失败: {response.StatusCode} - {errorContent}");
+                throw new YggdrasilAuthException($"认证失败: {response.StatusCode} - {errorContent}");
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var authResponse = JsonSerializer.Deserialize<YggdrasilAuthResponse>(responseContent, _jsonOptions);
+
+            this.LogYggdrasilInfo($"外置登录验证成功: {authResponse.SelectedProfile.Name}");
+
+            // 返回账户信息
+            return new YggdrasilAccount
+            {
+                Uuid = authResponse.SelectedProfile.Id,
+                UserName = authResponse.SelectedProfile.Name,
+                McAccessToken = authResponse.AccessToken,
+                ClientToken = authResponse.ClientToken,
+                ServerUrl = serverUrl,
+                ExpiresAt = DateTime.UtcNow.AddHours(24), // 或者从响应中获取
+                AddedTime = DateTime.Now,
+                LastUsed = DateTime.Now
+            };
+            */
+
+            // 暂时抛出未实现异常
+            this.LogYggdrasilError("外置登录认证功能尚未实现");
+            throw new NotImplementedException("Yggdrasil认证尚未实现");
+        }
+        catch (Exception ex) when (!(ex is ArgumentException || ex is NotImplementedException))
+        {
+            this.LogYggdrasilError($"外置登录验证过程中发生未知错误: {serverUrl}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<YggdrasilAccount> RefreshYggdrasilAccountAsync(YggdrasilAccount account)
+    {
+        try
+        {
+            if (account == null)
+            {
+                this.LogAccountError("尝试刷新空的外置登录账户");
+                throw new ArgumentNullException(nameof(account));
+            }
+
+            if (string.IsNullOrEmpty(account.ServerUrl))
+            {
+                this.LogAccountError("尝试刷新外置登录账户时服务器URL为空");
+                throw new ArgumentException("服务器URL不能为空");
+            }
+
+            // 外置登录刷新端点
+            var refreshEndpoint = $"{account.ServerUrl.TrimEnd('/')}/authserver/refresh";
+            this.LogYggdrasilDebug($"外置登录刷新端点: {refreshEndpoint}");
+
+            // 构建刷新请求
+            var refreshRequest = new
+            {
+                accessToken = account.McAccessToken,
+                clientToken = account.ClientToken
+            };
+
+            this.LogYggdrasilInfo($"开始刷新外置登录令牌: {account.UserName} @ {account.ServerUrl}");
+
+            // TODO: 实现与Yggdrasil服务器的实际HTTP通信
+            // 以下代码仅为框架，需要替换为实际的HTTP请求逻辑
+
+            /*
+            使用HTTP客户端发送请求示例:
+
+            var client = new HttpClient();
+            client.Timeout = TimeSpan.FromMilliseconds(_yggdrasilApiTimeoutMs);
+
+            if (!string.IsNullOrEmpty(_yggdrasilApiKey))
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_yggdrasilApiKey}");
+            }
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(refreshRequest, _jsonOptions),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PostAsync(refreshEndpoint, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                // 解析错误响应
+                this.LogYggdrasilError($"刷新外置登录令牌失败: {response.StatusCode} - {errorContent}");
+                throw new YggdrasilAuthException($"刷新令牌失败: {response.StatusCode} - {errorContent}");
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var refreshResponse = JsonSerializer.Deserialize<YggdrasilRefreshResponse>(responseContent, _jsonOptions);
+
+            this.LogYggdrasilInfo($"外置登录令牌刷新成功: {account.UserName}");
+
+            // 返回更新后的账户
+            return account with
+            {
+                McAccessToken = refreshResponse.AccessToken,
+                ExpiresAt = DateTime.UtcNow.AddHours(24), // 或者从响应中获取
+                LastUsed = DateTime.Now
+            };
+            */
+
+            // 暂时抛出未实现异常
+            this.LogYggdrasilError("外置登录令牌刷新功能尚未实现");
+            throw new NotImplementedException("Yggdrasil令牌刷新尚未实现");
+        }
+        catch (Exception ex) when (!(ex is ArgumentException || ex is ArgumentNullException ||
+                                     ex is NotImplementedException))
+        {
+            this.LogYggdrasilError($"刷新外置登录令牌过程中发生未知错误: {account?.UserName ?? "未知账户"}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<List<string>> GetProfileIdsForAccountAsync(string uuid)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                this.LogAccountWarning("尝试获取档案IDs时提供了空的账户UUID");
+                return [];
+            }
+
+            var account = await GetAccountByUuidAsync(uuid);
+            if (account == null)
+            {
+                this.LogAccountWarning($"尝试获取不存在账户的档案IDs: UUID {uuid}");
+                return [];
+            }
+
+            this.LogProfileDebug($"获取账户关联的档案IDs: {account.UserName}, 共 {account.ProfileIds.Count} 个档案");
+            return account.ProfileIds;
+        }
+        catch (Exception ex)
+        {
+            this.LogProfileError($"获取账户档案IDs失败: UUID {uuid}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task AddProfileToAccountAsync(string uuid, string profileId)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                this.LogAccountError("尝试添加档案时提供了空的账户UUID");
+                throw new ArgumentException("账户UUID不能为空", nameof(uuid));
+            }
+
+            if (string.IsNullOrEmpty(profileId))
+            {
+                this.LogAccountError("尝试添加档案时提供了空的档案ID");
+                throw new ArgumentException("档案ID不能为空", nameof(profileId));
+            }
+
+            var account = await GetAccountByUuidAsync(uuid);
+            if (account == null)
+            {
+                this.LogAccountError($"尝试向不存在的账户添加档案: UUID {uuid}");
+                throw new ArgumentException($"账户不存在: {uuid}");
+            }
+
+            if (!account.ProfileIds.Contains(profileId))
+            {
+                var updatedAccount = account with {};
+                updatedAccount.ProfileIds.Add(profileId);
+
+                this.LogProfileInfo($"向账户 {account.UserName} 添加档案 {profileId}");
+
+                if (updatedAccount.CurrentProfileId == null)
+                {
+                    updatedAccount.CurrentProfileId = profileId;
+                    this.LogProfileInfo($"自动设置账户 {account.UserName} 的当前档案为 {profileId}");
+                }
+
+                await SaveAccountAsync(updatedAccount);
+            }
+            else
+            {
+                this.LogProfileWarning($"档案 {profileId} 已关联到账户 {account.UserName}");
+            }
+        }
+        catch (Exception ex) when (!(ex is ArgumentException))
+        {
+            this.LogProfileError($"向账户添加档案失败: UUID {uuid}, ProfileID {profileId}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task RemoveProfileFromAccountAsync(string uuid, string profileId)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                this.LogAccountWarning("尝试移除档案时提供了空的账户UUID");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(profileId))
+            {
+                this.LogAccountWarning("尝试移除档案时提供了空的档案ID");
+                return;
+            }
+
+            var account = await GetAccountByUuidAsync(uuid);
+            if (account == null)
+            {
+                this.LogAccountWarning($"尝试从不存在的账户移除档案: UUID {uuid}");
+                return;
+            }
+
+            if (account.ProfileIds.Contains(profileId))
+            {
+                var updatedAccount = account with {};
+                updatedAccount.ProfileIds.Remove(profileId);
+
+                this.LogProfileInfo($"从账户 {account.UserName} 移除档案 {profileId}");
+
+                if (account.CurrentProfileId == profileId)
+                {
+                    updatedAccount.CurrentProfileId = updatedAccount.ProfileIds.FirstOrDefault();
+                    this.LogProfileInfo($"重置账户 {account.UserName} 的当前档案为 {updatedAccount.CurrentProfileId ?? "无"}");
+                }
+
+                await SaveAccountAsync(updatedAccount);
+            }
+            else
+            {
+                this.LogProfileWarning($"账户 {account.UserName} 未关联档案 {profileId}");
+            }
+        }
+        catch (Exception ex)
+        {
+            this.LogProfileError($"从账户移除档案失败: UUID {uuid}, ProfileID {profileId}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<string?> GetCurrentProfileIdForAccountAsync(string uuid)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                this.LogAccountWarning("尝试获取当前档案ID时提供了空的账户UUID");
+                return null;
+            }
+
+            var account = await GetAccountByUuidAsync(uuid);
+            if (account == null)
+            {
+                this.LogAccountWarning($"尝试获取不存在账户的当前档案ID: UUID {uuid}");
+                return null;
+            }
+
+            this.LogProfileDebug($"获取账户 {account.UserName} 的当前档案ID: {account.CurrentProfileId ?? "无"}");
+            return account.CurrentProfileId;
+        }
+        catch (Exception ex)
+        {
+            this.LogProfileError($"获取账户当前档案ID失败: UUID {uuid}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task SetCurrentProfileIdForAccountAsync(string uuid, string profileId)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                this.LogAccountError("尝试设置当前档案时提供了空的账户UUID");
+                throw new ArgumentException("账户UUID不能为空", nameof(uuid));
+            }
+
+            if (string.IsNullOrEmpty(profileId))
+            {
+                this.LogAccountError("尝试设置当前档案时提供了空的档案ID");
+                throw new ArgumentException("档案ID不能为空", nameof(profileId));
+            }
+
+            var account = await GetAccountByUuidAsync(uuid);
+            if (account == null)
+            {
+                this.LogAccountError($"尝试为不存在的账户设置当前档案: UUID {uuid}");
+                throw new ArgumentException($"账户不存在: {uuid}");
+            }
+
+            if (!account.ProfileIds.Contains(profileId))
+            {
+                this.LogProfileInfo($"自动添加档案 {profileId} 到账户 {account.UserName}");
+                account.ProfileIds.Add(profileId);
+            }
+
+            var updatedAccount = account with
+            {
+                CurrentProfileId = profileId
+            };
+
+            this.LogProfileInfo($"设置账户 {account.UserName} 的当前档案为 {profileId}");
+
+            await SaveAccountAsync(updatedAccount);
+        }
+        catch (Exception ex) when (!(ex is ArgumentException))
+        {
+            this.LogProfileError($"设置账户当前档案失败: UUID {uuid}, ProfileID {profileId}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> IsAccountRefreshRequiredAsync(string uuid)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                this.LogAccountWarning("尝试检查账户是否需要刷新时提供了空UUID");
+                return false;
+            }
+
+            var account = await GetAccountByUuidAsync(uuid);
+            if (account == null)
+            {
+                this.LogAccountWarning($"尝试检查不存在账户是否需要刷新: UUID {uuid}");
+                throw new ArgumentException($"账户不存在: {uuid}");
+            }
+
+            var needsRefresh = account switch
+            {
+                MsaAccount msaAccount => msaAccount.IsExpired() || msaAccount.NeedsRefresh(),
+                YggdrasilAccount yggdrasilAccount => yggdrasilAccount.IsExpired() || yggdrasilAccount.NeedsRefresh(),
+                _ => false // 离线账户不需要刷新
+            };
+
+            this.LogAccountDebug($"检查账户 {account.UserName} 是否需要刷新: {needsRefresh}");
+            return needsRefresh;
+        }
+        catch (Exception ex) when (!(ex is ArgumentException))
+        {
+            this.LogAccountError($"检查账户是否需要刷新失败: UUID {uuid}", ex);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<BaseAccount> RefreshAccountIfNeededAsync(string uuid)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                this.LogAccountError("尝试刷新账户时提供了空UUID");
+                throw new ArgumentException("账户UUID不能为空", nameof(uuid));
+            }
+
+            var account = await GetAccountByUuidAsync(uuid);
+            if (account == null)
+            {
+                this.LogAccountError($"尝试刷新不存在的账户: UUID {uuid}");
+                throw new ArgumentException($"账户不存在: {uuid}");
+            }
+
+            if (!await IsAccountRefreshRequiredAsync(uuid))
+            {
+                this.LogAccountDebug($"账户 {account.UserName} 不需要刷新");
+                return account;
+            }
+
+            this.LogAccountInfo($"开始刷新账户 {account.UserName} (类型: {account.StorageType})");
+
+            var refreshedAccount = account switch
+            {
+                MsaAccount msaAccount => await RefreshMicrosoftAccountAsync(msaAccount),
+                YggdrasilAccount yggdrasilAccount => await RefreshYggdrasilAccountAsync(yggdrasilAccount),
+                _ => account // 离线账户不需要刷新
+            };
+
+            this.LogAccountInfo($"账户 {refreshedAccount.UserName} 刷新完成");
+            return refreshedAccount;
+        }
+        catch (Exception ex) when (!(ex is ArgumentException))
+        {
+            this.LogAccountError($"刷新账户失败: UUID {uuid}", ex);
+            throw;
+        }
+    }
+}

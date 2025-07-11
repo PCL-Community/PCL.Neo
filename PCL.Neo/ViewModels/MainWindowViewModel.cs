@@ -262,7 +262,6 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var launchOptions = new LaunchOptions
         {
-            VersionId = "Create",
             RunnerJava =
                 await JavaRuntime.CreateJavaEntityAsync(
                     @"C:\Users\WhiteCAT\Documents\Java\zulu17.58.21-ca-jdk17.0.15-win_x64\bin"),
@@ -301,20 +300,18 @@ public partial class MainWindowViewModel : ViewModelBase
             CloseAfterLaunch = false
         };
 
-        var gameEntity = new GameEntity()
+        var gameEntity = new GameEntity(new GameProfile
         {
-            Profile = new GameProfile
+            Options = launchOptions,
+            Information = new GameInfo
             {
-                Options = launchOptions,
-                Information = new GameInfo()
-                {
-                    GameDirectory =
-                        @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
-                    RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                }
+                GameDirectory =
+                    @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
+                RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
+                Name = "Create"
             }
-        };
+        });
 
-        var result = await gameEntity.StartGame();
+        var result = await gameEntity.StartGameAsync();
     }
 }
