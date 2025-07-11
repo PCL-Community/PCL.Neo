@@ -27,7 +27,7 @@ public class GameService(IJavaManager javaManager) : IGameService
     public async Task<List<VersionManifes>> GetVersionsAsync(string? minecraftDirectory = null,
         bool forceRefresh = false)
     {
-        string directory = minecraftDirectory ?? DefaultGameDirectory;
+        var directory = minecraftDirectory ?? DefaultGameDirectory;
         // 获取本地版本
         var localVersions = await Versions.GetLocalVersionsAsync(directory);
         // 如果需要强制刷新或者本地版本为空，则获取远程版本

@@ -16,9 +16,14 @@ public interface IGameLauncherService
     VersionManifes? Manifes { get; }
 
     /// <summary>
-    /// Game profile, whitch contains game information and launch options.
+    /// Game infomation.
     /// </summary>
-    GameProfile Profile { get; init; }
+    GameInfo Information { get; init; }
+
+    /// <summary>
+    /// Launch options.
+    /// </summary>
+    LaunchOptions Options { get; init; }
 
     /// <summary>
     /// 启动游戏

@@ -50,21 +50,19 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                 CloseAfterLaunch = false,
             };
 
-            var launcher = new GameLauncherService(new GameProfile
-            {
-                Options = launchOptions,
-                Information = new GameInfo
+            var launcher = new GameLauncherService(
+                new GameInfo
                 {
                     GameDirectory =
                         @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\1.20.4-Fabric 0.15.11-[轻量通用]",
                     RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
                     Name = "1.20.4-Fabric 0.15.11-[轻量通用]",
-                }
-            });
+                },
+                launchOptions
+            );
 
 
             var result = await launcher.BuildLaunchCommandAsync();
-
 
             Console.WriteLine(string.Join('\n', result));
         }

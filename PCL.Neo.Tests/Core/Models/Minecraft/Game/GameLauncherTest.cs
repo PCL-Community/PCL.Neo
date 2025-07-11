@@ -46,17 +46,16 @@ namespace PCL.Neo.Tests.Core.Models.Minecraft.Game
                 CloseAfterLaunch = false
             };
 
-            var launcher = new GameLauncherService(new GameProfile
-            {
-                Options = launchOptions,
-                Information = new GameInfo
+            var launcher = new GameLauncherService(
+                new GameInfo
                 {
                     GameDirectory =
                         @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
                     RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
                     Name = "Create",
-                }
-            });
+                },
+                launchOptions
+            );
 
 
             var result = await launcher.BuildLaunchCommandAsync();

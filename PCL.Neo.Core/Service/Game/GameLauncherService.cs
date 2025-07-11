@@ -15,15 +15,20 @@ public class GameLauncherService : IGameLauncherService
     public VersionManifes? Manifes { get; private set; }
 
     /// <inheritdoc />
-    public GameProfile Profile { get; init; }
+    public GameInfo Information { get; init; }
+
+    /// <inheritdoc />
+    public LaunchOptions Options { get; init; }
+
 
     private ArgumentsAdapter? _adapter;
 
     private readonly Lazy<Task<VersionManifes>> _manifestLazy;
 
-    public GameLauncherService(GameProfile profile)
+    public GameLauncherService(GameInfo information, LaunchOptions options)
     {
-        Profile = profile ?? throw new ArgumentNullException(nameof(profile));
+        Information = information;
+        Options = options;
 
         // 惰性加载版本清单
         _manifestLazy = new Lazy<Task<VersionManifes>>(LoadVersionManifestAsync);
@@ -37,11 +42,11 @@ public class GameLauncherService : IGameLauncherService
         Manifes = await _manifestLazy.Value;
 
         var nativesDir = PrepareNativesDirectory();
-        var libPath = Path.Combine(Profile.Information.RootDirectory, "libraries");
+        var libPath = Path.Combine(Information.RootDirectory, "libraries");
 
         ArgumentNullException.ThrowIfNull(Manifes.Libraries); // enure libraries is not null
 
-        var libCommand = await BuildLibrariesCommandAsync(Manifes.Libraries, Profile.Information.RootDirectory);
+        var libCommand = await BuildLibrariesCommandAsync(Manifes.Libraries, Information.RootDirectory);
         var classPath = BuildClassPath(libCommand);
 
         _adapter = CreateArgumentsAdapter(nativesDir, libPath, classPath);
@@ -52,14 +57,14 @@ public class GameLauncherService : IGameLauncherService
         AddBasicJvmArguments(args);
 
         // 添加JVM参数
-        var jvmArgs = GenerateJvmArguments(Profile, Manifes, _adapter);
+        var jvmArgs = GenerateJvmArguments(Information, Options, Manifes, _adapter);
         args.AddRange(jvmArgs);
 
         // 添加主类
         args.Add(Manifes.MainClass);
 
         // 添加游戏参数
-        var gameArgs = GenerateGameArguments(Profile, Manifes, _adapter);
+        var gameArgs = GenerateGameArguments(Information, Options, Manifes, _adapter);
         args.AddRange(gameArgs);
 
         return args;
@@ -70,17 +75,17 @@ public class GameLauncherService : IGameLauncherService
         ValidateDirctories();
 
         var versionManifest =
-            await Versions.GetVersionByIdAsync(Profile.Information.RootDirectory, Profile.Information.Name);
+            await Versions.GetVersionByIdAsync(Information.RootDirectory, Information.Name);
 
         if (versionManifest == null)
         {
-            throw new InvalidOperationException($"Version manifest not found {Profile.Information.Name}");
+            throw new InvalidOperationException($"Version manifest not found {Information.Name}");
         }
 
         if (!string.IsNullOrEmpty(versionManifest.InheritsFrom))
         {
             var parentManifest =
-                await Versions.GetVersionByIdAsync(Profile.Information.RootDirectory, versionManifest.InheritsFrom);
+                await Versions.GetVersionByIdAsync(Information.RootDirectory, versionManifest.InheritsFrom);
 
             if (parentManifest == null)
             {
@@ -96,16 +101,16 @@ public class GameLauncherService : IGameLauncherService
 
     private void ValidateDirctories()
     {
-        if (!Directory.Exists(Profile.Information.RootDirectory))
+        if (!Directory.Exists(Information.RootDirectory))
         {
             throw new DirectoryNotFoundException(
-                $"Minecraft root directory not found: {Profile.Information.RootDirectory}");
+                $"Minecraft root directory not found: {Information.RootDirectory}");
         }
 
-        if (!Directory.Exists(Profile.Information.GameDirectory))
+        if (!Directory.Exists(Information.GameDirectory))
         {
             throw new DirectoryNotFoundException(
-                $"Minecraft game directory not found: {Profile.Information.GameDirectory}");
+                $"Minecraft game directory not found: {Information.GameDirectory}");
         }
     }
 
@@ -161,8 +166,8 @@ public class GameLauncherService : IGameLauncherService
     /// <exception cref="DirectoryNotFoundException">Throw if game directory not found.</exception>
     public async Task<Process> LaunchAsync(Collection<string> arguments)
     {
-        var gameDir = Profile.Information.GameDirectory;
-        var javaRuntime = Profile.Options.RunnerJava;
+        var gameDir = Information.GameDirectory;
+        var javaRuntime = Options.RunnerJava;
 
         await WriteDebugArgumentsAsync(gameDir, arguments);
 
@@ -171,7 +176,7 @@ public class GameLauncherService : IGameLauncherService
         SetEnvironmentVariables(process);
 
         process.Start();
-        Profile.Information.IsRunning = true;
+        Information.IsRunning = true;
 
         return process;
     }
@@ -217,7 +222,7 @@ public class GameLauncherService : IGameLauncherService
     /// </summary>
     private void SetEnvironmentVariables(Process process)
     {
-        foreach (var env in Profile.Options.EnvironmentVariables)
+        foreach (var env in Options.EnvironmentVariables)
         {
             process.StartInfo.EnvironmentVariables[env.Key] = env.Value;
         }
@@ -345,9 +350,9 @@ public class GameLauncherService : IGameLauncherService
     private string PrepareNativesDirectory()
     {
         var nativesDir = Path.Combine(
-            Profile.Information.RootDirectory,
+            Information.RootDirectory,
             "versions",
-            Profile.Information.Name,
+            Information.Name,
             "natives");
 
         if (!Directory.Exists(nativesDir))
@@ -361,7 +366,7 @@ public class GameLauncherService : IGameLauncherService
     /// </summary>
     private string BuildClassPath(Collection<string> libCommand)
     {
-        libCommand.Add(Path.Combine(Profile.Information.GameDirectory, $"{Profile.Information.Name}.jar"));
+        libCommand.Add(Path.Combine(Information.GameDirectory, $"{Information.Name}.jar"));
 
         var separator = SystemUtils.Os == SystemUtils.RunningOs.Windows ? ';' : ':';
         return string.Join(separator, libCommand.Where(path => !string.IsNullOrEmpty(path)));
@@ -383,7 +388,7 @@ public class GameLauncherService : IGameLauncherService
 
         ArgumentNullException.ThrowIfNull(Manifes);
 
-        return new ArgumentsAdapter(Profile.Information, Profile.Options, extraArgs, Manifes);
+        return new ArgumentsAdapter(Information, Options, extraArgs, Manifes);
     }
 
     /// <summary>
@@ -391,8 +396,8 @@ public class GameLauncherService : IGameLauncherService
     /// </summary>
     private void AddBasicJvmArguments(Collection<string> args)
     {
-        args.Add($"-Xmx{Profile.Options.MaxMemoryMB}M");
-        args.Add($"-Xms{Profile.Options.MinMemoryMB}M");
+        args.Add($"-Xmx{Options.MaxMemoryMB}M");
+        args.Add($"-Xms{Options.MinMemoryMB}M");
         args.Add("-XX:+UseG1GC");
         args.Add("-XX:-UseAdaptiveSizePolicy");
     }
@@ -401,18 +406,19 @@ public class GameLauncherService : IGameLauncherService
     /// 生成JVM参数
     /// </summary>
     private static Collection<string> GenerateJvmArguments(
-        GameProfile profile,
+        GameInfo information,
+        LaunchOptions options,
         VersionManifes versionManifest,
         ArgumentsAdapter adapter)
     {
         var args = new Collection<string>();
 
         // Log4j配置
-        AddLoggingConfiguration(args, profile, versionManifest);
+        AddLoggingConfiguration(args, information, options, versionManifest);
 
         // 额外的JVM参数
-        if (profile.Options.ExtraJvmArgs?.Count > 0)
-            args.AddRange(profile.Options.ExtraJvmArgs);
+        if (options.ExtraJvmArgs?.Count > 0)
+            args.AddRange(options.ExtraJvmArgs);
 
         // 版本特定的JVM参数
         if (versionManifest.Arguments?.Jvm is not null)
@@ -429,7 +435,8 @@ public class GameLauncherService : IGameLauncherService
     /// </summary>
     private static void AddLoggingConfiguration(
         Collection<string> args,
-        GameProfile profile,
+        GameInfo information,
+        LaunchOptions options,
         VersionManifes versionManifest)
     {
         if (versionManifest.Logging?.Client is null)
@@ -438,7 +445,7 @@ public class GameLauncherService : IGameLauncherService
         }
 
         var loggingInfo = versionManifest.Logging.Client;
-        var logPath = Path.Combine(profile.Information.GameDirectory, loggingInfo.File.Id);
+        var logPath = Path.Combine(information.GameDirectory, loggingInfo.File.Id);
 
         if (File.Exists(logPath))
             args.Add($"-Dlog4j.configurationFile={DirectoryUtil.ForceQuotePath(logPath)}");
@@ -448,7 +455,8 @@ public class GameLauncherService : IGameLauncherService
     /// 生成游戏参数
     /// </summary>
     private static Collection<string> GenerateGameArguments(
-        GameProfile profile,
+        GameInfo information,
+        LaunchOptions options,
         VersionManifes versionManifest,
         ArgumentsAdapter adapter)
     {
@@ -470,16 +478,16 @@ public class GameLauncherService : IGameLauncherService
         else
         {
             // 默认参数
-            AddDefaultGameArguments(args, profile, versionManifest);
+            AddDefaultGameArguments(args, information, options, versionManifest);
         }
 
         // 全屏模式
-        if (profile.Options.FullScreen)
+        if (options.FullScreen)
             args.Add("--fullscreen");
 
         // 额外的游戏参数
-        if (profile.Options.ExtraGameArgs?.Count > 0)
-            args.AddRange(profile.Options.ExtraGameArgs);
+        if (options.ExtraGameArgs?.Count > 0)
+            args.AddRange(options.ExtraGameArgs);
 
         return args;
     }
@@ -489,19 +497,20 @@ public class GameLauncherService : IGameLauncherService
     /// </summary>
     private static void AddDefaultGameArguments(
         Collection<string> args,
-        GameProfile profile,
+        GameInfo information,
+        LaunchOptions options,
         VersionManifes versionManifest)
     {
-        var clientType = profile.Options.IsOfflineMode ? "legacy" : "mojang";
+        var clientType = options.IsOfflineMode ? "legacy" : "mojang";
 
         args.AddRange([
-            "--username", profile.Options.Username,
-            "--version", profile.Information.Name,
-            "--gameDir", DirectoryUtil.QuotePath(profile.Information.GameDirectory),
-            "--assetsDir", DirectoryUtil.QuotePath(Path.Combine(profile.Information.RootDirectory, "assets")),
+            "--username", options.Username,
+            "--version", information.Name,
+            "--gameDir", DirectoryUtil.QuotePath(information.GameDirectory),
+            "--assetsDir", DirectoryUtil.QuotePath(Path.Combine(information.RootDirectory, "assets")),
             "--assetIndex", versionManifest.AssetIndex?.Id ?? "legacy",
-            "--uuid", profile.Options.UUID,
-            "--accessToken", profile.Options.AccessToken,
+            "--uuid", options.UUID,
+            "--accessToken", options.AccessToken,
             "--userType", clientType,
             "--versionType", versionManifest.Type
         ]);

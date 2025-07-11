@@ -5,14 +5,17 @@ using System.Diagnostics;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game;
 
-public class GameEntity(GameProfile profile) : IDisposable
+public class GameEntity(GameInfo inforamtion, LaunchOptions options) : IDisposable
 {
-    private readonly Lazy<IGameLauncherService> _launcherLazy = new(() => new GameLauncherService(profile));
+    private readonly Lazy<IGameLauncherService>
+        _launcherLazy = new(() => new GameLauncherService(inforamtion, options));
+
     private Process? _gameProcess;
     private bool _disposed;
 
     // 惰性创建启动器
-    public GameProfile Profile { get; } = profile ?? throw new ArgumentNullException(nameof(profile));
+    public GameInfo Infomation { get; } = inforamtion;
+    public LaunchOptions Options { get; } = options;
 
     private IGameLauncherService Launcher => _launcherLazy.Value;
 
