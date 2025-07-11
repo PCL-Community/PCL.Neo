@@ -51,6 +51,20 @@ public record GameInfo
             return _isIndie.Value;
         }
 
-        set { _isIndie = value; }
+        init { _isIndie = value; }
     }
+
+    public static GameInfo Factory(
+        string targetDir, string gameDir,
+        string versionName,
+        bool isIndie,
+        GameType type) =>
+        new()
+        {
+            Name = versionName,
+            RootDirectory = targetDir,
+            GameDirectory = gameDir,
+            IsIndie = isIndie,
+            Type = type
+        };
 }

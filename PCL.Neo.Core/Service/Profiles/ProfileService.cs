@@ -63,7 +63,7 @@ public class ProfileService : IProfileService
 
             var isIndie = Directory.Exists(Path.Combine(version, "saves"));
             var gameType = await GetGameType(version, versionName);
-            profiles.Games.Add(CreateGameInfo(targetDir, version, versionName, isIndie, gameType));
+            profiles.Games.Add(GameInfo.Factory(targetDir, version, versionName, isIndie, gameType));
         }
 
         return profiles;
@@ -96,7 +96,7 @@ public class ProfileService : IProfileService
 
         var isIndie = Directory.Exists(Path.Combine(gameDir, "saves"));
         var gameType = await GetGameType(gameDir, gameName);
-        var gameInfo = CreateGameInfo(targetDir, gameDir, gameName, isIndie, gameType);
+        var gameInfo = GameInfo.Factory(targetDir, gameDir, gameName, isIndie, gameType);
 
         return gameInfo;
     }
@@ -194,17 +194,6 @@ public class ProfileService : IProfileService
             return false;
         }
     }
-
-    private static GameInfo CreateGameInfo(string targetDir, string gameDir, string versionName, bool isIndie,
-        GameType type) =>
-        new()
-        {
-            Name = versionName,
-            RootDirectory = targetDir,
-            GameDirectory = gameDir,
-            IsIndie = isIndie,
-            Type = type
-        };
 
     private static async Task<GameType> GetGameType(string gameDir, string gameName) =>
         await VersionTypeHelper.GetGameType(gameDir, gameName);

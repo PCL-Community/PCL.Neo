@@ -34,6 +34,7 @@ public class GameEntity(GameInfo inforamtion, LaunchOptions options) : IDisposab
 
 #if DEBUG
         var logger = new McLogFileLogger("launch_args.txt", _gameProcess);
+        logger.Start();
 #endif
 
         return true;
