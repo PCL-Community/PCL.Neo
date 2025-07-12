@@ -12,7 +12,7 @@ public class ArgumentsAdapter
         GameInfo info,
         LaunchOptions options,
         Dictionary<string, string> extraArgs,
-        VersionManifes manifes)
+        Manifes.VersionManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(info);
         ArgumentNullException.ThrowIfNull(options);
@@ -26,13 +26,13 @@ public class ArgumentsAdapter
         Arguments.Add("${auth_player_name}", options.Username);
         Arguments.Add("${auth_session}", string.Empty); // idk what auth_session is...
         Arguments.Add("${version_name}", info.Name);
-        Arguments.Add("${assets_index_name}", manifes.AssetIndex?.Id ?? "legacy");
+        Arguments.Add("${assets_index_name}", manifest.AssetIndex?.Id ?? "legacy");
         Arguments.Add("${auth_uuid}", options.UUID);
         Arguments.Add("${auth_access_token}", options.AccessToken);
         Arguments.Add("${auth_xuid}", "unknow");
         Arguments.Add("${clientid}", "unknow");
         Arguments.Add("${user_type}", options.IsOfflineMode ? "legacy" : "msa");
-        Arguments.Add("${version_type}", manifes.Type);
+        Arguments.Add("${version_type}", manifest.Type);
         Arguments.Add("${classpath_separator}", Const.Os == Const.RunningOs.Windows ? ";" : ":");
         Arguments.AddRange(extraArgs);
 

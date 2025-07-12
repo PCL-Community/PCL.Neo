@@ -68,11 +68,11 @@ public static class JavaSelector
     /// <summary>
     /// 为游戏实体选择最合适的Java
     /// </summary>
-    /// <param name="version">游戏实体</param>
+    /// <param name="version">游戏信息清单</param>
     /// <param name="availableJavas">可用的Java列表</param>
     /// <returns>排序后的Java兼容性得分列表</returns>
     public static List<JavaCompatibilityScore> SelectJavaForGame(
-        VersionManifes version,
+        VersionManifest version,
         IEnumerable<JavaRuntime> availableJavas)
     {
         // 如果没有可用的Java，返回空列表

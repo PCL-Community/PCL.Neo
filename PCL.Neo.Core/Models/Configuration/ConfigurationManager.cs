@@ -23,40 +23,38 @@ public sealed class ConfigurationManager : IConfigurationManager
     {
         try
         {
+            var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
+
+            if (attribute == null)
             {
-                var attribute = typeof(TResult).GetCustomAttribute<ConfigurationInfoAttribute>();
-
-                if (attribute == null)
-                {
-                    return null;
-                }
-
-                // 获取配置路径，优先使用GlobalSettings中的路径
-                var configPath = GetConfigPath<TResult>(attribute.FilePath);
-
-                // 确保配置目录存在
-                var directory = Path.GetDirectoryName(configPath);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                if (!File.Exists(configPath))
-                {
-                    return null;
-                }
-
-                var jsonContent = File.ReadAllText(configPath);
-                var result = JsonSerializer.Deserialize<TResult>(jsonContent);
-
-                // 应用迁移
-                if (result != null)
-                {
-                    ApplyMigrations(result);
-                }
-
-                return result;
+                return null;
             }
+
+            // 获取配置路径，优先使用GlobalSettings中的路径
+            var configPath = GetConfigPath<TResult>(attribute.FilePath);
+
+            // 确保配置目录存在
+            var directory = Path.GetDirectoryName(configPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            if (!File.Exists(configPath))
+            {
+                return null;
+            }
+
+            var jsonContent = File.ReadAllText(configPath);
+            var result = JsonSerializer.Deserialize<TResult>(jsonContent);
+
+            // 应用迁移
+            if (result != null)
+            {
+                ApplyMigrations(result);
+            }
+
+            return result;
         }
         catch (Exception)
         {

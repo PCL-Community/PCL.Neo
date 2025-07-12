@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
 
-public record VersionManifes
+public record VersionManifest
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;

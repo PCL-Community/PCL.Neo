@@ -11,9 +11,10 @@ public static class Versions
     /// <summary>
     /// 获取本地已安装的Minecraft版本
     /// </summary>
-    public static async Task<List<VersionManifes>> GetLocalVersionsAsync(string minecraftDirectory)
+    public static async Task<List<Data.Arguments.Manifes.VersionManifest>> GetLocalVersionsAsync(
+        string minecraftDirectory)
     {
-        var result = new List<VersionManifes>();
+        var result = new List<Data.Arguments.Manifes.VersionManifest>();
         var versionsDirectory = Path.Combine(minecraftDirectory, "versions");
 
         if (!Directory.Exists(versionsDirectory))
@@ -31,7 +32,7 @@ public static class Versions
             try
             {
                 var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
-                var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent,
+                var versionInfo = JsonSerializer.Deserialize<Data.Arguments.Manifes.VersionManifest>(jsonContent,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 if (versionInfo is not null)
@@ -60,7 +61,7 @@ public static class Versions
     /// <summary>
     /// 获取Minecraft远程版本列表
     /// </summary>
-    public static async Task<List<VersionManifes>> GetRemoteVersionsAsync()
+    public static async Task<List<Data.Arguments.Manifes.VersionManifest>> GetRemoteVersionsAsync()
     {
         try
         {
@@ -73,7 +74,7 @@ public static class Versions
                 return [];
             }
 
-            return manifest.Versions.Select(version => new VersionManifes
+            return manifest.Versions.Select(version => new Data.Arguments.Manifes.VersionManifest
                 {
                     Id = version.Id,
                     Name = version.Id, // 使用ID作为名称
@@ -107,7 +108,8 @@ public static class Versions
     /// <summary>
     /// 通过ID获取特定版本信息
     /// </summary>
-    public static async Task<VersionManifes?> GetVersionByIdAsync(string gameDir, string versionId)
+    public static async Task<Data.Arguments.Manifes.VersionManifest?> GetVersionByIdAsync(string gameDir,
+        string versionId)
     {
         var jsonPath = Path.Combine(gameDir, $"{versionId}.json");
 
@@ -119,7 +121,7 @@ public static class Versions
         try
         {
             var jsonContent = await File.ReadAllTextAsync(jsonPath);
-            var versionInfo = JsonSerializer.Deserialize<VersionManifes>(jsonContent);
+            var versionInfo = JsonSerializer.Deserialize<Data.Arguments.Manifes.VersionManifest>(jsonContent);
 
             if (versionInfo != null)
             {
@@ -145,7 +147,7 @@ public static class Versions
     /// <summary>
     /// 从远程获取特定版本信息
     /// </summary>
-    public static async Task<VersionManifes?> GetRemoteVersionInfoAsync(string versionId)
+    public static async Task<Data.Arguments.Manifes.VersionManifest?> GetRemoteVersionInfoAsync(string versionId)
     {
         try
         {
@@ -162,7 +164,7 @@ public static class Versions
 
             // 获取详细版本信息
             var versionJsonResponse = await Shared.HttpClient.GetStringAsync(version.Url);
-            var versionInfo = JsonSerializer.Deserialize<VersionManifes>(versionJsonResponse,
+            var versionInfo = JsonSerializer.Deserialize<Data.Arguments.Manifes.VersionManifest>(versionJsonResponse,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (versionInfo != null)

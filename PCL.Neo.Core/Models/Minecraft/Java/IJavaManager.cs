@@ -41,14 +41,14 @@ public interface IJavaManager
     /// </summary>
     /// <param name="version">游戏清单信息</param>
     /// <returns>Java兼容性分数列表</returns>
-    List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(VersionManifes version);
+    List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(VersionManifest version);
 
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
     /// <param name="version">游戏清单信息</param>
     /// <returns>最合适的Java或null</returns>
-    JavaRuntime? GetBestJavaForGame(VersionManifes version);
+    JavaRuntime? GetBestJavaForGame(VersionManifest version);
 
     /// <summary>
     /// 获取Java的验证结果

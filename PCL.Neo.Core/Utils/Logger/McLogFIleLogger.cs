@@ -69,11 +69,8 @@ public sealed class McLogFileLogger : IDisposable
         ArgumentException.ThrowIfNullOrEmpty(logFile, nameof(logFile));
 
         // create log file if not exists
-        // create log file if not exists
         if (File.Exists(targetFilePath) == false)
         {
-            using (File.Create(targetFilePath)) {}
-
             using (File.Create(targetFilePath)) {}
         }
 
@@ -99,8 +96,6 @@ public sealed class McLogFileLogger : IDisposable
                 }
 
                 Dispose();
-
-                Dispose();
             }
             catch (Exception ex)
             {
@@ -119,8 +114,6 @@ public sealed class McLogFileLogger : IDisposable
                 {
                     await AppendContent(line);
                 }
-
-                Dispose();
 
                 Dispose();
             }
@@ -146,17 +139,9 @@ public sealed class McLogFileLogger : IDisposable
             return;
         }
 
-        if (_disposed)
-        {
-            return;
-        }
-
         _writer.Flush();
         _writer.Close();
         _writer.Dispose();
-        _cancellationTokenSource.Dispose();
-
-        _disposed = true;
         _cancellationTokenSource.Dispose();
 
         _disposed = true;

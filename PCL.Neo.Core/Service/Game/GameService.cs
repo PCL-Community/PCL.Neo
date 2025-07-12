@@ -5,6 +5,7 @@ using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils;
 using PCL.Neo.Core.Utils.Logger;
 using System.Text.Json;
+using VersionManifest = PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes.VersionManifest;
 
 namespace PCL.Neo.Core.Service.Game;
 
@@ -54,11 +55,11 @@ public class GameService(IJavaManager javaManager) : IGameService
     /// 下载游戏资源文件
     /// </summary>
     /// <exception cref="ArgumentNullException">Throw if AssIndex is null.</exception>
-    private static async Task DownloadAssetsAsync(VersionManifes versionManifes,
+    private static async Task DownloadAssetsAsync(VersionManifest versionManifest,
         IProgress<int>? progressCallback = null)
     {
         // pre check
-        ArgumentNullException.ThrowIfNull(versionManifes.AssetIndex); // not allow null
+        ArgumentNullException.ThrowIfNull(versionManifest.AssetIndex); // not allow null
 
         // 下载assets索引文件
         var assetsDir = Path.Combine(DefaultGameDirectory, "assets");
@@ -68,8 +69,8 @@ public class GameService(IJavaManager javaManager) : IGameService
         Directory.CreateDirectory(indexesDir);
         Directory.CreateDirectory(objectsDir);
 
-        var assetsIndexUrl = versionManifes.AssetIndex.Url;
-        var assetsIndexPath = Path.Combine(indexesDir, $"{versionManifes.AssetIndex.Id}.json");
+        var assetsIndexUrl = versionManifest.AssetIndex.Url;
+        var assetsIndexPath = Path.Combine(indexesDir, $"{versionManifest.AssetIndex.Id}.json");
 
         await DownloadReceipt.FastDownloadAsync(assetsIndexUrl, assetsIndexPath);
 
@@ -108,14 +109,14 @@ public class GameService(IJavaManager javaManager) : IGameService
     /// <summary>
     /// 下载游戏库文件
     /// </summary>
-    private static async Task DownloadLibrariesAsync(VersionManifes versionManifes,
+    private static async Task DownloadLibrariesAsync(VersionManifest versionManifest,
         IProgress<int>? progressCallback = null)
     {
         var librariesDir = Path.Combine(DefaultGameDirectory, "libraries");
         Directory.CreateDirectory(librariesDir);
 
-        var libraries = versionManifes.Libraries ??
-                        throw new ArgumentNullException(nameof(versionManifes.Libraries),
+        var libraries = versionManifest.Libraries ??
+                        throw new ArgumentNullException(nameof(versionManifest.Libraries),
                             "The libraries property is null.");
         var totalLibraries = libraries.Count;
         var downloadedLibraries = 0;

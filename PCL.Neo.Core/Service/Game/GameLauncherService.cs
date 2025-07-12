@@ -6,13 +6,14 @@ using PCL.Neo.Core.Utils;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
+using VersionManifest = PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes.VersionManifest;
 
 namespace PCL.Neo.Core.Service.Game;
 
 public class GameLauncherService : IGameLauncherService
 {
     /// <inheritdoc />
-    public VersionManifes? Manifes { get; private set; }
+    public VersionManifest? Manifest { get; private set; }
 
     /// <inheritdoc />
     public GameInfo Information { get; init; }
@@ -23,7 +24,7 @@ public class GameLauncherService : IGameLauncherService
 
     private ArgumentsAdapter? _adapter;
 
-    private readonly Lazy<Task<VersionManifes>> _manifestLazy;
+    private readonly Lazy<Task<VersionManifest>> _manifestLazy;
 
     public GameLauncherService(GameInfo information, LaunchOptions options)
     {
@@ -31,7 +32,7 @@ public class GameLauncherService : IGameLauncherService
         Options = options;
 
         // 惰性加载版本清单
-        _manifestLazy = new Lazy<Task<VersionManifes>>(LoadVersionManifestAsync);
+        _manifestLazy = new Lazy<Task<VersionManifest>>(LoadVersionManifestAsync);
     }
 
     /// <summary>
@@ -39,14 +40,14 @@ public class GameLauncherService : IGameLauncherService
     /// </summary>
     public async Task<Collection<string>> BuildLaunchCommandAsync()
     {
-        Manifes = await _manifestLazy.Value;
+        Manifest = await _manifestLazy.Value;
 
         var nativesDir = PrepareNativesDirectory();
         var libPath = Path.Combine(Information.RootDirectory, "libraries");
 
-        ArgumentNullException.ThrowIfNull(Manifes.Libraries); // enure libraries is not null
+        ArgumentNullException.ThrowIfNull(Manifest.Libraries); // enure libraries is not null
 
-        var libCommand = await BuildLibrariesCommandAsync(Manifes.Libraries, Information.RootDirectory);
+        var libCommand = await BuildLibrariesCommandAsync(Manifest.Libraries, Information.RootDirectory);
         var classPath = BuildClassPath(libCommand);
 
         _adapter = CreateArgumentsAdapter(nativesDir, libPath, classPath);
@@ -57,20 +58,20 @@ public class GameLauncherService : IGameLauncherService
         AddBasicJvmArguments(args);
 
         // 添加JVM参数
-        var jvmArgs = GenerateJvmArguments(Information, Options, Manifes, _adapter);
+        var jvmArgs = GenerateJvmArguments(Information, Options, Manifest, _adapter);
         args.AddRange(jvmArgs);
 
         // 添加主类
-        args.Add(Manifes.MainClass);
+        args.Add(Manifest.MainClass);
 
         // 添加游戏参数
-        var gameArgs = GenerateGameArguments(Information, Options, Manifes, _adapter);
+        var gameArgs = GenerateGameArguments(Information, Options, Manifest, _adapter);
         args.AddRange(gameArgs);
 
         return args;
     }
 
-    private async Task<VersionManifes> LoadVersionManifestAsync()
+    private async Task<VersionManifest> LoadVersionManifestAsync()
     {
         ValidateDirctories();
 
@@ -95,7 +96,7 @@ public class GameLauncherService : IGameLauncherService
             versionManifest = MergeVersionInfo(versionManifest, parentManifest);
         }
 
-        Manifes = versionManifest;
+        Manifest = versionManifest;
         return versionManifest;
     }
 
@@ -117,9 +118,9 @@ public class GameLauncherService : IGameLauncherService
     /// <summary>
     /// 合并版本信息（处理继承关系）
     /// </summary>
-    private static VersionManifes MergeVersionInfo(VersionManifes child, VersionManifes parent)
+    private static VersionManifest MergeVersionInfo(VersionManifest child, VersionManifest parent)
     {
-        return new VersionManifes
+        return new VersionManifest
         {
             Id = child.Id,
             Name = child.Name,
@@ -389,9 +390,9 @@ public class GameLauncherService : IGameLauncherService
             { "${classpath}", classPath }
         };
 
-        ArgumentNullException.ThrowIfNull(Manifes);
+        ArgumentNullException.ThrowIfNull(Manifest);
 
-        return new ArgumentsAdapter(Information, Options, extraArgs, Manifes);
+        return new ArgumentsAdapter(Information, Options, extraArgs, Manifest);
     }
 
     /// <summary>
@@ -411,7 +412,7 @@ public class GameLauncherService : IGameLauncherService
     private static Collection<string> GenerateJvmArguments(
         GameInfo information,
         LaunchOptions options,
-        VersionManifes versionManifest,
+        VersionManifest versionManifest,
         ArgumentsAdapter adapter)
     {
         var args = new Collection<string>();
@@ -440,7 +441,7 @@ public class GameLauncherService : IGameLauncherService
         Collection<string> args,
         GameInfo information,
         LaunchOptions options,
-        VersionManifes versionManifest)
+        VersionManifest versionManifest)
     {
         if (versionManifest.Logging?.Client is null)
         {
@@ -460,7 +461,7 @@ public class GameLauncherService : IGameLauncherService
     private static Collection<string> GenerateGameArguments(
         GameInfo information,
         LaunchOptions options,
-        VersionManifes versionManifest,
+        VersionManifest versionManifest,
         ArgumentsAdapter adapter)
     {
         var args = new Collection<string>();
@@ -502,7 +503,7 @@ public class GameLauncherService : IGameLauncherService
         Collection<string> args,
         GameInfo information,
         LaunchOptions options,
-        VersionManifes versionManifest)
+        VersionManifest versionManifest)
     {
         var clientType = options.IsOfflineMode ? "legacy" : "mojang";
 

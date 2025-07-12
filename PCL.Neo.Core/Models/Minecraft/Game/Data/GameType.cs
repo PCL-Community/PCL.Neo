@@ -8,7 +8,7 @@ public enum GameType
     Unknown = 0,
 
     // --- 组1：基础游戏类型（这些值互相排斤） ---
-    // 使用地位比特
+    // 使用低位比特
     Vanilla = 1 << 0, // 0x00000001
     Snapshot = 1 << 1, // 0x00000002
     Forge = 1 << 2, // 0x00000004

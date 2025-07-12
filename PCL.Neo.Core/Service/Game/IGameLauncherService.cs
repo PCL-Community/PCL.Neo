@@ -13,7 +13,7 @@ public interface IGameLauncherService
     /// <summary>
     /// Version manifes information.
     /// </summary>
-    VersionManifes? Manifes { get; }
+    VersionManifest? Manifest { get; }
 
     /// <summary>
     /// Game infomation.

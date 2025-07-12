@@ -44,7 +44,7 @@ public class GameEntity(GameInfo inforamtion, LaunchOptions options) : IDisposab
         return true;
     }
 
-    public bool StopGameAsync()
+    public bool StopGame()
     {
         _gameProcess?.Kill();
         return true;
