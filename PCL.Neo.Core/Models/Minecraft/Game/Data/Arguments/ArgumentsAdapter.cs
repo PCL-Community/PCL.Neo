@@ -21,7 +21,10 @@ public class ArgumentsAdapter
         Arguments.Add("${game_directory}", info.GameDirectory);
         Arguments.Add("${assets_root}",
             DirectoryUtil.QuotePath(Path.Combine(info.RootDirectory, "assets")));
+        Arguments.Add("${game_assets}",
+            DirectoryUtil.QuotePath(Path.Combine(info.RootDirectory, "assets")));
         Arguments.Add("${auth_player_name}", options.Username);
+        Arguments.Add("${auth_session}", string.Empty); // idk what auth_session is...
         Arguments.Add("${version_name}", info.Name);
         Arguments.Add("${assets_index_name}", manifes.AssetIndex?.Id ?? "legacy");
         Arguments.Add("${auth_uuid}", options.UUID);
