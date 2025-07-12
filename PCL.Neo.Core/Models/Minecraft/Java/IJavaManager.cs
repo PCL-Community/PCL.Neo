@@ -13,24 +13,24 @@ public interface IJavaManager
     /// Java列表
     /// </summary>
     List<JavaRuntime> JavaList { get; }
-    
+
     /// <summary>
     /// 默认Java运行时
     /// </summary>
     DefaultJavaRuntimeCombine DefaultJavaRuntimes { get; }
-    
+
     /// <summary>
     /// 初始化Java列表
     /// </summary>
     Task JavaListInitAsync();
-    
+
     /// <summary>
     /// 手动添加Java
     /// </summary>
     /// <param name="javaDir">Java目录</param>
     /// <returns>Java运行时和是否更新当前</returns>
     Task<(JavaRuntime?, bool UpdateCurrent)> ManualAdd(string javaDir);
-    
+
     /// <summary>
     /// 刷新Java列表
     /// </summary>
@@ -56,7 +56,7 @@ public interface IJavaManager
     /// <param name="java">要验证的Java</param>
     /// <returns>Java验证结果</returns>
     Task<JavaVerifier.JavaVerifyResult> GetJavaVerificationAsync(JavaRuntime java);
-    
+
     /// <summary>
     /// 清除验证结果缓存
     /// </summary>

@@ -49,7 +49,7 @@ public static partial class ArgumentProcessor
         if (ruleFeature == null) { return false; }
 
         // has value and value is true, if the rule is not satisfied, it will return false.
-        return adapter.Features.TryGetValue(ruleFeature.First().Key, out bool value) && value;
+        return adapter.Features.TryGetValue(ruleFeature.First().Key, out var value) && value;
     }
 
     private static bool AreRulesSatisfied(List<Rule> rulesList, ArgumentsAdapter adapter)
@@ -59,23 +59,23 @@ public static partial class ArgumentProcessor
             return true; // No rules, default allow.
         }
 
-        bool overallPermission = true; // Default to allow, a rule can change this to false.
+        var overallPermission = true; // Default to allow, a rule can change this to false.
 
         foreach (var rule in rulesList)
         {
             if (string.IsNullOrEmpty(rule.Action)) { continue; } // Skip malformed rules
 
-            bool osConditionsMet = CheckOsRule(rule.Os);
-            bool featureConditionsMet = rule.Features == null || CheckFeaturesRule(rule.Features.Feature, adapter);
+            var osConditionsMet = CheckOsRule(rule.Os);
+            var featureConditionsMet = rule.Features == null || CheckFeaturesRule(rule.Features.Feature, adapter);
 
             // For a rule to apply its conditions, ALL its specified conditions (OS and Feature) must be met.
-            bool ruleCriteriaMet = osConditionsMet && featureConditionsMet;
+            var ruleCriteriaMet = osConditionsMet && featureConditionsMet;
 
             if (rule.Action.Equals("allow", StringComparison.OrdinalIgnoreCase))
             {
                 // If an "allow" rule has conditions (OS or Feature specified) AND those conditions are NOT met,
                 // then this argument is disallowed by this rule.
-                bool ruleHasAnyConditions = rule.Os != null || rule.Features != null;
+                var ruleHasAnyConditions = rule.Os != null || rule.Features != null;
                 if (ruleHasAnyConditions && !ruleCriteriaMet)
                 {
                     overallPermission = false;
@@ -109,11 +109,9 @@ public static partial class ArgumentProcessor
             result = value;
             return isSuccess;
         }
-        else
-        {
-            result = argument;
-            return false;
-        }
+
+        result = argument;
+        return false;
     }
 
 #nullable restore

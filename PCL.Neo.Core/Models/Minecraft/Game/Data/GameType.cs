@@ -31,5 +31,5 @@ public enum GameType
     ///包含所有基础游戏类型的掩码。
     /// 在一个有效的 GameType 值中，与此掩码进行位与操作后，结果必须是0或者一个2的幂。
     ///</summary>
-    BaseTypeMask = Vanilla | Snapshot | Forge | Fabric | NeoForge | LiteLoader | Rift | Quilt | Cleanroom | Labymod,
+    BaseTypeMask = Vanilla | Snapshot | Forge | Fabric | NeoForge | LiteLoader | Rift | Quilt | Cleanroom | Labymod
 }

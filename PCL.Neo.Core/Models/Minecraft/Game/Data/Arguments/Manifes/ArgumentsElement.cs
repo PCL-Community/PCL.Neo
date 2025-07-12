@@ -14,7 +14,11 @@ public abstract class ArgumentElement;
 public class StringArgument(string value) : ArgumentElement
 {
     public string Value { get; } = value;
-    public override string ToString() => $"String: \"{Value}\"";
+
+    public override string ToString()
+    {
+        return $"String: \"{Value}\"";
+    }
 }
 
 /// <summary>
@@ -22,11 +26,15 @@ public class StringArgument(string value) : ArgumentElement
 /// </summary>
 public class RuledArgument : ArgumentElement
 {
-    [JsonPropertyName("rules")] public List<Rule> Rules { get; init; } = [];
+    [JsonPropertyName("rules")]
+    public List<Rule> Rules { get; init; } = [];
 
     [JsonPropertyName("value")]
     [JsonConverter(typeof(StringOrStringListConverter))]
     public List<string> Value { get; init; } = [];
 
-    public override string ToString() => $"Ruled: Values='{string.Join(' ', Value)}', RulesCount={Rules.Count}";
+    public override string ToString()
+    {
+        return $"Ruled: Values='{string.Join(' ', Value)}', RulesCount={Rules.Count}";
+    }
 }

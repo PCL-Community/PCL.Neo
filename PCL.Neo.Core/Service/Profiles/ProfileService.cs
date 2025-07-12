@@ -152,15 +152,21 @@ public class ProfileService : IProfileService
         return true;
     }
 
-    private static bool ValidateDir(string targetDir) =>
-        RequiredSubDirectories.All(subDir =>
+    private static bool ValidateDir(string targetDir)
+    {
+        return RequiredSubDirectories.All(subDir =>
             Directory.Exists(Path.Combine(targetDir, subDir)));
+    }
 
-    private static bool ValidateVersionDir(string jarFile, string jsonFile) =>
-        File.Exists(jarFile) && File.Exists(jsonFile);
+    private static bool ValidateVersionDir(string jarFile, string jsonFile)
+    {
+        return File.Exists(jarFile) && File.Exists(jsonFile);
+    }
 
-    private static string GetProfileFilePath(string configDir, string profileName) =>
-        Path.Combine(configDir, $"{profileName}.json");
+    private static string GetProfileFilePath(string configDir, string profileName)
+    {
+        return Path.Combine(configDir, $"{profileName}.json");
+    }
 
     private static string GetDefaultProfileConfigPath()
     {
@@ -195,6 +201,8 @@ public class ProfileService : IProfileService
         }
     }
 
-    private static async Task<GameType> GetGameType(string gameDir, string gameName) =>
-        await VersionTypeHelper.GetGameType(gameDir, gameName);
+    private static async Task<GameType> GetGameType(string gameDir, string gameName)
+    {
+        return await VersionTypeHelper.GetGameType(gameDir, gameName);
+    }
 }

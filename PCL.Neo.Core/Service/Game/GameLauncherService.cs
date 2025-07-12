@@ -117,24 +117,27 @@ public class GameLauncherService : IGameLauncherService
     /// <summary>
     /// 合并版本信息（处理继承关系）
     /// </summary>
-    private static VersionManifes MergeVersionInfo(VersionManifes child, VersionManifes parent) => new()
+    private static VersionManifes MergeVersionInfo(VersionManifes child, VersionManifes parent)
     {
-        Id = child.Id,
-        Name = child.Name,
-        Type = child.Type,
-        ReleaseTime = child.ReleaseTime,
-        Time = child.Time,
-        JsonOriginData = child.JsonOriginData,
-        MinecraftArguments = child.MinecraftArguments ?? parent.MinecraftArguments,
-        Arguments = child.Arguments ?? parent.Arguments,
-        MainClass = child.MainClass,
-        AssetIndex = child.AssetIndex ?? parent.AssetIndex,
-        Assets = child.Assets ?? parent.Assets,
-        JavaVersion = child.JavaVersion ?? parent.JavaVersion,
-        Downloads = child.Downloads ?? parent.Downloads,
-        // 合并库文件
-        Libraries = MergeLibraries(child.Libraries, parent.Libraries)
-    };
+        return new VersionManifes
+        {
+            Id = child.Id,
+            Name = child.Name,
+            Type = child.Type,
+            ReleaseTime = child.ReleaseTime,
+            Time = child.Time,
+            JsonOriginData = child.JsonOriginData,
+            MinecraftArguments = child.MinecraftArguments ?? parent.MinecraftArguments,
+            Arguments = child.Arguments ?? parent.Arguments,
+            MainClass = child.MainClass,
+            AssetIndex = child.AssetIndex ?? parent.AssetIndex,
+            Assets = child.Assets ?? parent.Assets,
+            JavaVersion = child.JavaVersion ?? parent.JavaVersion,
+            Downloads = child.Downloads ?? parent.Downloads,
+            // 合并库文件
+            Libraries = MergeLibraries(child.Libraries, parent.Libraries)
+        };
+    }
 
     /// <summary>
     /// 合并库文件列表
@@ -272,14 +275,12 @@ public class GameLauncherService : IGameLauncherService
                     permitAdd = false;
                     break; // This rule explicitly states not to add.
                 }
-                else
+
+                // 如果action为disallow，那就说明除os.name指定的系统外其余的全都添加
+                if (string.Equals(currentOsName, ruleOsName, StringComparison.OrdinalIgnoreCase))
                 {
-                    // 如果action为disallow，那就说明除os.name指定的系统外其余的全都添加
-                    if (string.Equals(currentOsName, ruleOsName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        permitAdd = false;
-                        break; // This rule explicitly states not to add for the current OS.
-                    }
+                    permitAdd = false;
+                    break; // This rule explicitly states not to add for the current OS.
                 }
             }
         }
@@ -312,8 +313,9 @@ public class GameLauncherService : IGameLauncherService
     /// </summary>
     private static Task<Collection<string>> BuildLibrariesCommandAsync(
         IEnumerable<Library> libraries,
-        string minecraftDir) =>
-        Task.Run(() =>
+        string minecraftDir)
+    {
+        return Task.Run(() =>
         {
             var commands = new Collection<string>();
             var currentOs = Const.Os.ToString().ToLowerInvariant();
@@ -343,6 +345,7 @@ public class GameLauncherService : IGameLauncherService
 
             return commands;
         });
+    }
 
     /// <summary>
     /// 准备natives目录

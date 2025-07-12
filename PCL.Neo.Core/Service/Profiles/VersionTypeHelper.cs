@@ -24,7 +24,7 @@ internal class VersionTypeHelper
         var releaseTime = root.GetProperty("releaseTime").GetString() ??
                           throw new ArgumentNullException(nameof(root), "Game release time not found.");
 
-        GameType type = GameType.Unknown;
+        var type = GameType.Unknown;
 
         if (IsFool(releaseTime))
         {
@@ -51,8 +51,10 @@ internal class VersionTypeHelper
         return time is { Month: 4, Day: 1 };
     }
 
-    private static bool IsSnapshot(string type) =>
-        string.Equals(type, "snapshot", StringComparison.OrdinalIgnoreCase);
+    private static bool IsSnapshot(string type)
+    {
+        return string.Equals(type, "snapshot", StringComparison.OrdinalIgnoreCase);
+    }
 
     private static GameType GetLoaderType(string jsonContent)
     {
@@ -88,4 +90,3 @@ internal class VersionTypeHelper
         return type;
     }
 }
-

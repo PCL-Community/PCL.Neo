@@ -11,15 +11,21 @@ public record GameVersionId(byte Sub, byte? Fix = null) : IComparable<GameVersio
     public byte Sub => _version.Sub;
     public byte? Fix => _version.Fix > 0 ? _version.Fix : null;
 
-    public int CompareTo(GameVersionId? other) =>
-        other == null ? 1 : (Major, Sub, Fix ?? 0).CompareTo((other.Major, other.Sub, other.Fix ?? 0));
+    public int CompareTo(GameVersionId? other)
+    {
+        return other == null ? 1 : (Major, Sub, Fix ?? 0).CompareTo((other.Major, other.Sub, other.Fix ?? 0));
+    }
 
-    public override string ToString() =>
-        Fix.HasValue ? $"{Major}.{Sub}.{Fix}" : $"{Major}.{Sub}";
+    public override string ToString()
+    {
+        return Fix.HasValue ? $"{Major}.{Sub}.{Fix}" : $"{Major}.{Sub}";
+    }
 
     /// <inheritdoc />
-    public override int GetHashCode() =>
-        HashCode.Combine(_version.Major, _version.Sub, _version.Fix);
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(_version.Major, _version.Sub, _version.Fix);
+    }
 
     /// <inheritdoc />
     public virtual bool Equals(GameVersionId? other)

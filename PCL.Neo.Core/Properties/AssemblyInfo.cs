@@ -1,1 +1,3 @@
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("PCL.Neo.Tests")]
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("PCL.Neo.Tests")]

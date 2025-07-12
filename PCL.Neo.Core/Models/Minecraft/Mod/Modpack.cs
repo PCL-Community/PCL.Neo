@@ -9,7 +9,7 @@ public class ModPack
         if (!File.Exists(mrpack)) { throw new FileNotFoundException(); }
 
         // ZipFile.ExtractToDirectory(mrpack, directory);
-        using ZipArchive archive = ZipFile.OpenRead(mrpack);
+        using var archive = ZipFile.OpenRead(mrpack);
         var modrinthOptions = archive.GetEntry("modrinth.index.json");
 
         // foreach (ZipArchiveEntry entry in archive.Entries)

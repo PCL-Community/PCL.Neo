@@ -24,8 +24,8 @@
     <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
   </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
+  </ItemGroup>
 
 </Project>

@@ -9,11 +9,8 @@ namespace PCL.Neo.Core.Models.Minecraft.Java;
 public sealed partial class JavaManager
 {
     // TODO: 应该设置多个下载源，从配置文件中获取
-    private static string MetaUrl
-    {
-        get =>
-            "https://piston-meta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
-    }
+    private static string MetaUrl =>
+        "https://piston-meta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
 
     /// <summary>
     /// MOJANG 提供的平台记录
@@ -45,14 +42,14 @@ public sealed partial class JavaManager
         // TODO: 根据配置文件切换下载源
         Uri metaUrl = new(MetaUrl);
         var allJson = await Shared.HttpClient.GetStringAsync(metaUrl, cancellationToken);
-        string manifestJson = string.Empty;
+        var manifestJson = string.Empty;
         using (var document = JsonDocument.Parse(allJson))
         {
             var root = document.RootElement;
-            if (root.TryGetProperty(platform, out JsonElement platformElement) && // get platform property
+            if (root.TryGetProperty(platform, out var platformElement) && // get platform property
                 platformElement.TryGetProperty(version.Value, out var gammaArray) && // get target version property
                 gammaArray.GetArrayLength() > 0 && // has value
-                gammaArray[0].TryGetProperty("manifest", out JsonElement manifestElement) && // get manifest property
+                gammaArray[0].TryGetProperty("manifest", out var manifestElement) && // get manifest property
                 manifestElement.TryGetProperty("url", out var manifestUriElement)) // get url property
             {
                 var manifestUri = manifestUriElement.GetString(); // convert to string
@@ -79,7 +76,7 @@ public sealed partial class JavaManager
         var files = filesNode!.AsObject();
         var tasks = new List<Task>(files.Count);
         var executableFiles = new List<string>(files.Count);
-        foreach ((string filePath, JsonNode? value) in files)
+        foreach (var (filePath, value) in files)
         {
             var fileInfo = value!.AsObject();
 
@@ -92,7 +89,7 @@ public sealed partial class JavaManager
 
             var downloads = downloadsNode!.AsObject();
 
-            bool isExecutable =
+            var isExecutable =
                 fileInfo.TryGetPropertyValue("executable", out var execNode) &&
                 execNode!.GetValue<bool>();
 
@@ -115,7 +112,7 @@ public sealed partial class JavaManager
                 sha1Lzma = lzma["sha1"]!.ToString();
             }
 
-            string localFilePath = Path.Combine(destinationFolder,
+            var localFilePath = Path.Combine(destinationFolder,
                 filePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
 
             if (isExecutable)
@@ -166,8 +163,8 @@ public sealed partial class JavaManager
 
         if (progress != null)
         {
-            int completed = 0;
-            int total = tasks.Count;
+            var completed = 0;
+            var total = tasks.Count;
             while (total - completed > 0)
             {
                 var finishedTask = await Task.WhenAny(tasks);

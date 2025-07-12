@@ -47,6 +47,8 @@ public static class LaunchOptionsExtensions // note: i dont konw why does extens
         await File.WriteAllTextAsync(optionsPath, content, Encoding.UTF8);
     }
 
-    private static string GetOptionsFilePath(string gameDir) =>
-        Path.Combine(gameDir, "launch_options");
+    private static string GetOptionsFilePath(string gameDir)
+    {
+        return Path.Combine(gameDir, "launch_options");
+    }
 }

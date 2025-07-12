@@ -78,9 +78,11 @@ public static partial class Uuid
     [GeneratedRegex("^[a-zA-Z0-9_]+$", RegexOptions.Compiled)]
     private static partial Regex ValidUsernameRegex();
 
-    private static bool IsValidUsername(string? username) =>
-        !string.IsNullOrEmpty(username) &&
-        ValidUsernameRegex().IsMatch(username);
+    private static bool IsValidUsername(string? username)
+    {
+        return !string.IsNullOrEmpty(username) &&
+               ValidUsernameRegex().IsMatch(username);
+    }
 
     private static class MurmurHash3
     {
@@ -93,18 +95,18 @@ public static partial class Uuid
         public static byte[] Hash(string str)
         {
             var bytes = Encoding.UTF8.GetBytes(str);
-            uint h1 = Seed;
-            int len = bytes.Length;
-            int blockCount = len / 4;
+            var h1 = Seed;
+            var len = bytes.Length;
+            var blockCount = len / 4;
 
             // Process 4-byte blocks
-            for (int i = 0; i < blockCount; i++)
+            for (var i = 0; i < blockCount; i++)
             {
-                int index = i * 4;
-                uint k1 = (uint)(bytes[index] |
-                                 (bytes[index + 1] << 8) |
-                                 (bytes[index + 2] << 16) |
-                                 (bytes[index + 3] << 24));
+                var index = i * 4;
+                var k1 = (uint)(bytes[index] |
+                                (bytes[index + 1] << 8) |
+                                (bytes[index + 2] << 16) |
+                                (bytes[index + 3] << 24));
 
                 k1 *= C1;
                 k1 = RotateLeft(k1, 15);
@@ -117,7 +119,7 @@ public static partial class Uuid
 
             // Process remaining bytes
             uint k1Tail = 0;
-            int tailIndex = blockCount * 4;
+            var tailIndex = blockCount * 4;
             switch (len & 3)
             {
                 case 3:
@@ -155,7 +157,10 @@ public static partial class Uuid
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static uint RotateLeft(uint x, int r) => (x << r) | (x >> (32 - r));
+        private static uint RotateLeft(uint x, int r)
+        {
+            return (x << r) | (x >> (32 - r));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint Fmix(uint h)

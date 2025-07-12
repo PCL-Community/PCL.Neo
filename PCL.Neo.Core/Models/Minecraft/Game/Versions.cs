@@ -81,7 +81,7 @@ public static class Versions
                     ReleaseTime = version.ReleaseTime,
                     Time = version.Time,
                     // 下载信息
-                    Downloads = new DownloadsInfo { Client = new DownloadEntry { Url = version.Url, } }
+                    Downloads = new DownloadsInfo { Client = new DownloadEntry { Url = version.Url } }
                 })
                 .ToList();
         }

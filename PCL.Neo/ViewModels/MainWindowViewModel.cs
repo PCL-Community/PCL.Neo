@@ -1,13 +1,10 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PCL.Neo.Controls.MyMsg;
 using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Java;
-using PCL.Neo.Core.Service.Game;
 using PCL.Neo.Core.Utils;
-using PCL.Neo.Services;
 using PCL.Neo.Helpers;
 using PCL.Neo.Messages;
 using PCL.Neo.Services;
@@ -53,20 +50,26 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CheckedBtn))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CheckedBtn))]
     private ViewModelBase? _currentViewModel;
 
-    [ObservableProperty] private ViewModelBase? _currentSubViewModel;
+    [ObservableProperty]
+    private ViewModelBase? _currentSubViewModel;
 
-    [ObservableProperty] private bool _canGoBack;
+    [ObservableProperty]
+    private bool _canGoBack;
 
     // 添加新的属性和命令用于PCL II风格主界面
-    [ObservableProperty] private string _selectedGameVersion = "1.20.2-Fabric 0.15.7-OptiFine_I7_pre1";
+    [ObservableProperty]
+    private string _selectedGameVersion = "1.20.2-Fabric 0.15.7-OptiFine_I7_pre1";
 
-    [ObservableProperty] private bool _isPremiumAccount = false;
+    [ObservableProperty]
+    private bool _isPremiumAccount;
 
     // 添加CurrentUserName属性以解决绑定错误
-    [ObservableProperty] private string _currentUserName = "Player";
+    [ObservableProperty]
+    private string _currentUserName = "Player";
 
     // 为了设计时的 DataContext
     public MainWindowViewModel()
@@ -76,7 +79,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(Window window)
     {
-        this._window = window;
+        _window = window;
 
         // 启用所有 Messenger 注册事件
         IsActive = true;
@@ -102,7 +105,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public void OnNavigated(NavigationMessage message)
     {
         if (message.IsMainViewModelChanged)
-            CurrentViewModel    = message.NewMainViewModel;
+            CurrentViewModel = message.NewMainViewModel;
         if (message.IsSubViewModelChanged)
             CurrentSubViewModel = message.NewSubViewModel;
         // 更新返回按钮状态

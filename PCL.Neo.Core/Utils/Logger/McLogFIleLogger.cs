@@ -72,8 +72,9 @@ public sealed class McLogFileLogger : IDisposable
         // create log file if not exists
         if (File.Exists(targetFilePath) == false)
         {
-            using (File.Create(targetFilePath)) { }
-            using (File.Create(targetFilePath)) { }
+            using (File.Create(targetFilePath)) {}
+
+            using (File.Create(targetFilePath)) {}
         }
 
         // copy content
@@ -135,7 +136,7 @@ public sealed class McLogFileLogger : IDisposable
         _cancellationTokenSource.Cancel();
     }
 
-    private bool _disposed = false;
+    private bool _disposed;
 
     /// <inheritdoc />
     public void Dispose()
