@@ -26,10 +26,12 @@ public class GameEntity(GameInfo inforamtion, LaunchOptions options) : IDisposab
             var command = await Launcher.BuildLaunchCommandAsync();
             _gameProcess = await Launcher.LaunchAsync(command);
         }
-        catch (Exception ex)
+        catch (Exception innerException)
         {
             // 记录异常或重新抛出 TODO: log this exception
-            throw new InvalidOperationException("Failed to start game", ex);
+            var e = new InvalidOperationException("Failed to start game", innerException);
+            NewLogger.Logger.LogError("Failed to start game.", e);
+            throw e;
         }
 
 #if DEBUG
