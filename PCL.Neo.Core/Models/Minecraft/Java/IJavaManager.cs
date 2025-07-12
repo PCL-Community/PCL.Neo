@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 
 namespace PCL.Neo.Core.Models.Minecraft.Java;
 
@@ -39,16 +39,16 @@ public interface IJavaManager
     /// <summary>
     /// 获取适合游戏版本的Java列表
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="version">游戏清单信息</param>
     /// <returns>Java兼容性分数列表</returns>
-    List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameEntityInfo gameEntity);
+    List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(VersionManifest version);
 
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="version">游戏清单信息</param>
     /// <returns>最合适的Java或null</returns>
-    JavaRuntime? GetBestJavaForGame(GameEntityInfo gameEntity);
+    JavaRuntime? GetBestJavaForGame(VersionManifest version);
 
     /// <summary>
     /// 获取Java的验证结果

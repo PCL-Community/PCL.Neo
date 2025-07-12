@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using PCL.Neo.Core.Utils;
 
 namespace PCL.Neo.Core.Models.Minecraft.Java;
@@ -58,31 +58,31 @@ public sealed partial class JavaManager : IJavaManager
     /// <summary>
     /// 获取适合游戏版本的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="version">游戏信息清单</param>
     /// <returns>排序后的Java兼容性列表</returns>
-    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(GameEntityInfo gameEntity)
+    public List<JavaSelector.JavaCompatibilityScore> GetCompatibleJavas(VersionManifest version)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {
-            return new List<JavaSelector.JavaCompatibilityScore>();
+            return [];
         }
 
-        return JavaSelector.SelectJavaForGame(gameEntity, JavaList);
+        return JavaSelector.SelectJavaForGame(version, JavaList);
     }
 
     /// <summary>
     /// 获取最适合游戏版本的Java
     /// </summary>
-    /// <param name="gameEntity">游戏实体</param>
+    /// <param name="version">游戏信息清单</param>
     /// <returns>最佳的Java或null</returns>
-    public JavaRuntime? GetBestJavaForGame(GameEntityInfo gameEntity)
+    public JavaRuntime? GetBestJavaForGame(VersionManifest version)
     {
         if (!IsInitialized || JavaList.Count == 0)
         {
             return null;
         }
 
-        var compatibleJavas = JavaSelector.SelectJavaForGame(gameEntity, JavaList);
+        var compatibleJavas = JavaSelector.SelectJavaForGame(version, JavaList);
         return compatibleJavas.FirstOrDefault()?.Runtime;
     }
 
@@ -113,7 +113,7 @@ public sealed partial class JavaManager : IJavaManager
 
     /// <summary>
     /// 初始化 Java 列表，但除非没有 Java，否则不进行检查。
-    /// <remarks> TODO)) 更换为 Logger.cs 中的 logger </remarks>
+    /// <remarks>更换为 Logger.cs 中的 logger </remarks>
     /// </summary>
     public async Task JavaListInitAsync()
     {
@@ -122,15 +122,15 @@ public sealed partial class JavaManager : IJavaManager
         JavaList = [];
         try
         {
-            // TODO)) 如果本地缓存中已有 Java 列表则读取缓存
-            var readJavaListCacheVersion = 0; // TODO)) 此数字应该从缓存中读取
+            // TODO: 如果本地缓存中已有 Java 列表则读取缓存
+            var readJavaListCacheVersion = 0; // TODO: 此数字应该从缓存中读取
             if (readJavaListCacheVersion < JavaListCacheVersion)
             {
-                // TODO)) 设置本地版本号为 JavaListCacheVersion
+                // TODO: 设置本地版本号为 JavaListCacheVersion
                 Console.WriteLine("[Java] 要求 Java 列表缓存更新");
             }
 
-            // TODO)) 从本地缓存中读取 Java 列表
+            // TODO: 从本地缓存中读取 Java 列表
             if (JavaList.Count == 0)
             {
                 Console.WriteLine("[Java] 初始化未找到可用的 Java，将自动触发搜索");
@@ -149,7 +149,7 @@ public sealed partial class JavaManager : IJavaManager
             _isBusy = false;
             TestOutput();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Console.WriteLine("初始化 Java 失败");
             IsInitialized = false;
@@ -216,15 +216,15 @@ public sealed partial class JavaManager : IJavaManager
 
         if (JavaList.Count == 0)
         {
-            // TODO)) 提示用户未找到已安装的 java，是否自动下载合适版本，然后再下载
+            // TODO: 提示用户未找到已安装的 java，是否自动下载合适版本，然后再下载
             var neo2SysDir = Directory.CreateDirectory(
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "PCL.Neo", "Java")); // TODO)) 此处的路径等配置文件的模块写好了以后应该从配置文件中获取
+                    "PCL.Neo", "Java")); // TODO: 此处的路径等配置文件的模块写好了以后应该从配置文件中获取
             var cts = new CancellationTokenSource();
             var progress =
                 new Progress<(int, int)>(value =>
                     Console.WriteLine(
-                        $"下载进度：已下载{value.Item1}/总文件数{value.Item2}")); // TODO)) 后续这个 progress 可以设置成在 UI 上显示
+                        $"下载进度：已下载{value.Item1}/总文件数{value.Item2}")); // TODO: 后续这个 progress 可以设置成在 UI 上显示
             var fetchedJavaDir = await FetchJavaOnline(SystemUtils.Platform, neo2SysDir.FullName,
                 MojangJavaVersion.Α, progress, cts.Token);
             if (fetchedJavaDir != null)
@@ -290,7 +290,7 @@ public sealed partial class JavaManager : IJavaManager
         };
     }
 
-    public void TestOutput()
+    private void TestOutput()
     {
         if (!IsInitialized) return;
         Console.WriteLine("当前有 " + JavaList.Count + " 个 Java");

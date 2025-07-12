@@ -1,69 +1,77 @@
-using PCL.Neo.Core.Models.Profile;
+using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Service.Profiles.Data;
 
 namespace PCL.Neo.Core.Service.Profiles;
 
-/// <summary>
-/// 游戏档案管理服务接口
-/// </summary>
 public interface IProfileService
 {
     /// <summary>
-    /// 获取所有游戏档案
+    /// Load profile from the default directory.
     /// </summary>
-    Task<List<GameProfile>> GetAllProfilesAsync();
+    /// <returns>A collection of game profile.</returns>
+    Task<IEnumerable<ProfileInfo>> LoadProfilesDefaultAsync();
 
     /// <summary>
-    /// 根据ID获取游戏档案
+    /// Load profile from the specified directory.
     /// </summary>
-    Task<GameProfile?> GetProfileByIdAsync(string id);
+    /// <param name="targetDir">The directory where profile are located.</param>
+    /// <returns>A collection of game profile.</returns>
+    Task<IEnumerable<ProfileInfo>> LoadProfilesAsync(string targetDir);
+
 
     /// <summary>
-    /// 保存或更新游戏档案
+    /// Get profile from the specified directory.
     /// </summary>
-    Task SaveProfileAsync(GameProfile profile);
+    /// <param name="targetDir">The directory where profile are located.</param>
+    /// <param name="profileName">The profile name.</param>
+    /// <returns>A collection of game profile.</returns>
+    Task<ProfileInfo> GetProfileAsync(string targetDir, string profileName);
 
     /// <summary>
-    /// 删除游戏档案
+    /// Load profile from the specified directory by profile name.
     /// </summary>
-    Task DeleteProfileAsync(string id);
+    /// <param name="targetDir">The directory where the profile is located.</param>
+    /// <param name="gameName">The name of the profile to load.</param>
+    /// <returns>A game profile object.</returns>
+    Task<GameInfo> LoadTargetGameAsync(string targetDir, string gameName);
 
     /// <summary>
-    /// 获取账户关联的所有档案
+    /// Save profile to the specified directory.
     /// </summary>
-    Task<List<GameProfile>> GetProfilesByAccountAsync(string accountUuid);
+    /// <param name="targetDir">The directory where profile will be saved.</param>
+    /// <param name="profile">A collection of game profile to save.</param>
+    /// <returns>true if the profile was saved successfully; otherwise, false.</returns>
+    Task<bool> SaveProfilesAsync(string targetDir, ProfileInfo profile);
 
     /// <summary>
-    /// 获取账户当前选中的档案
+    /// Save profile to the specified directory.
     /// </summary>
-    Task<GameProfile?> GetCurrentProfileForAccountAsync(string accountUuid);
+    /// <param name="profile">A collection of game profile to save.</param>
+    /// <returns>true if the profile were saved successfully; otherwise, false.</returns>
+    Task<bool> SaveProfilesDefaultAsync(ProfileInfo profile);
 
     /// <summary>
-    /// 设置账户当前选中的档案
+    /// Save game to given profile.
     /// </summary>
-    Task SetCurrentProfileForAccountAsync(string accountUuid, string profileId);
+    /// <param name="profile">The profile that game belongs to.</param>
+    /// <param name="game">The game profile to save.</param>
+    /// <returns>true if the game was saved successfully; otherwise, false.</returns>
+    Task<bool> SaveGameInfoToProfileDefaultAsync(ProfileInfo profile, GameInfo game);
 
     /// <summary>
-    /// 关联账户和档案
+    /// Save game to gave profile.
     /// </summary>
-    Task AssociateProfileWithAccountAsync(string accountUuid, string profileId);
+    /// <param name="profile">The profile that game belongs to.</param>
+    /// <param name="game">The game profile to save.</param>
+    /// <param name="targetDir">The target directory.</param>
+    /// <returns>true if the game was saved successfully; otherwise, false.</returns>
+    Task<bool> SaveGameInfoToProfileAsync(ProfileInfo profile, GameInfo game, string targetDir);
 
     /// <summary>
-    /// 解除账户和档案的关联
+    /// Delete game from the profile.
     /// </summary>
-    Task DisassociateProfileFromAccountAsync(string accountUuid, string profileId);
-
-    /// <summary>
-    /// 创建新的游戏档案
-    /// </summary>
-    Task<GameProfile> CreateProfileAsync(string name, string description = "");
-
-    /// <summary>
-    /// 复制现有档案
-    /// </summary>
-    Task<GameProfile> DuplicateProfileAsync(string sourceId, string newName);
-
-    /// <summary>
-    /// 获取预设档案模板列表
-    /// </summary>
-    Task<List<GameProfile>> GetProfileTemplatesAsync();
+    /// <param name="game">The game that should be deleted from the profile.</param>
+    /// <param name="profile">The profile that contains target game, used to remove deleted game.</param>
+    /// <returns>true if the game was deleted successfully; otherwise, false.</returns>
+    bool DeleteGame(GameInfo game, ProfileInfo profile);
 }

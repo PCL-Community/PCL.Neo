@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
-    <PackageReference Include="Uuids" Version="2.0.0" />
   </ItemGroup>
 
 </Project>

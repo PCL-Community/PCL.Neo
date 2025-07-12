@@ -46,6 +46,7 @@ public class ConfigurationAccessor<T> where T : class, new()
         return await _manager.UpdateConfiguration(_currentConfig, null);
     }
 
+
     /// <summary>
     /// 更新配置
     /// </summary>

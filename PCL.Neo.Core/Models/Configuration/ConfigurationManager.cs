@@ -6,7 +6,7 @@ namespace PCL.Neo.Core.Models.Configuration;
 /// <summary>
 /// 配置管理器，负责管理应用配置项
 /// </summary>
-public class ConfigurationManager : IConfigurationManager
+public sealed class ConfigurationManager : IConfigurationManager
 {
     private static readonly JsonSerializerOptions DefaultOptions = new()
     {
@@ -133,24 +133,18 @@ public class ConfigurationManager : IConfigurationManager
     /// <typeparam name="T">配置类型</typeparam>
     /// <param name="attributePath">特性中指定的路径</param>
     /// <returns>最终使用的配置路径</returns>
-    private string GetConfigPath<T>(string attributePath)
+    private static string GetConfigPath<T>(string attributePath)
     {
-        // 特殊处理已知的配置类型
-        if (typeof(T).Name == "AppSettings")
+        return typeof(T).Name switch
         {
-            return GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile);
-        }
-
-        if (typeof(T).Name == "OAuth2Configurations")
-        {
-            return GlobalSettings.GetConfigFilePath(GlobalSettings.OAuth2ConfigurationFile);
-        }
-
-        // 默认使用特性中的路径
-        return attributePath.Contains(Path.DirectorySeparatorChar) ||
-               attributePath.Contains(Path.AltDirectorySeparatorChar)
-            ? attributePath // 已经是完整路径
-            : GlobalSettings.GetConfigFilePath(attributePath); // 只是文件名，需要添加路径
+            // 特殊处理已知的配置类型
+            "AppSettings" => GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile),
+            "OAuth2Configurations" => GlobalSettings.GetConfigFilePath(GlobalSettings.OAuth2ConfigurationFile),
+            _ => attributePath.Contains(Path.DirectorySeparatorChar) ||
+                 attributePath.Contains(Path.AltDirectorySeparatorChar)
+                ? attributePath // 已经是完整路径
+                : GlobalSettings.GetConfigFilePath(attributePath)
+        };
     }
 
     /// <summary>

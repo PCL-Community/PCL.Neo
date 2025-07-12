@@ -9,14 +9,12 @@ public class ModPack
         if (!File.Exists(mrpack)) { throw new FileNotFoundException(); }
 
         // ZipFile.ExtractToDirectory(mrpack, directory);
-        using (var archive = ZipFile.OpenRead(mrpack))
-        {
-            var modrinthOptions = archive.GetEntry("modrinth.index.json");
+        using var archive = ZipFile.OpenRead(mrpack);
+        var modrinthOptions = archive.GetEntry("modrinth.index.json");
 
-            // foreach (ZipArchiveEntry entry in archive.Entries)
-            // {
-            //     if(entry.FullName == "modrinth.index.json")
-            // }
-        }
+        // foreach (ZipArchiveEntry entry in archive.Entries)
+        // {
+        //     if(entry.FullName == "modrinth.index.json")
+        // }
     }
 }

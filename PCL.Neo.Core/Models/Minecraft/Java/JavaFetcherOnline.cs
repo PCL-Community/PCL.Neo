@@ -8,7 +8,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Java;
 
 public sealed partial class JavaManager
 {
-    // TODO)) 应该设置多个下载源，从配置文件中获取
+    // TODO: 应该设置多个下载源，从配置文件中获取
     private static string MetaUrl =>
         "https://piston-meta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
 
@@ -33,26 +33,26 @@ public sealed partial class JavaManager
     /// <param name="destinationFolder">目标文件夹</param>
     /// <param name="progress">显示进度</param>
     /// <param name="cancellationToken">用于中断下载</param>
-    /// <param name="version">要下载的版本，有α、β、γ、δ等</param>
+    /// <param name="version">要下载的版本，有Alpha, Beta, Gamma, Delta等</param>
     /// <returns>如果未成功下载为null，成功下载则为java可执行文件所在的目录</returns>
-    public async Task<string?> FetchJavaOnline(string platform, string destinationFolder,
+    public static async Task<string?> FetchJavaOnline(string platform, string destinationFolder,
         MojangJavaVersion version,
         IProgress<ValueTuple<int, int>>? progress, CancellationToken cancellationToken = default)
     {
-        // TODO)) 根据配置文件切换下载源
+        // TODO: 根据配置文件切换下载源
         Uri metaUrl = new(MetaUrl);
         var allJson = await Shared.HttpClient.GetStringAsync(metaUrl, cancellationToken);
         var manifestJson = string.Empty;
         using (var document = JsonDocument.Parse(allJson))
         {
             var root = document.RootElement;
-            if (root.TryGetProperty(platform, out var platformElement) &&
-                platformElement.TryGetProperty(version.Value, out var gammaArray) &&
-                gammaArray.GetArrayLength() > 0 &&
-                gammaArray[0].TryGetProperty("manifest", out var manifestElement) &&
-                manifestElement.TryGetProperty("url", out var manifestUriElement))
+            if (root.TryGetProperty(platform, out var platformElement) && // get platform property
+                platformElement.TryGetProperty(version.Value, out var gammaArray) && // get target version property
+                gammaArray.GetArrayLength() > 0 && // has value
+                gammaArray[0].TryGetProperty("manifest", out var manifestElement) && // get manifest property
+                manifestElement.TryGetProperty("url", out var manifestUriElement)) // get url property
             {
-                var manifestUri = manifestUriElement.GetString();
+                var manifestUri = manifestUriElement.GetString(); // convert to string
                 if (!string.IsNullOrEmpty(manifestUri))
                 {
                     manifestJson = await Shared.HttpClient.GetStringAsync(manifestUri, cancellationToken);
@@ -79,14 +79,22 @@ public sealed partial class JavaManager
         foreach (var (filePath, value) in files)
         {
             var fileInfo = value!.AsObject();
-            if (!fileInfo.TryGetPropertyValue("type", out var typeNode) || typeNode!.ToString() != "file")
+
+            if (!fileInfo.TryGetPropertyValue("type", out var typeNode) // try get tyoe property
+                || typeNode!.ToString() != "file") // check if type is file
                 continue;
+
             if (!fileInfo.TryGetPropertyValue("downloads", out var downloadsNode))
                 continue;
+
             var downloads = downloadsNode!.AsObject();
-            var isExecutable = fileInfo.TryGetPropertyValue("executable", out var execNode) &&
-                               execNode!.GetValue<bool>();
+
+            var isExecutable =
+                fileInfo.TryGetPropertyValue("executable", out var execNode) &&
+                execNode!.GetValue<bool>();
+
             string? urlRaw = null, sha1Raw = null, urlLzma = null, sha1Lzma = null;
+
             if (downloads.TryGetPropertyValue("raw", out var rawNode))
             {
                 var raw = rawNode!.AsObject();
@@ -106,8 +114,14 @@ public sealed partial class JavaManager
 
             var localFilePath = Path.Combine(destinationFolder,
                 filePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
-            if (isExecutable) executableFiles.Add(localFilePath);
+
+            if (isExecutable)
+            {
+                executableFiles.Add(localFilePath);
+            }
+
             Directory.CreateDirectory(Path.GetDirectoryName(localFilePath)!);
+
             // 有的文件有LZMA压缩但是有的 tm 没有，尼玛搞了个解压缩发现文件少了几个
             // 要分类讨论，sb MOJANG
             if (lzmaNode != null && !string.IsNullOrEmpty(urlLzma))
@@ -119,6 +133,7 @@ public sealed partial class JavaManager
                         await using var lzmaFs = await DownloadReceipt.FastDownloadAsStreamAsync(urlLzma,
                             localFilePath + ".lzma", sha1Lzma, cancellationToken);
                         await using var fs = lzmaFs.DecompressLzma(localFilePath);
+
                         if (fs is null)
                         {
                             Console.WriteLine("outStream 为空");
@@ -132,7 +147,7 @@ public sealed partial class JavaManager
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        Console.WriteLine(e); // TODO: 处理异常
                         throw;
                     }
                     finally
@@ -154,8 +169,15 @@ public sealed partial class JavaManager
             {
                 var finishedTask = await Task.WhenAny(tasks);
                 progress.Report((++completed, total));
-                try { await finishedTask; }
-                catch (Exception ex) { Console.WriteLine(ex); }
+                try
+                {
+                    await finishedTask;
+                }
+                catch (Exception ex)
+                {
+                    // TODO: 处理异常
+                    Console.WriteLine(ex);
+                }
             }
         }
 

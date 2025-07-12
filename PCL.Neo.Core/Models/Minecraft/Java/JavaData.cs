@@ -57,9 +57,16 @@ public class JavaRuntime
     public static async Task<JavaRuntime?> CreateJavaEntityAsync(string directoryPath, bool isUserImport = false)
     {
         Debug.WriteLine($"创建 JavaRuntime: {directoryPath}");
+
         var javaInfo = await JavaInfoInitAsync(directoryPath);
-        if (javaInfo.Compability == JavaCompability.Error) return null;
+
+        if (javaInfo.Compability == JavaCompability.Error)
+        {
+            return null;
+        }
+
         var javaEntity = new JavaRuntime(directoryPath, javaInfo) { IsUserImport = isUserImport };
+
         return javaEntity;
     }
 
@@ -68,6 +75,9 @@ public class JavaRuntime
     /// </summary>
     public bool IsUserImport { get; set; }
 
+    /// <summary>
+    /// Java版本信息
+    /// </summary>
     public string Version => _javaInfo.Version;
 
     /// <summary>
@@ -75,10 +85,29 @@ public class JavaRuntime
     /// </summary>
     public int SlugVersion => _javaInfo.SlugVersion;
 
+    /// <summary>
+    /// 是否为64Bit版本
+    /// </summary>
     public bool Is64Bit => _javaInfo.Architecture.Is64Bit();
+
+    /// <summary>
+    /// Java 架构信息
+    /// </summary>
     public ExeArchitectureUtils.ExeArchitecture Architecture => _javaInfo.Architecture;
+
+    /// <summary>
+    /// 供应商
+    /// </summary>
     public JavaCompability Compability => _javaInfo.Compability;
+
+    /// <summary>
+    /// 是否为 JRE（Java Runtime Environment）
+    /// </summary>
     public bool IsJre => _javaInfo.IsJre;
+
+    /// <summary>
+    /// JavaExe路径
+    /// </summary>
     public string JavaExe => _javaInfo.JavaExe;
 
     /// <summary>
@@ -213,7 +242,7 @@ public class JavaRuntime
                 {
                     "x86_64" => ExeArchitectureUtils.ExeArchitecture.X64,
                     "aarch64" => ExeArchitectureUtils.ExeArchitecture.Arm64,
-                    // TODO)) 增加其他架构种类
+                    // TODO: 增加其他架构种类
                     _ => ExeArchitectureUtils.ExeArchitecture.Unknown
                 };
             }
