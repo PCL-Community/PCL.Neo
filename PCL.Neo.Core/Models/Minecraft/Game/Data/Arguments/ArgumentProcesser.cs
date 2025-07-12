@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using PCL.Neo.Core.Utils;
 using PCL.Neo.Core.Utils.Logger;
 using System.Collections.ObjectModel;

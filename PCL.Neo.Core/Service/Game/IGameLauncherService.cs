@@ -1,5 +1,5 @@
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 

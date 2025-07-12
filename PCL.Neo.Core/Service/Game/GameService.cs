@@ -1,11 +1,11 @@
 using PCL.Neo.Core.Download;
 using PCL.Neo.Core.Models.Minecraft.Game;
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Utils;
 using PCL.Neo.Core.Utils.Logger;
 using System.Text.Json;
-using VersionManifest = PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes.VersionManifest;
+using VersionManifest = PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest.VersionManifest;
 
 namespace PCL.Neo.Core.Service.Game;
 

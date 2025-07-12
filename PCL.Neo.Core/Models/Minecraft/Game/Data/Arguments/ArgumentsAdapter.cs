@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using PCL.Neo.Core.Utils;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
@@ -12,7 +12,7 @@ public class ArgumentsAdapter
         GameInfo info,
         LaunchOptions options,
         Dictionary<string, string> extraArgs,
-        Manifes.VersionManifest manifest)
+        Manifest.VersionManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(info);
         ArgumentNullException.ThrowIfNull(options);

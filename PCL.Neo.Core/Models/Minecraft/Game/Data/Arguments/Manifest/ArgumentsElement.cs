@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 
 /// <summary>
 /// Base class for any argument element (either a simple string or a ruled object).

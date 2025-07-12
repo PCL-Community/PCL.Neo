@@ -1,12 +1,12 @@
 using PCL.Neo.Core.Models.Minecraft.Game;
 using PCL.Neo.Core.Models.Minecraft.Game.Data;
 using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments;
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using PCL.Neo.Core.Utils;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using VersionManifest = PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes.VersionManifest;
+using VersionManifest = PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest.VersionManifest;
 
 namespace PCL.Neo.Core.Service.Game;
 

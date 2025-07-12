@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

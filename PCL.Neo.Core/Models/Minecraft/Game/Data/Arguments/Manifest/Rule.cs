@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+namespace PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 
 /// <summary>
 /// Defines a rule with an action and optional OS/feature conditions.

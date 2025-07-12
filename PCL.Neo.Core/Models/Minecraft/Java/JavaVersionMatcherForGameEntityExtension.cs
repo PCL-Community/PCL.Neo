@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifes;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 
 namespace PCL.Neo.Core.Models.Minecraft.Java;
 
