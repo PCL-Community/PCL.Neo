@@ -42,6 +42,12 @@ public class GameEntity(GameInfo inforamtion, LaunchOptions options) : IDisposab
         return true;
     }
 
+    public bool StopGameAsync()
+    {
+        _gameProcess?.Kill();
+        return true;
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
