@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GenHTTP.Core" Version="9.7.0" />
-    <PackageReference Include="GenHTTP.Modules.Functional" Version="9.7.0" />
-    <PackageReference Include="GenHTTP.Modules.Layouting" Version="9.7.0" />
-    <PackageReference Include="GenHTTP.Modules.StaticWebsites" Version="9.7.0" />
+    <PackageReference Include="GenHTTP.Core" Version="9.8.0" />
+    <PackageReference Include="GenHTTP.Modules.Functional" Version="9.8.0" />
+    <PackageReference Include="GenHTTP.Modules.Layouting" Version="9.8.0" />
+    <PackageReference Include="GenHTTP.Modules.StaticWebsites" Version="9.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
