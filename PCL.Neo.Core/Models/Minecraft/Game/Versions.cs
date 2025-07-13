@@ -1,4 +1,4 @@
-using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Models.Minecraft.Game.Data.Arguments.Manifest;
 using System.Text.Json;
 
 namespace PCL.Neo.Core.Models.Minecraft.Game;
@@ -11,9 +11,10 @@ public static class Versions
     /// <summary>
     /// 获取本地已安装的Minecraft版本
     /// </summary>
-    public static async Task<List<VersionInfo>> GetLocalVersionsAsync(string minecraftDirectory)
+    public static async Task<List<Data.Arguments.Manifest.VersionManifest>> GetLocalVersionsAsync(
+        string minecraftDirectory)
     {
-        var result = new List<VersionInfo>();
+        var result = new List<Data.Arguments.Manifest.VersionManifest>();
         var versionsDirectory = Path.Combine(minecraftDirectory, "versions");
 
         if (!Directory.Exists(versionsDirectory))
@@ -26,34 +27,31 @@ public static class Versions
             var versionId = Path.GetFileName(versionDir);
             var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
 
-            if (File.Exists(versionJsonPath))
+            if (!File.Exists(versionJsonPath)) { continue; }
+
+            try
             {
-                try
+                var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
+                var versionInfo = JsonSerializer.Deserialize<Data.Arguments.Manifest.VersionManifest>(jsonContent,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (versionInfo is not null)
                 {
-                    var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
-                    var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent, new JsonSerializerOptions
+                    // 如果没有名称，使用ID作为名称
+                    if (string.IsNullOrEmpty(versionInfo.Name))
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    if (versionInfo != null)
-                    {
-                        // 如果没有名称，使用ID作为名称
-                        if (string.IsNullOrEmpty(versionInfo.Name))
-                        {
-                            versionInfo.Name = versionInfo.Id;
-                        }
-
-                        // 添加JsonData属性
-                        versionInfo.JsonData = jsonContent;
-
-                        result.Add(versionInfo);
+                        versionInfo.Name = versionInfo.Id;
                     }
+
+                    // 添加JsonData属性
+                    versionInfo.JsonOriginData = jsonContent;
+
+                    result.Add(versionInfo);
                 }
-                catch (Exception)
-                {
-                    // 忽略解析失败的版本文件
-                }
+            }
+            catch (Exception)
+            {
+                // 忽略解析失败的版本文件
             }
         }
 
@@ -63,7 +61,7 @@ public static class Versions
     /// <summary>
     /// 获取Minecraft远程版本列表
     /// </summary>
-    public static async Task<List<VersionInfo>> GetRemoteVersionsAsync()
+    public static async Task<List<Data.Arguments.Manifest.VersionManifest>> GetRemoteVersionsAsync()
     {
         try
         {
@@ -71,17 +69,12 @@ public static class Versions
             var response = await Shared.HttpClient.GetStringAsync(VersionManifestUrl);
             var manifest = JsonSerializer.Deserialize<VersionManifest>(response);
 
-            if (manifest == null || manifest.Versions == null)
+            if (manifest?.Versions == null)
             {
-                return new List<VersionInfo>();
+                return [];
             }
 
-            var result = new List<VersionInfo>();
-
-            foreach (var version in manifest.Versions)
-            {
-                // 创建版本信息
-                var versionInfo = new VersionInfo
+            return manifest.Versions.Select(version => new Data.Arguments.Manifest.VersionManifest
                 {
                     Id = version.Id,
                     Name = version.Id, // 使用ID作为名称
@@ -89,24 +82,14 @@ public static class Versions
                     ReleaseTime = version.ReleaseTime,
                     Time = version.Time,
                     // 下载信息
-                    Downloads = new DownloadsInfo
-                    {
-                        Client = new DownloadEntry
-                        {
-                            Url = version.Url
-                        }
-                    }
-                };
-
-                result.Add(versionInfo);
-            }
-
-            return result;
+                    Downloads = new DownloadsInfo { Client = new DownloadEntry { Url = version.Url } }
+                })
+                .ToList();
         }
         catch (Exception)
         {
             // 出现异常时返回空列表
-            return new List<VersionInfo>();
+            return [];
         }
     }
 
@@ -125,38 +108,37 @@ public static class Versions
     /// <summary>
     /// 通过ID获取特定版本信息
     /// </summary>
-    public static async Task<VersionInfo?> GetVersionByIdAsync(string minecraftDirectory, string versionId)
+    public static async Task<Data.Arguments.Manifest.VersionManifest?> GetVersionByIdAsync(string gameDir,
+        string versionId)
     {
-        var versionDir = Path.Combine(minecraftDirectory, "versions", versionId);
-        var versionJsonPath = Path.Combine(versionDir, $"{versionId}.json");
+        var jsonPath = Path.Combine(gameDir, $"{versionId}.json");
 
-        if (File.Exists(versionJsonPath))
+        if (!File.Exists(jsonPath))
         {
-            try
+            return null;
+        }
+
+        try
+        {
+            var jsonContent = await File.ReadAllTextAsync(jsonPath);
+            var versionInfo = JsonSerializer.Deserialize<Data.Arguments.Manifest.VersionManifest>(jsonContent);
+
+            if (versionInfo != null)
             {
-                var jsonContent = await File.ReadAllTextAsync(versionJsonPath);
-                var versionInfo = JsonSerializer.Deserialize<VersionInfo>(jsonContent, new JsonSerializerOptions
+                if (string.IsNullOrEmpty(versionInfo.Name))
                 {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                if (versionInfo != null)
-                {
-                    if (string.IsNullOrEmpty(versionInfo.Name))
-                    {
-                        versionInfo.Name = versionInfo.Id;
-                    }
-
-                    // 添加JsonData属性
-                    versionInfo.JsonData = jsonContent;
-
-                    return versionInfo;
+                    versionInfo.Name = versionInfo.Id;
                 }
+
+                // 添加JsonData属性
+                versionInfo.JsonOriginData = jsonContent;
+
+                return versionInfo;
             }
-            catch (Exception)
-            {
-                // 忽略解析失败的版本文件
-            }
+        }
+        catch (Exception)
+        {
+            // 忽略解析失败的版本文件
         }
 
         return null;
@@ -165,7 +147,7 @@ public static class Versions
     /// <summary>
     /// 从远程获取特定版本信息
     /// </summary>
-    public static async Task<VersionInfo?> GetRemoteVersionInfoAsync(string versionId)
+    public static async Task<Data.Arguments.Manifest.VersionManifest?> GetRemoteVersionInfoAsync(string versionId)
     {
         try
         {
@@ -173,13 +155,8 @@ public static class Versions
             var response = await Shared.HttpClient.GetStringAsync(VersionManifestUrl);
             var manifest = JsonSerializer.Deserialize<VersionManifest>(response);
 
-            if (manifest == null || manifest.Versions == null)
-            {
-                return null;
-            }
-
             // 查找指定ID的版本
-            var version = manifest.Versions.FirstOrDefault(v => v.Id == versionId);
+            var version = manifest?.Versions?.FirstOrDefault(v => v.Id == versionId);
             if (version == null)
             {
                 return null;
@@ -187,15 +164,13 @@ public static class Versions
 
             // 获取详细版本信息
             var versionJsonResponse = await Shared.HttpClient.GetStringAsync(version.Url);
-            var versionInfo = JsonSerializer.Deserialize<VersionInfo>(versionJsonResponse, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var versionInfo = JsonSerializer.Deserialize<Data.Arguments.Manifest.VersionManifest>(versionJsonResponse,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (versionInfo != null)
             {
                 // 保存原始JSON数据
-                versionInfo.JsonData = versionJsonResponse;
+                versionInfo.JsonOriginData = versionJsonResponse;
 
                 // 如果没有名称，使用ID作为名称
                 if (string.IsNullOrEmpty(versionInfo.Name))

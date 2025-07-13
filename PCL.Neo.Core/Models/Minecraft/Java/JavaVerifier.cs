@@ -7,7 +7,7 @@ namespace PCL.Neo.Core.Models.Minecraft.Java;
 /// <summary>
 /// Java验证器，用于检测Java的真伪和来源
 /// </summary>
-public static class JavaVerifier
+public static partial class JavaVerifier
 {
     /// <summary>
     /// Java厂商枚举
@@ -169,7 +169,7 @@ public static class JavaVerifier
             }
 
             // 检查签名者
-            var signerMatch = Regex.Match(output, @"SignerCertificate.*Subject\s*:\s*(.+)$", RegexOptions.Multiline);
+            var signerMatch = JavaSignerCerificateChecker().Match(output);
             if (signerMatch.Success)
             {
                 var signer = signerMatch.Groups[1].Value.Trim();
@@ -278,28 +278,38 @@ public static class JavaVerifier
             vendor = JavaVendor.OpenJDK;
 
             // 进一步确认发行商
-            if (versionOutput.Contains("adoptium") || versionOutput.Contains("eclipse"))
+            if (versionOutput.Contains("adoptium", StringComparison.OrdinalIgnoreCase) ||
+                versionOutput.Contains("eclipse", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.AdoptiumEclipse;
-            else if (versionOutput.Contains("adoptopenjdk") || versionOutput.Contains("adopt"))
+            else if (versionOutput.Contains("adoptopenjdk", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("adopt", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.AdoptOpenJDK;
-            else if (versionOutput.Contains("microsoft") || versionOutput.Contains("msft"))
+            else if (versionOutput.Contains("microsoft", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("msft", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.Microsoft;
-            else if (versionOutput.Contains("amazon") || versionOutput.Contains("corretto"))
+            else if (versionOutput.Contains("amazon", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("corretto", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.Amazon;
-            else if (versionOutput.Contains("azul") || versionOutput.Contains("zulu"))
+            else if (versionOutput.Contains("azul", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("zulu", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.Azul;
-            else if (versionOutput.Contains("alibaba") || versionOutput.Contains("dragonwell"))
+            else if (versionOutput.Contains("alibaba", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("dragonwell", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.Alibaba;
-            else if (versionOutput.Contains("tencent") || versionOutput.Contains("kona"))
+            else if (versionOutput.Contains("tencent", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("kona", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.Tencent;
-            else if (versionOutput.Contains("bellsoft") || versionOutput.Contains("liberica"))
+            else if (versionOutput.Contains("bellsoft", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("liberica", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.BellSoft;
-            else if (versionOutput.Contains("sap") || versionOutput.Contains("sapmachine"))
+            else if (versionOutput.Contains("sap", StringComparison.OrdinalIgnoreCase) ||
+                     versionOutput.Contains("sapmachine", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.SAP;
-            else if (versionOutput.Contains("redhat"))
+            else if (versionOutput.Contains("redhat", StringComparison.OrdinalIgnoreCase))
                 vendor = JavaVendor.RedHat;
         }
-        else if (versionOutput.Contains("oracle") || versionOutput.Contains("java(tm)"))
+        else if (versionOutput.Contains("oracle", StringComparison.OrdinalIgnoreCase) ||
+                 versionOutput.Contains("java(tm)", StringComparison.OrdinalIgnoreCase))
         {
             vendor = JavaVendor.Oracle;
         }
@@ -319,13 +329,15 @@ public static class JavaVerifier
         Directory.CreateDirectory(tempDir);
 
         var javaFilePath = Path.Combine(tempDir, "Test.java");
-        var javaCode = @"
-public class Test {
-    public static void main(String[] args) {
-        System.out.println(""JavaVerificationSuccess"");
-    }
-}
-";
+        const string javaCode = """
+
+                                public class Test {
+                                    public static void main(String[] args) {
+                                        System.out.println("JavaVerificationSuccess");
+                                    }
+                                }
+
+                                """;
         try
         {
             await File.WriteAllTextAsync(javaFilePath, javaCode);
@@ -411,7 +423,7 @@ public class Test {
         Directory.CreateDirectory(tempDir);
 
         var manifestPath = Path.Combine(tempDir, "MANIFEST.MF");
-        var manifestContent = "Main-Class: TestJar\r\n\r\n";
+        const string manifestContent = "Main-Class: TestJar\r\n\r\n";
 
         var classPath = Path.Combine(tempDir, "TestJar.class");
 
@@ -527,4 +539,7 @@ public class Test {
             _ => "未知供应商"
         };
     }
+
+    [GeneratedRegex(@"SignerCertificate.*Subject\s*:\s*(.+)$", RegexOptions.Multiline)]
+    private static partial Regex JavaSignerCerificateChecker();
 }

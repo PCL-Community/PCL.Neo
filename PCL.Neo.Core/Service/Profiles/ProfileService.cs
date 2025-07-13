@@ -1,400 +1,208 @@
-using PCL.Neo.Core.Models.Profile;
-using PCL.Neo.Core.Service.Accounts;
+using PCL.Neo.Core.Models.Minecraft.Game.Data;
+using PCL.Neo.Core.Service.Profiles.Data;
+using PCL.Neo.Core.Utils.Logger;
 using System.Text.Json;
 
 namespace PCL.Neo.Core.Service.Profiles;
 
-/// <summary>
-/// 游戏档案管理服务实现
-/// </summary>
 public class ProfileService : IProfileService
 {
-    private readonly IAccountService _accountService;
-    private readonly string _profilesFilePath;
-    private readonly string _profileTemplatesFilePath;
-    private readonly JsonSerializerOptions _jsonOptions;
+    private static readonly string[] RequiredSubDirectories = ["assets", "libraries", "versions"];
 
-    private List<GameProfile> _cachedProfiles = [];
-    private List<GameProfile> _cachedTemplates = [];
-    private bool _isLoaded;
-
-    public ProfileService(IAccountService accountService)
+    /// <inheritdoc />
+    public async Task<IEnumerable<ProfileInfo>> LoadProfilesDefaultAsync()
     {
-        _accountService = accountService;
-
-        // 配置路径
-        var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PCL.Neo");
-        Directory.CreateDirectory(appDataPath);
-        _profilesFilePath = Path.Combine(appDataPath, "profiles.json");
-        _profileTemplatesFilePath = Path.Combine(appDataPath, "profile_templates.json");
-
-        // 配置JSON序列化选项
-        _jsonOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+        var path = GetDefaultProfileConfigPath();
+        return await LoadProfilesAsync(path);
     }
 
-    // 确保数据已加载
-    private async Task EnsureLoadedAsync()
+    /// <inheritdoc />
+    public async Task<IEnumerable<ProfileInfo>> LoadProfilesAsync(string targetDir)
     {
-        if (_isLoaded) return;
+        var profiles = Directory.GetFiles(targetDir, "*.json", SearchOption.TopDirectoryOnly);
+        var contents = new List<string>();
 
-        await LoadProfilesAsync().ConfigureAwait(false);
-        await LoadTemplatesAsync().ConfigureAwait(false);
-
-        _isLoaded = true;
-    }
-
-    // 加载档案列表
-    private async Task LoadProfilesAsync()
-    {
-        if (!File.Exists(_profilesFilePath))
+        foreach (var profile in profiles)
         {
-            _cachedProfiles = CreateDefaultProfiles();
-            await SaveProfilesAsync().ConfigureAwait(false);
-            return;
+            contents.Add(await File.ReadAllTextAsync(profile));
         }
+
+        return contents
+            .Select(content => JsonSerializer.Deserialize<ProfileInfo>(content))
+            .OfType<ProfileInfo>();
+    }
+
+
+    /// <inheritdoc />
+    public async Task<ProfileInfo> GetProfileAsync(string targetDir, string profileName)
+    {
+        if (!ValidateDir(targetDir))
+        {
+            throw new InvalidOperationException(
+                $"Target directory '{targetDir}' is missing required subdirectories: {string.Join(", ", RequiredSubDirectories)}");
+        }
+
+        var versionsDir = Path.Combine(targetDir, "versions");
+        var versions = Directory.GetDirectories(versionsDir, "*", SearchOption.TopDirectoryOnly);
+
+        var profiles = new ProfileInfo { ProfileName = profileName, TargetDir = targetDir, Games = [] };
+
+        foreach (var version in versions)
+        {
+            var versionName = Path.GetFileName(version);
+            ArgumentException.ThrowIfNullOrEmpty(versionName, nameof(versionName));
+
+            var jarFile = Path.Combine(version, $"{versionName}.jar");
+            var jsonFile = Path.Combine(version, $"{versionName}.json");
+
+            if (!ValidateVersionDir(jarFile, jsonFile))
+            {
+                throw new FileNotFoundException(
+                    $"Game files not found. Expected files:\n- {jarFile}\n- {jsonFile}");
+            }
+
+            var isIndie = Directory.Exists(Path.Combine(version, "saves"));
+            var gameType = await GetGameType(version, versionName);
+            profiles.Games.Add(GameInfo.Factory(targetDir, version, versionName, isIndie, gameType));
+        }
+
+        return profiles;
+    }
+
+    /// <inheritdoc />
+    public async Task<GameInfo> LoadTargetGameAsync(string targetDir, string gameName)
+    {
+        if (!ValidateDir(targetDir))
+        {
+            throw new InvalidOperationException(
+                $"Target directory '{targetDir}' is missing required subdirectories: {string.Join(", ", RequiredSubDirectories)}");
+        }
+
+        var gameDir = Path.Combine(targetDir, "versions", gameName);
+        if (!Directory.Exists(gameDir))
+        {
+            throw new DirectoryNotFoundException(
+                $"Game directory not found. Expected path: {gameDir}");
+        }
+
+        var jarFile = Path.Combine(gameDir, $"{gameName}.jar");
+        var jsonFile = Path.Combine(gameDir, $"{gameName}.json");
+
+        if (!ValidateVersionDir(jarFile, jsonFile))
+        {
+            throw new FileNotFoundException(
+                $"Game files not found. Expected files:\n- {jarFile}\n- {jsonFile}");
+        }
+
+        var isIndie = Directory.Exists(Path.Combine(gameDir, "saves"));
+        var gameType = await GetGameType(gameDir, gameName);
+        var gameInfo = GameInfo.Factory(targetDir, gameDir, gameName, isIndie, gameType);
+
+        return gameInfo;
+    }
+
+    /// <inheritdoc />
+    public Task<bool> SaveProfilesAsync(string targetDir, ProfileInfo profile)
+    {
+        var profilePath = GetProfileFilePath(targetDir, profile.ProfileName);
+        return SaveProfileToFileAsync(profile, profilePath);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> SaveProfilesDefaultAsync(ProfileInfo profile)
+    {
+        var profileConfigFolder = GetDefaultProfileConfigPath();
+        var profileFilePath = GetProfileFilePath(profileConfigFolder, profile.ProfileName);
+        return SaveProfileToFileAsync(profile, profileFilePath);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> SaveGameInfoToProfileDefaultAsync(ProfileInfo profile, GameInfo game)
+    {
+        profile.Games.Add(game);
+        var profileConfigFolder = GetDefaultProfileConfigPath();
+        var profileFilePath = GetProfileFilePath(profileConfigFolder, profile.ProfileName);
+        return SaveProfileToFileAsync(profile, profileFilePath);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> SaveGameInfoToProfileAsync(ProfileInfo profile, GameInfo game, string targetDir)
+    {
+        profile.Games.Add(game);
+        var profilePath = GetProfileFilePath(targetDir, profile.ProfileName);
+        return SaveProfileToFileAsync(profile, profilePath);
+    }
+
+    /// <inheritdoc />
+    public bool DeleteGame(GameInfo game, ProfileInfo profile)
+    {
+        profile.Games.Remove(game);
+        var gamePath = game.GameDirectory;
 
         try
         {
-            var json = await File.ReadAllTextAsync(_profilesFilePath);
-            _cachedProfiles = JsonSerializer.Deserialize<List<GameProfile>>(json, _jsonOptions) ??
-                              new List<GameProfile>();
+            Directory.Delete(gamePath);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"加载档案文件失败: {ex.Message}");
-            _cachedProfiles = CreateDefaultProfiles();
-            await SaveProfilesAsync().ConfigureAwait(false);
+            NewLogger.Logger.LogError($"Can't delete target game: {game.Name}", e);
+            return false;
         }
+
+        return true;
     }
 
-    // 加载模板列表
-    private async Task LoadTemplatesAsync()
+    private static bool ValidateDir(string targetDir)
     {
-        if (!File.Exists(_profileTemplatesFilePath))
-        {
-            _cachedTemplates = CreateDefaultTemplates();
-            await SaveTemplatesAsync();
-            return;
-        }
-
-        try
-        {
-            var json = await File.ReadAllTextAsync(_profileTemplatesFilePath);
-            _cachedTemplates = JsonSerializer.Deserialize<List<GameProfile>>(json, _jsonOptions) ??
-                               CreateDefaultTemplates();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"加载档案模板文件失败: {ex.Message}");
-            _cachedTemplates = CreateDefaultTemplates();
-            await SaveTemplatesAsync();
-        }
+        return RequiredSubDirectories.All(subDir =>
+            Directory.Exists(Path.Combine(targetDir, subDir)));
     }
 
-    // 保存档案列表
-    private async Task SaveProfilesAsync()
+    private static bool ValidateVersionDir(string jarFile, string jsonFile)
     {
-        try
+        return File.Exists(jarFile) && File.Exists(jsonFile);
+    }
+
+    private static string GetProfileFilePath(string configDir, string profileName)
+    {
+        return Path.Combine(configDir, $"{profileName}.json");
+    }
+
+    private static string GetDefaultProfileConfigPath()
+    {
+        var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var neoFolder = Path.Combine(appDataFolder, "PCL.Neo");
+        return Path.Combine(neoFolder, "profiles");
+    }
+
+    private static void EnsureDirectoryExists(string path)
+    {
+        if (!Directory.Exists(path))
         {
-            var json = JsonSerializer.Serialize(_cachedProfiles, _jsonOptions);
-            await File.WriteAllTextAsync(_profilesFilePath, json).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"保存档案文件失败: {ex.Message}");
-            throw;
+            Directory.CreateDirectory(path);
         }
     }
 
-    // 保存模板列表
-    private async Task SaveTemplatesAsync()
+    private static async Task<bool> SaveProfileToFileAsync(ProfileInfo profile, string filePath)
     {
         try
         {
-            var json = JsonSerializer.Serialize(_cachedTemplates, _jsonOptions);
-            await File.WriteAllTextAsync(_profileTemplatesFilePath, json).ConfigureAwait(false);
+            EnsureDirectoryExists(Path.GetDirectoryName(filePath)!);
+
+            var profileContent = JsonSerializer.Serialize(profile);
+            await File.WriteAllTextAsync(filePath, profileContent);
+            return true;
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"保存档案模板文件失败: {ex.Message}");
-            throw;
-        }
-    }
-
-    // 创建默认档案
-    private List<GameProfile> CreateDefaultProfiles()
-    {
-        return
-        [
-            new GameProfile
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "默认档案",
-                Description = "PCL.Neo默认游戏档案",
-                GameVersion = "release"
-            }
-        ];
-    }
-
-    // 创建默认模板
-    private List<GameProfile> CreateDefaultTemplates()
-    {
-        return
-        [
-            new GameProfile
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "原版最新版",
-                Description = "Minecraft最新稳定版",
-                GameVersion = "release",
-                IsPreset = true
-            },
-
-            new GameProfile
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "Forge模组开发",
-                Description = "适合Forge模组开发的环境配置",
-                GameVersion = "1.20.1",
-                GameType = "Forge",
-                JavaMemoryMb = 4096,
-                IsPreset = true
-            },
-
-            new GameProfile
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = "高性能游戏",
-                Description = "针对高性能电脑优化的配置",
-                GameVersion = "release",
-                JavaMemoryMb = 8192,
-                GameResolution = "1920x1080",
-                FullScreen = true,
-                IsPreset = true
-            }
-        ];
-    }
-
-    /// <inheritdoc />
-    public async Task<List<GameProfile>> GetAllProfilesAsync()
-    {
-        await EnsureLoadedAsync();
-        return _cachedProfiles.Where(p => !p.IsPreset).ToList();
-    }
-
-    /// <inheritdoc />
-    public async Task<GameProfile?> GetProfileByIdAsync(string id)
-    {
-        await EnsureLoadedAsync();
-        return _cachedProfiles.FirstOrDefault(p => p.Id == id);
-    }
-
-    /// <inheritdoc />
-    public async Task SaveProfileAsync(GameProfile profile)
-    {
-        await EnsureLoadedAsync();
-
-        // 更新或添加档案
-        var existingIndex = _cachedProfiles.FindIndex(p => p.Id == profile.Id);
-        if (existingIndex >= 0)
-        {
-            _cachedProfiles[existingIndex] = profile;
-        }
-        else
-        {
-            _cachedProfiles.Add(profile);
-        }
-
-        await SaveProfilesAsync();
-    }
-
-    /// <inheritdoc />
-    public async Task DeleteProfileAsync(string id)
-    {
-        await EnsureLoadedAsync();
-
-        // 找到需要删除的档案
-        var existingIndex = _cachedProfiles.FindIndex(p => p.Id == id);
-        if (existingIndex < 0) return;
-
-        // 从所有账户中解除关联
-        var allAccounts = await _accountService.GetAllAccountsAsync();
-        foreach (var account in allAccounts)
-        {
-            if (account.ProfileIds.Contains(id))
-            {
-                var updatedAccount = account with {};
-                updatedAccount.ProfileIds.Remove(id);
-
-                // 如果删除的是当前选中的档案，清除选择
-                if (account.CurrentProfileId == id)
-                {
-                    updatedAccount.CurrentProfileId = updatedAccount.ProfileIds.FirstOrDefault();
-                }
-
-                await _accountService.SaveAccountAsync(updatedAccount);
-            }
-        }
-
-        // 删除档案
-        _cachedProfiles.RemoveAt(existingIndex);
-        await SaveProfilesAsync();
-    }
-
-    /// <inheritdoc />
-    public async Task<List<GameProfile>> GetProfilesByAccountAsync(string accountUuid)
-    {
-        await EnsureLoadedAsync();
-
-        var account = await _accountService.GetAccountByUuidAsync(accountUuid);
-        if (account == null) return new List<GameProfile>();
-
-        return _cachedProfiles
-            .Where(p => account.ProfileIds.Contains(p.Id))
-            .OrderByDescending(p => p.LastUsed)
-            .ToList();
-    }
-
-    /// <inheritdoc />
-    public async Task<GameProfile?> GetCurrentProfileForAccountAsync(string accountUuid)
-    {
-        await EnsureLoadedAsync();
-
-        var account = await _accountService.GetAccountByUuidAsync(accountUuid);
-        if (account == null || account.CurrentProfileId == null) return null;
-
-        return _cachedProfiles.FirstOrDefault(p => p.Id == account.CurrentProfileId);
-    }
-
-    /// <inheritdoc />
-    public async Task SetCurrentProfileForAccountAsync(string accountUuid, string profileId)
-    {
-        await EnsureLoadedAsync();
-
-        // 确认账户和档案存在
-        var account = await _accountService.GetAccountByUuidAsync(accountUuid);
-        var profile = await GetProfileByIdAsync(profileId);
-
-        if (account == null)
-            throw new ArgumentException($"账户不存在: {accountUuid}");
-
-        if (profile == null)
-            throw new ArgumentException($"档案不存在: {profileId}");
-
-        // 确保账户已关联此档案
-        if (!account.ProfileIds.Contains(profileId))
-        {
-            account.ProfileIds.Add(profileId);
-        }
-
-        // 设置当前档案
-        var updatedAccount = account with
-        {
-            CurrentProfileId = profileId
-        };
-
-        // 更新档案使用时间
-        profile.LastUsed = DateTime.Now;
-        await SaveProfileAsync(profile);
-
-        // 保存账户
-        await _accountService.SaveAccountAsync(updatedAccount);
-    }
-
-    /// <inheritdoc />
-    public async Task AssociateProfileWithAccountAsync(string accountUuid, string profileId)
-    {
-        await EnsureLoadedAsync();
-
-        // 确认账户和档案存在
-        var account = await _accountService.GetAccountByUuidAsync(accountUuid);
-        var profile = await GetProfileByIdAsync(profileId);
-
-        if (account == null)
-            throw new ArgumentException($"账户不存在: {accountUuid}");
-
-        if (profile == null)
-            throw new ArgumentException($"档案不存在: {profileId}");
-
-        // 如果尚未关联，添加关联
-        if (!account.ProfileIds.Contains(profileId))
-        {
-            var updatedAccount = account with {};
-            updatedAccount.ProfileIds.Add(profileId);
-
-            // 如果是首个档案，设为当前选中
-            if (account.CurrentProfileId == null)
-            {
-                updatedAccount.CurrentProfileId = profileId;
-            }
-
-            await _accountService.SaveAccountAsync(updatedAccount);
+            var errorMessage = $"Failed to save profile to '{filePath}'. Profile name: {profile.ProfileName}";
+            NewLogger.Logger.LogError(errorMessage, e);
+            return false;
         }
     }
 
-    /// <inheritdoc />
-    public async Task DisassociateProfileFromAccountAsync(string accountUuid, string profileId)
+    private static async Task<GameType> GetGameType(string gameDir, string gameName)
     {
-        await EnsureLoadedAsync();
-
-        var account = await _accountService.GetAccountByUuidAsync(accountUuid);
-        if (account == null) return;
-
-        // 如果存在关联，移除关联
-        if (account.ProfileIds.Contains(profileId))
-        {
-            var updatedAccount = account with {};
-            updatedAccount.ProfileIds.Remove(profileId);
-
-            // 如果移除的是当前选中的档案，选择另一个档案
-            if (account.CurrentProfileId == profileId)
-            {
-                updatedAccount.CurrentProfileId = updatedAccount.ProfileIds.FirstOrDefault();
-            }
-
-            await _accountService.SaveAccountAsync(updatedAccount);
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<GameProfile> CreateProfileAsync(string name, string description = "")
-    {
-        await EnsureLoadedAsync();
-
-        var profile = new GameProfile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = name,
-            Description = description
-        };
-
-        await SaveProfileAsync(profile);
-        return profile;
-    }
-
-    /// <inheritdoc />
-    public async Task<GameProfile> DuplicateProfileAsync(string sourceId, string newName)
-    {
-        await EnsureLoadedAsync();
-
-        var sourceProfile = await GetProfileByIdAsync(sourceId);
-        if (sourceProfile == null)
-            throw new ArgumentException($"源档案不存在: {sourceId}");
-
-        var newProfile = sourceProfile.CloneProfile(newName);
-        await SaveProfileAsync(newProfile);
-
-        return newProfile;
-    }
-
-    /// <inheritdoc />
-    public async Task<List<GameProfile>> GetProfileTemplatesAsync()
-    {
-        await EnsureLoadedAsync();
-        return _cachedTemplates.ToList();
+        return await VersionTypeHelper.GetGameType(gameDir, gameName);
     }
 }

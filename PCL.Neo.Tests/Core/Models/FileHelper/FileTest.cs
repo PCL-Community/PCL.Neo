@@ -21,7 +21,7 @@ public class FileTest
     [Test]
     public async Task Fetch()
     {
-        await new JavaManager().FetchJavaOnline("mac-os-arm64", "/Users/amagicpear/Downloads/PCL2Test",
+        await JavaManager.FetchJavaOnline("mac-os-arm64", "/Users/amagicpear/Downloads/PCL2Test",
             JavaManager.MojangJavaVersion.Δ,
             new Progress<(int, int)>(value =>
             {

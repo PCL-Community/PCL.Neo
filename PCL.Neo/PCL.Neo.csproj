@@ -56,28 +56,6 @@
   <ItemGroup>
     <UpToDateCheckInput Remove="Controls\Style\ListBoxStyle.axaml" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Views\HomeView.axaml.cs">
-      <DependentUpon>HomeLeftView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\Home\HomeSubView.axaml.cs">
-      <DependentUpon>HomeRightView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Download\DownloadGameView.axaml.cs">
-      <DependentUpon>DownloadRightView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Download\DownloadModView.axaml.cs">
-      <DependentUpon>DownloadModView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\MainPage\" />
-    <Folder Include="Views\SubPage\" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PCL.Neo.Core\PCL.Neo.Core.csproj" />
   </ItemGroup>

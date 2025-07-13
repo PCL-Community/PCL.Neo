@@ -3,13 +3,15 @@ using System.Text;
 
 namespace PCL.Neo.Core.Utils.Logger;
 
-public sealed class McLogFIleLogger : IDisposable
+public sealed class McLogFileLogger : IDisposable
 {
     private readonly StreamWriter _writer;
     private readonly Process _process;
     private readonly string _logDir;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-    public McLogFIleLogger(string targetDir, Process process)
+
+    public McLogFileLogger(string targetDir, Process process)
     {
         if (Directory.Exists(targetDir) == false)
         {
@@ -20,8 +22,7 @@ public sealed class McLogFIleLogger : IDisposable
 
         _logDir = targetDir;
 
-        _writer = new StreamWriter(logFilePath, false, Encoding.UTF8);
-        _writer.AutoFlush = true;
+        _writer = new StreamWriter(logFilePath, false, Encoding.UTF8) { AutoFlush = true };
 
         _process = process;
     }
@@ -36,6 +37,7 @@ public sealed class McLogFIleLogger : IDisposable
     {
         ReadStdOut();
         ReadStdErr();
+        _ = GameWatchDog();
     }
 
     public void Export(string targetFilePath)
@@ -66,14 +68,20 @@ public sealed class McLogFIleLogger : IDisposable
 
         ArgumentException.ThrowIfNullOrEmpty(logFile, nameof(logFile));
 
-        // create log file if not exit
+        // create log file if not exists
         if (File.Exists(targetFilePath) == false)
         {
-            File.Create(targetFilePath);
+            using (File.Create(targetFilePath)) {}
         }
 
         // copy content
         File.Copy(logFile, targetFilePath, true);
+    }
+
+    private async Task GameWatchDog()
+    {
+        await _process.WaitForExitAsync(_cancellationTokenSource.Token);
+        Cancel();
     }
 
     private void ReadStdOut()
@@ -86,6 +94,8 @@ public sealed class McLogFIleLogger : IDisposable
                 {
                     await AppendContent(line);
                 }
+
+                Dispose();
             }
             catch (Exception ex)
             {
@@ -104,6 +114,8 @@ public sealed class McLogFIleLogger : IDisposable
                 {
                     await AppendContent(line);
                 }
+
+                Dispose();
             }
             catch (Exception ex)
             {
@@ -112,11 +124,26 @@ public sealed class McLogFIleLogger : IDisposable
         });
     }
 
+    public void Cancel()
+    {
+        _cancellationTokenSource.Cancel();
+    }
+
+    private bool _disposed;
+
     /// <inheritdoc />
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         _writer.Flush();
         _writer.Close();
         _writer.Dispose();
+        _cancellationTokenSource.Dispose();
+
+        _disposed = true;
     }
 }
