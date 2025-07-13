@@ -1,11 +1,11 @@
-using Microsoft.Extensions.Configuration;
-using Serilog;
+using UltimateLogSystem;
+using UltimateLogSystem.Formatters;
 
 namespace PCL.Neo.Core.Utils.Logger;
 
 public sealed class NewLogger : IDisposable
 {
-    private readonly Serilog.Core.Logger _logger;
+    private readonly UltimateLogSystem.Logger _logger;
 
     public event LogDelegate.OnAssertLogEvent? OnAssertLogEvent;
     public event LogDelegate.OnDebugLogEvent? OnDebugLogEvent;
@@ -25,28 +25,18 @@ public sealed class NewLogger : IDisposable
         None
     }
 
-    public NewLogger(string targetLogDir)
+    private NewLogger()
     {
-        if (Directory.Exists(targetLogDir) == false)
-        {
-            Directory.CreateDirectory(targetLogDir);
-        }
+        var logFilePaht = Path.Combine(Const.AppData, "logs");
 
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Const.PathWithoutName)
-            .AddJsonFile("loggersettings.json")
-            .Build();
+        var confgig = new LoggerConfiguration()
+            .SetMinimumLevel(UltimateLogSystem.LogLevel.Trace)
+            .SetDefaultCategory("PCL.Neo")
+            .AddConsoleWriter(new TextFormatter("[{timestamp}] [{level}] {message}"))
+            .AddFileWriter($"{logFilePaht}/log_.log", maxFileSize: 5 * 1024 * 1024, maxRollingFiles: 10,
+                formatter: new TextFormatter("[{timestamp}] [{level}] {message}"));
 
-        _logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(configuration)
-            .CreateLogger();
-
-        Log.Logger = _logger;
-    }
-
-    ~NewLogger()
-    {
-        Log.CloseAndFlush();
+        _logger = LoggerFactory.CreateLogger(confgig);
     }
 
     private void Announce(LogLevel level, string message, Exception? ex)
@@ -91,31 +81,31 @@ public sealed class NewLogger : IDisposable
 
     public void LogDebug(string message, Exception? ex = null, LogLevel level = LogLevel.None)
     {
-        _logger.Debug(ex, message);
+        _logger.Debug(message, exception: ex);
         Announce(level, message, ex);
     }
 
     public void LogInformation(string message, Exception? ex = null, LogLevel level = LogLevel.None)
     {
-        _logger.Information(ex, message);
+        _logger.Info(message, exception: ex);
         Announce(level, message, ex);
     }
 
     public void LogWarning(string message, Exception? ex = null, LogLevel level = LogLevel.None)
     {
-        _logger.Warning(ex, message);
+        _logger.Warning(message, exception: ex);
         Announce(level, message, ex);
     }
 
     public void LogError(string message, Exception? ex = null, LogLevel level = LogLevel.None)
     {
-        _logger.Error(ex, message);
+        _logger.Error(message, exception: ex);
         Announce(level, message, ex);
     }
 
     public void LogFatal(string message, Exception? ex = null, LogLevel level = LogLevel.None)
     {
-        _logger.Fatal(ex, message);
+        _logger.Fatal(message, exception: ex);
         Announce(level, message, ex);
     }
 
@@ -127,5 +117,5 @@ public sealed class NewLogger : IDisposable
         _logger.Dispose();
     }
 
-    public static readonly NewLogger Logger = new(Path.Combine(Const.PathWithoutName, "logs"));
+    public static readonly NewLogger Logger = new();
 }

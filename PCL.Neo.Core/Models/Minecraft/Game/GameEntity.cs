@@ -35,8 +35,7 @@ public class GameEntity(GameInfo inforamtion, LaunchOptions options) : IDisposab
         }
 
 #if DEBUG
-        var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PCL.Neo",
-            "logs", "game_.log");
+        var logPath = Path.Combine(Const.AppData, "logs", "game_.log");
         var logger = new McLogFileLogger(logPath, _gameProcess);
         logger.Start();
 #endif
