@@ -35,6 +35,9 @@ public static class Const
     /// </summary>
     public static readonly bool Is64Os = Environment.Is64BitOperatingSystem;
 
+    public static readonly string AppData =
+        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PCL.Neo");
+
     public enum RunningOs
     {
         Windows,

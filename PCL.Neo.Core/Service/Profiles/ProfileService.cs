@@ -170,9 +170,7 @@ public class ProfileService : IProfileService
 
     private static string GetDefaultProfileConfigPath()
     {
-        var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var neoFolder = Path.Combine(appDataFolder, "PCL.Neo");
-        return Path.Combine(neoFolder, "profiles");
+        return Path.Combine(Const.AppData, "profiles");
     }
 
     private static void EnsureDirectoryExists(string path)
