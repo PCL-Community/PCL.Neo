@@ -52,7 +52,8 @@ public class GameLauncherTest
                 GameDirectory =
                     @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft\versions\Create",
                 RootDirectory = @"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
-                Name = "Create"
+                Name = "Create",
+                Version = "Unknow"
             },
             launchOptions
         );

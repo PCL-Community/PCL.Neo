@@ -4,7 +4,7 @@ using PCL.Neo.Core.Service.Profiles;
 using PCL.Neo.Core.Service.Profiles.Data;
 using System;
 using System.IO;
-using System.Text.Json;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PCL.Neo.Tests.Core.Service.Profiles;
@@ -27,25 +27,40 @@ public class ProfileServiceTest
         }
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        if (Directory.Exists(SaveTempDir))
+        {
+            Directory.Delete(SaveTempDir, true);
+        }
+    }
+
     [Test]
-    public async Task SaveProfilesDefaultAsync_ShouldLoadAllGamesAndSave()
+    public async Task LoadProfilesDefaultAsync_ShouldLoadProfiles()
+    {
+        var profiles = await _service.LoadProfilesDefaultAsync();
+        var profileInfos = profiles as ProfileInfo[] ?? profiles.ToArray();
+        Assert.That(profileInfos, Is.Not.Empty);
+        foreach (var profile in profileInfos)
+        {
+            Console.WriteLine($"Profile Name: {profile.ProfileName}");
+            Console.WriteLine($"Target Directory: {profile.TargetDir}");
+            Console.WriteLine($"Games Count: {profile.Games.Count}");
+            Console.WriteLine(new string('-', 20));
+        }
+    }
+
+    [Test]
+    public async Task SaveProfilesDefaultAsync_ShouldGetAllGamesAndSave()
     {
         var profile = await _service.GetProfileAsync(TempDir, "Test_SaveProfiles");
         Assert.That(profile, Is.Not.Null);
-        Assert.That(profile.Games.Count, Is.EqualTo(33));
+        Assert.That(profile.Games.Count, Is.EqualTo(36));
 
-        await _service.SaveProfilesDefaultAsync(profile);
+        var result = await _service.SaveProfilesDefaultAsync(profile);
 
-        var profiles = await _service.LoadProfilesDefaultAsync();
-        foreach (var pro in profiles)
-        {
-            foreach (var gameInfo in pro.Games)
-            {
-                Console.WriteLine(gameInfo.Name);
-                Console.WriteLine(gameInfo.Type);
-                Console.WriteLine(new string('-', 10));
-            }
-        }
+        Assert.That(result, Is.True);
     }
 
     [Test]
@@ -55,13 +70,9 @@ public class ProfileServiceTest
             await _service.GetProfileAsync(@"C:\Users\WhiteCAT\Desktop\Games\PCL2\.minecraft",
                 "Test_LoadAndGetProfile");
         Assert.That(profiles, Is.Not.Null);
-        await _service.SaveProfilesDefaultAsync(profiles);
 
-        var secProfiles = await _service.LoadProfilesDefaultAsync();
-
-        Assert.That(secProfiles, Is.Not.Null);
-
-        var content = JsonSerializer.Serialize(secProfiles, new JsonSerializerOptions { WriteIndented = true });
+        var result = await _service.SaveProfilesDefaultAsync(profiles);
+        Assert.That(result, Is.True);
     }
 
     [Test]
@@ -74,9 +85,9 @@ public class ProfileServiceTest
     }
 
     [Test]
-    public async Task LoadTargetGameAsync_ShouldLoadGame()
+    public async Task GetTargetGameAsync_ShouldGetGame()
     {
-        var game = await _service.LoadTargetGameAsync(TempDir, "1.20.6-Fabric 0.15.11");
+        var game = await _service.GetTargetGameAsync(TempDir, "1.20.6-Fabric 0.15.11");
         Assert.That(game, Is.Not.Null);
         Assert.That(game.Name, Is.EqualTo("1.20.6-Fabric 0.15.11"));
         Assert.That(game.IsIndie, Is.True);
@@ -86,7 +97,7 @@ public class ProfileServiceTest
     public void LoadTargetGameAsync_ShouldThrowOnMissingGame()
     {
         var ex = Assert.ThrowsAsync<DirectoryNotFoundException>(async () =>
-            await _service.LoadTargetGameAsync(TempDir, "not_exist"));
+            await _service.GetTargetGameAsync(TempDir, "not_exist"));
         StringAssert.Contains("Game directory not found", ex!.Message);
     }
 
@@ -121,6 +132,7 @@ public class ProfileServiceTest
             RootDirectory = TempDir,
             GameDirectory = "gd",
             IsIndie = false,
+            Version = "23w41a",
             Type = GameType.Vanilla
         };
         var result = await _service.SaveGameInfoToProfileDefaultAsync(profile, game);
@@ -140,6 +152,7 @@ public class ProfileServiceTest
             Name = "test2",
             RootDirectory = TempDir,
             GameDirectory = "gd2",
+            Version = "23w41a",
             IsIndie = true,
             Type = GameType.Vanilla
         };
@@ -159,6 +172,7 @@ public class ProfileServiceTest
             GameDirectory = string.Empty,
             RootDirectory = string.Empty,
             IsIndie = true,
+            Version = "23w41a",
             Type = GameType.Vanilla,
             Name = "None"
         };

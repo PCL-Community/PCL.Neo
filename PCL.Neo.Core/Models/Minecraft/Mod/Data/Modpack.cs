@@ -1,13 +1,12 @@
 using System.IO.Compression;
 
-namespace PCL.Neo.Core.Models.Minecraft.Mod;
+namespace PCL.Neo.Core.Models.Minecraft.Mod.Data;
 
 public class ModPack
 {
     public static void InstallPackModrinth(string mrpack, string directory)
     {
-        if (!File.Exists(mrpack)) { throw new FileNotFoundException(); }
-
+        if (!File.Exists(mrpack)) throw new FileNotFoundException();
         // ZipFile.ExtractToDirectory(mrpack, directory);
         using var archive = ZipFile.OpenRead(mrpack);
         var modrinthOptions = archive.GetEntry("modrinth.index.json");

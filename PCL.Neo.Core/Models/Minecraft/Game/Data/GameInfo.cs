@@ -5,6 +5,11 @@ namespace PCL.Neo.Core.Models.Minecraft.Game.Data;
 public record GameInfo
 {
     /// <summary>
+    /// The name of the game version.
+    /// </summary>
+    public required string Name { get; set; }
+
+    /// <summary>
     /// .minecraft folder path.
     /// </summary>
     public required string GameDirectory { get; set; }
@@ -15,21 +20,20 @@ public record GameInfo
     public required string RootDirectory { get; set; }
 
     /// <summary>
-    /// The name of the game version.
-    /// </summary>
-    public required string Name { get; set; }
-
-    /// <summary>
     /// The loader type.
     /// </summary>
     public GameType Type { get; set; } = GameType.Unknown;
 
     /// <summary>
+    /// The game version.
+    /// </summary>
+    public required string Version { get; set; }
+
+    /// <summary>
     /// Demonstrate if the version has been loaded (runed).
     /// </summary>
-
     [JsonIgnore]
-    public bool IsRunning { get; set; } = false;
+    public bool IsRunning { get; set; }
 
     private bool? _isIndie;
 
@@ -57,6 +61,7 @@ public record GameInfo
     public static GameInfo Factory(
         string targetDir, string gameDir,
         string versionName,
+        string verison,
         bool isIndie,
         GameType type)
     {
@@ -66,7 +71,8 @@ public record GameInfo
             RootDirectory = targetDir,
             GameDirectory = gameDir,
             IsIndie = isIndie,
-            Type = type
+            Type = type,
+            Version = verison
         };
     }
 }

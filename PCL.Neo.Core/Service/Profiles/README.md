@@ -41,10 +41,10 @@ Task<ProfileInfo> GetProfileAsync(string targetDir, string profileName)
 
 ### 2.2 游戏加载方法
 
-#### LoadTargetGameAsync
+#### GetTargetGameAsync
 
 ```csharp
-Task<GameInfo> LoadTargetGameAsync(string targetDir, string gameName)
+Task<GameInfo> GetTargetGameAsync(string targetDir, string gameName)
 ```
 
 从指定目录加载特定的游戏版本信息。
@@ -124,7 +124,7 @@ await _profileService.SaveProfilesDefaultAsync(profile);
 
 ```csharp
 // 加载特定游戏版本
-var game = await _profileService.LoadTargetGameAsync(targetDir, "1.20.6-Fabric");
+var game = await _profileService.GetTargetGameAsync(targetDir, "1.20.6-Fabric");
 
 // 将游戏信息添加到档案
 await _profileService.SaveGameInfoToProfileAsync(profile, game, targetDir);

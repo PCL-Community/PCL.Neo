@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
+    <PackageReference Include="Tomlyn" Version="0.19.0" />
     <PackageReference Include="UltimateLogSystem" Version="1.0.0" />
   </ItemGroup>
 
