@@ -14,14 +14,6 @@ public class AccountService : IAccountService
     private readonly string _selectedAccountFilePath;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    // TODO: 配置Yggdrasil服务API密钥
-    // fix: yggdrasil doesn't have any access key ( from: whitecat346)
-    // /cc @BL077
-    private readonly string _yggdrasilApiKey = "";
-
-    // TODO: 配置默认的Yggdrasil API超时时间（毫秒）
-    private readonly int _yggdrasilApiTimeoutMs = 10000;
-
     private List<BaseAccount> _cachedAccounts = [];
     private string? _selectedAccountUuid;
     private bool _isLoaded;
@@ -437,54 +429,44 @@ public class AccountService : IAccountService
                 return account;
             }
 
-            this.LogAccountInfo($"开始刷新微软账户令牌: {account.UserName}");
-
-            var refreshResult = await _microsoftAuthService.RefreshTokenAsync(account.OAuthToken.RefreshToken);
-            if (refreshResult.IsFailure)
+            try
             {
-                this.LogAccountError($"刷新微软账户令牌失败: {account.UserName}", refreshResult.Error);
-                throw refreshResult.Error!;
+                this.LogAccountInfo($"开始刷新微软账户令牌: {account.UserName}");
+
+                var refreshResult = await _microsoftAuthService.RefreshTokenAsync(account.OAuthToken.RefreshToken);
+
+                this.LogAccountDebug("获取到新的OAuth令牌");
+
+                // 获取Minecraft令牌
+                var mcTokenResult =
+                    await _microsoftAuthService.GetUserMinecraftAccessTokenAsync(refreshResult.AccessToken);
+
+                this.LogAccountDebug("获取到新的Minecraft令牌");
+
+                // 获取用户信息
+                var accountInfoResult = await _microsoftAuthService.GetUserAccountInfoAsync(mcTokenResult);
+
+                // 创建更新后的账户
+                var updatedAccount = account with
+                {
+                    OAuthToken = refreshResult,
+                    McAccessToken = mcTokenResult,
+                    UserName = accountInfoResult.UserName,
+                    Skins = accountInfoResult.Skins,
+                    Capes = accountInfoResult.Capes
+                };
+                this.LogAccountInfo($"微软账户令牌刷新成功: {updatedAccount.UserName}");
+
+                // 保存更新后的账户
+                await SaveAccountAsync(updatedAccount);
+
+                return updatedAccount;
             }
-
-            var tokenInfo = refreshResult.Value;
-            this.LogAccountDebug("获取到新的OAuth令牌");
-
-            // 获取Minecraft令牌
-            var mcTokenResult = await _microsoftAuthService.GetUserMinecraftAccessTokenAsync(tokenInfo.AccessToken);
-            if (mcTokenResult.IsFailure)
+            catch (Exception e)
             {
-                this.LogAccountError($"获取Minecraft令牌失败: {account.UserName}", mcTokenResult.Error);
-                throw mcTokenResult.Error;
+                Console.WriteLine(e);
+                throw;
             }
-
-            this.LogAccountDebug("获取到新的Minecraft令牌");
-
-            // 获取用户信息
-            var accountInfoResult = await _microsoftAuthService.GetUserAccountInfoAsync(mcTokenResult.Value);
-            if (accountInfoResult.IsFailure)
-            {
-                this.LogAccountError($"获取账户信息失败: {account.UserName}", accountInfoResult.Error);
-                throw accountInfoResult.Error!;
-            }
-
-            var accountInfo = accountInfoResult.Value;
-
-            // 创建更新后的账户
-            var updatedAccount = account with
-            {
-                OAuthToken = tokenInfo,
-                McAccessToken = mcTokenResult.Value,
-                UserName = accountInfo.UserName,
-                Skins = accountInfo.Skins,
-                Capes = accountInfo.Capes
-            };
-
-            this.LogAccountInfo($"微软账户令牌刷新成功: {updatedAccount.UserName}");
-
-            // 保存更新后的账户
-            await SaveAccountAsync(updatedAccount);
-
-            return updatedAccount;
         }
         catch (Exception ex) when (ex is not ArgumentNullException)
         {

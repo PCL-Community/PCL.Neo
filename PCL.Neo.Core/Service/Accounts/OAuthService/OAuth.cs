@@ -1,10 +1,8 @@
 using PCL.Neo.Core.Service.Accounts.OAuthService.Exceptions;
-using PCL.Neo.Core.Utils;
+using PCL.Neo.Core.Utils.Net;
 using System.Diagnostics.CodeAnalysis;
 
 namespace PCL.Neo.Core.Service.Accounts.OAuthService;
-
-#pragma warning disable IL2026 // fixed by DynamicDependency
 
 public static class OAuth
 {
@@ -15,10 +13,13 @@ public static class OAuth
             ["refresh_token"] = refreshToken
         };
 
-        return await Net.SendHttpRequestAsync<OAuthData.ResponseData.AccessTokenResponse>(
-            HttpMethod.Post,
-            OAuthData.RequestUrls.TokenUri.Value,
-            new FormUrlEncodedContent(authTokenData));
+        var requeset = new HttpRequestMessage(HttpMethod.Post, OAuthData.RequestUrls.TokenUri.Value)
+        {
+            Content = new FormUrlEncodedContent(authTokenData)
+        };
+
+        var response = await StaticNet.SendAsync<OAuthData.ResponseData.AccessTokenResponse>(requeset);
+        return response;
     }
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(OAuthData.RequireData))]
@@ -29,11 +30,14 @@ public static class OAuth
             {
                 Properties = new OAuthData.RequireData.XboxLiveAuthRequire.PropertiesData(accessToken)
             };
+        var request = new HttpRequestMessage(HttpMethod.Post, OAuthData.RequestUrls.XboxLiveAuth.Value);
+        var response = await StaticNet
+            .SendJsonAsync<OAuthData.ResponseData.XboxResponse, OAuthData.RequireData.XboxLiveAuthRequire>(
+                HttpMethod.Post,
+                OAuthData.RequestUrls.XboxLiveAuth.Value,
+                jsonContent);
 
-        return await Net.SendHttpRequestAsync<OAuthData.ResponseData.XboxResponse>(
-            HttpMethod.Post,
-            OAuthData.RequestUrls.XboxLiveAuth.Value,
-            jsonContent);
+        return response;
     }
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(OAuthData.RequireData))]
@@ -42,10 +46,11 @@ public static class OAuth
         var jsonContent =
             new OAuthData.RequireData.XstsRequire(new OAuthData.RequireData.XstsRequire.PropertiesData([xblToken]));
 
-        var response = await Net.SendHttpRequestAsync<OAuthData.ResponseData.XboxResponse>(
-            HttpMethod.Post,
-            OAuthData.RequestUrls.XstsAuth.Value,
-            jsonContent);
+        var response =
+            await StaticNet.SendJsonAsync<OAuthData.ResponseData.XboxResponse, OAuthData.RequireData.XstsRequire>(
+                HttpMethod.Post,
+                OAuthData.RequestUrls.XstsAuth.Value,
+                jsonContent);
 
         return response.Token;
     }

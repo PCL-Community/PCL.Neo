@@ -12,11 +12,11 @@ public class DeviceFlowAwaitUser(string userCode, string verificationUri) : Devi
 
 public class DeviceFlowPolling : DeviceFlowState;
 
-public class DeviceFlowDeclined : DeviceFlowState;
+public class DeviceFlowDeclined : Exception;
 
-public class DeviceFlowExpired : DeviceFlowState;
+public class DeviceFlowExpired : Exception;
 
-public class DeviceFlowBadVerificationCode : DeviceFlowState;
+public class DeviceFlowBadVerificationCode : Exception;
 
 public class DeviceFlowGetAccountInfo : DeviceFlowState;
 
@@ -26,7 +26,7 @@ public class DeviceFlowSucceeded(MsaAccount account) : DeviceFlowState
     public MsaAccount Account { get; } = account;
 }
 
-public class DeviceFlowUnkonw : DeviceFlowState;
+public class DeviceFlowUnkonw : Exception;
 
 public class DeviceFlowInternetError : DeviceFlowState;
 
