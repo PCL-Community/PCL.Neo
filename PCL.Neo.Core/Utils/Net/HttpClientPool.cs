@@ -19,10 +19,12 @@ internal static class HttpClientPool
         _cleanupTimer = new Timer(CleanupExpiredClients, null, TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(60));
     }
 
-    private class HttpClientInfo(HttpClient client, DateTime expirationTime)
+    internal class HttpClientInfo(HttpClient client, DateTime expirationTime, bool inUse)
     {
         public HttpClient Client { get; } = client;
         public DateTime ExpirationTime { get; } = expirationTime;
+
+        public bool InUse { get; set; } = inUse;
     }
 
     /// <summary>
@@ -31,13 +33,13 @@ internal static class HttpClientPool
     /// <param name="name">客户端名称</param>
     /// <param name="client">HTTP客户端实例</param>
     /// <param name="lifetime">客户端生命周期，默认为1小时</param>
-    public static void AddHttpClient(string name, HttpClient client, TimeSpan? lifetime = null)
+    public static HttpClientInfo AddHttpClient(string name, HttpClient client, TimeSpan? lifetime = null)
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(client);
 
-        var expirationTime = DateTime.UtcNow.Add(lifetime ?? TimeSpan.FromSeconds(60));
-        var clientInfo = new HttpClientInfo(client, expirationTime);
+        var expirationTime = DateTime.UtcNow.Add(lifetime ?? TimeSpan.FromMinutes(5));
+        var clientInfo = new HttpClientInfo(client, expirationTime, true);
 
         if (!_clients.TryAdd(name, clientInfo))
         {
@@ -49,6 +51,8 @@ internal static class HttpClientPool
 
             _clients.TryAdd(name, clientInfo);
         }
+
+        return clientInfo;
     }
 
     /// <summary>
@@ -57,7 +61,7 @@ internal static class HttpClientPool
     /// <param name="name">客户端名称</param>
     /// <param name="lifetime">新建客户端的生命周期，默认为1小时</param>
     /// <returns>HTTP客户端实例</returns>
-    public static HttpClient GetClient(string name, TimeSpan? lifetime = null)
+    public static HttpClientInfo GetClient(string name, TimeSpan? lifetime = null)
     {
         ArgumentNullException.ThrowIfNull(name);
 
@@ -65,7 +69,7 @@ internal static class HttpClientPool
         {
             if (DateTime.UtcNow < clientInfo.ExpirationTime)
             {
-                return clientInfo.Client;
+                return clientInfo;
             }
 
             // 如果客户端已过期，移除并释放它
@@ -77,8 +81,8 @@ internal static class HttpClientPool
 
         // 创建新的客户端
         var client = new HttpClient();
-        AddHttpClient(name, client, lifetime);
-        return client;
+        var returnClientInfo = AddHttpClient(name, client, lifetime);
+        return returnClientInfo;
     }
 
     /// <summary>
@@ -92,6 +96,7 @@ internal static class HttpClientPool
 
         if (_clients.TryRemove(name, out var clientInfo))
         {
+            clientInfo.InUse = false;
             clientInfo.Client.Dispose();
             return true;
         }
@@ -121,6 +126,11 @@ internal static class HttpClientPool
             {
                 if (_clients.TryRemove(name, out var clientInfo))
                 {
+                    if (clientInfo.InUse)
+                    {
+                        continue;
+                    }
+
                     clientInfo.Client.Dispose();
                 }
             }

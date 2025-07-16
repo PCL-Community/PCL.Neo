@@ -7,10 +7,11 @@ namespace PCL.Neo.Core.Utils.Net;
 /// <summary>
 /// HTTP客户端服务实现
 /// </summary>
-public class NetService : INetService
+public class NetService : INetService, IDisposable
 {
     private readonly string _token;
     private readonly string _httpClientName;
+    private readonly HttpClientPool.HttpClientInfo _httpClientInfo;
 
     /// <summary>
     /// 构造函数
@@ -26,7 +27,7 @@ public class NetService : INetService
         _httpClientName = httpClientName ?? throw new ArgumentNullException(nameof(httpClientName));
         var baseUrl1 = baseUrl?.TrimEnd('/') ?? string.Empty;
         _token = token ?? string.Empty;
-        HttpClientPool.AddHttpClient(_httpClientName, new HttpClient
+        _httpClientInfo = HttpClientPool.AddHttpClient(_httpClientName, new HttpClient
         {
             BaseAddress = new Uri(baseUrl1)
         });
@@ -240,7 +241,7 @@ public class NetService : INetService
     /// <returns>配置好的HTTP客户端</returns>
     private HttpClient CreateHttpClient()
     {
-        var httpClient = HttpClientPool.GetClient(_httpClientName);
+        var httpClient = _httpClientInfo.Client;
         // 如果有令牌，添加到请求头
         if (!string.IsNullOrEmpty(_token))
         {
@@ -310,5 +311,11 @@ public class NetService : INetService
                          $"错误: {exception.Message}";
 
         NewLogger.Logger.LogError(logMessage);
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _httpClientInfo.InUse = false;
     }
 }
