@@ -1,6 +1,6 @@
 using PCL.Neo.Core.Download;
 using PCL.Neo.Core.Models.Minecraft.Java;
-using PCL.Neo.Core.Models.Minecraft.Mod;
+using PCL.Neo.Core.Models.Minecraft.Mod.Data;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -41,11 +41,5 @@ public class FileTest
     public void MojangVersionTest()
     {
         Console.WriteLine(JavaManager.MojangJavaVersion.Δ.Value);
-    }
-
-    [Test]
-    public async Task SelectFileTest()
-    {
-        // await Helpers.FileExtension.SelectFile("Test");
     }
 }

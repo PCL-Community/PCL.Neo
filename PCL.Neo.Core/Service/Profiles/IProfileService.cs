@@ -33,7 +33,7 @@ public interface IProfileService
     /// <param name="targetDir">The directory where the profile is located.</param>
     /// <param name="gameName">The name of the profile to load.</param>
     /// <returns>A game profile object.</returns>
-    Task<GameInfo> LoadTargetGameAsync(string targetDir, string gameName);
+    Task<GameInfo> GetTargetGameAsync(string targetDir, string gameName);
 
     /// <summary>
     /// Save profile to the specified directory.

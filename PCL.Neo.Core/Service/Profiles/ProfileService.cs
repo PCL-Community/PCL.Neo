@@ -63,14 +63,15 @@ public class ProfileService : IProfileService
 
             var isIndie = Directory.Exists(Path.Combine(version, "saves"));
             var gameType = await GetGameType(version, versionName);
-            profiles.Games.Add(GameInfo.Factory(targetDir, version, versionName, isIndie, gameType));
+            var cliVer = GetClientVersion(jsonFile);
+            profiles.Games.Add(GameInfo.Factory(targetDir, version, versionName, cliVer, isIndie, gameType));
         }
 
         return profiles;
     }
 
     /// <inheritdoc />
-    public async Task<GameInfo> LoadTargetGameAsync(string targetDir, string gameName)
+    public async Task<GameInfo> GetTargetGameAsync(string targetDir, string gameName)
     {
         if (!ValidateDir(targetDir))
         {
@@ -96,7 +97,8 @@ public class ProfileService : IProfileService
 
         var isIndie = Directory.Exists(Path.Combine(gameDir, "saves"));
         var gameType = await GetGameType(gameDir, gameName);
-        var gameInfo = GameInfo.Factory(targetDir, gameDir, gameName, isIndie, gameType);
+        var cliVer = GetClientVersion(jsonFile);
+        var gameInfo = GameInfo.Factory(targetDir, gameDir, gameName, cliVer, isIndie, gameType);
 
         return gameInfo;
     }
@@ -150,6 +152,18 @@ public class ProfileService : IProfileService
         }
 
         return true;
+    }
+
+    private static string GetClientVersion(string jsonFilePath)
+    {
+        using var jsonFile = File.OpenRead(jsonFilePath);
+        var jsonDoc = JsonDocument.Parse(jsonFile);
+        var versionElement = jsonDoc.RootElement.GetProperty("clientVersion");
+        var versionStr = versionElement.GetString();
+
+        ArgumentNullException.ThrowIfNull(versionStr);
+
+        return versionStr;
     }
 
     private static bool ValidateDir(string targetDir)
