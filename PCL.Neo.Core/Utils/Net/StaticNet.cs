@@ -9,6 +9,16 @@ namespace PCL.Neo.Core.Utils.Net;
 /// </summary>
 public static class StaticNet
 {
+    private static readonly string SharedName;
+
+    static StaticNet()
+    {
+        var sharedName = Guid.NewGuid().ToString()[..8];
+        var clientInfo = HttpClientPool.AddHttpClient(sharedName, new HttpClient(), TimeSpan.FromMinutes(5));
+        clientInfo.InUse = false;
+        SharedName = sharedName;
+    }
+
     /// <summary>
     /// 发送无内容信息
     /// </summary>
@@ -23,7 +33,7 @@ public static class StaticNet
 
         try
         {
-            var httpClient = new HttpClient();
+            var httpClient = GetHttpClient(ref token);
             if (!string.IsNullOrEmpty(token))
             {
                 httpClient.DefaultRequestHeaders.Authorization =
@@ -57,7 +67,7 @@ public static class StaticNet
 
         try
         {
-            var httpClient = new HttpClient();
+            var httpClient = GetHttpClient(ref token);
             if (!string.IsNullOrEmpty(token))
             {
                 httpClient.DefaultRequestHeaders.Authorization =
@@ -91,7 +101,7 @@ public static class StaticNet
 
         try
         {
-            var httpClient = new HttpClient();
+            var httpClient = GetHttpClient(ref token);
             if (!string.IsNullOrEmpty(token))
             {
                 httpClient.DefaultRequestHeaders.Authorization =
@@ -136,7 +146,7 @@ public static class StaticNet
 
         try
         {
-            var httpClient = new HttpClient();
+            var httpClient = GetHttpClient(ref token);
             if (!string.IsNullOrEmpty(token))
             {
                 httpClient.DefaultRequestHeaders.Authorization =
@@ -192,7 +202,7 @@ public static class StaticNet
                 request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             }
 
-            var httpClient = new HttpClient();
+            var httpClient = GetHttpClient(ref token);
             if (!string.IsNullOrEmpty(token))
             {
                 httpClient.DefaultRequestHeaders.Authorization =
@@ -235,7 +245,7 @@ public static class StaticNet
             var jsonContent = JsonSerializer.Serialize(content);
             request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            var httpClient = new HttpClient();
+            var httpClient = GetHttpClient(ref token);
             if (!string.IsNullOrEmpty(token))
             {
                 httpClient.DefaultRequestHeaders.Authorization =
@@ -320,5 +330,19 @@ public static class StaticNet
                          $"错误: {exception.Message}";
 
         NewLogger.Logger.LogError(logMessage);
+    }
+
+    private static HttpClient GetHttpClient(ref string? token)
+    {
+        if (string.IsNullOrEmpty(token))
+        {
+            return new HttpClient();
+        }
+        else
+        {
+            var clientInfo = HttpClientPool.GetClient(SharedName);
+            clientInfo.InUse = false;
+            return clientInfo.Client;
+        }
     }
 }
