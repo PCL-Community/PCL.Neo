@@ -152,12 +152,12 @@ public partial class MainWindowViewModel : ViewModelBase
         switch (tag)
         {
             case 1:
-                NavigationService.GoToAsync<HomeViewModel>();
+                await NavigationService.GoToAsync<HomeViewModel>();
                 break;
             case 2:
                 break;
             case 3:
-                NavigationService.GoToAsync<OnlineViewModel>();
+                await NavigationService.GoToAsync<OnlineViewModel>();
                 break;
             case 4:
                 break;
