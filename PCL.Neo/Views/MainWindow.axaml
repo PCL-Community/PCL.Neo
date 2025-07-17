@@ -123,7 +123,7 @@
                             Stroke="White"
                             StrokeThickness="1.9"
                             UseLayoutRounding="False"
-                            Width="52" />
+                            Width="48" />
                         <TextBlock
                             FontSize="17"
                             Foreground="White"
@@ -150,7 +150,7 @@
                                 Height="20"
                                 HorizontalAlignment="Left"
                                 IsHitTestVisible="False"
-                                Margin="12,0,0,0"
+                                Margin="0,0,0,0"
                                 Name="NeoTitleLogo"
                                 UseLayoutRounding="False"
                                 Width="32">

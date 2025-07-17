@@ -182,8 +182,9 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         CheckedBtn = CurrentViewModel switch
         {
-            // LinkViewModel => 3,
-            //SetupViewModel => 4,
+            HomeViewModel => 1,
+
+            OnlineViewModel => 3,
             // MoreViewModel => 4,
             // _ => throw new ArgumentOutOfRangeException() // 有可能切换到子界面，如下载进度界面
             _ => 1
