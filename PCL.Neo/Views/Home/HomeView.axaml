@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:PCL.Neo.ViewModels.Home"
+             xmlns:controls="clr-namespace:PCL.Neo.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PCL.Neo.Views.Home.HomeView"
+             x:DataType="vm:HomeViewModel">
+    <Grid>
+        <Grid Margin="0,-36,0,0" VerticalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Center">
+                <Image Height="52" Width="52" HorizontalAlignment="Center" Source="{Binding SkinHeadSource}"></Image>
+                <ComboBox Margin="20" Width="260">
+                    <ComboBoxItem>Steve</ComboBoxItem>
+                    <ComboBoxItem>Alex</ComboBoxItem>
+                    <ComboBoxItem>GordonFreeman</ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel VerticalAlignment="Bottom">
+            <controls:MyButton Width="260" Height="54" ColorType="Highlight" Margin="20,0">
+                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <TextBlock Foreground="{DynamicResource ColorBrush2}" Margin="2.5,0,0,5">启动游戏</TextBlock>
+                    <TextBlock FontSize="11" HorizontalAlignment="Center" Foreground="Gray" Margin="2.5,-2,0,-1.5">PCL.Neo</TextBlock>
+                </StackPanel>
+            </controls:MyButton>
+            <controls:MyButton Margin="5,10,5,20" Width="260" Height="34">版本选择</controls:MyButton>
+            <DockPanel HorizontalAlignment="Center" Margin="5,5,5,15" Height="44" IsVisible="False">
+                <controls:MyButton Width="125" Margin="5">版本选择</controls:MyButton>
+                <controls:MyButton Width="125" Margin="5">版本设置</controls:MyButton>
+            </DockPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>
+
