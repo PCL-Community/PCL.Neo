@@ -9,6 +9,8 @@ using PCL.Neo.Helpers;
 using PCL.Neo.Messages;
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels.Home;
+using PCL.Neo.ViewModels.Online;
+using PCL.Neo.Views.Online;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -155,7 +157,7 @@ public partial class MainWindowViewModel : ViewModelBase
             case 2:
                 break;
             case 3:
-                // NavigationService.Goto<LinkViewModel>();
+                NavigationService.GoToAsync<OnlineViewModel>();
                 break;
             case 4:
                 break;

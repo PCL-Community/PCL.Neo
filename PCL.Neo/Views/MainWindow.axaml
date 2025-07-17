@@ -239,7 +239,7 @@
                                     Margin="5,0"
                                     Name="BtnTitleSelect0"
                                     Padding="2,0"
-                                    Tag="0"
+                                    Tag="1"
                                     Text="{DynamicResource LangTitleHome}" />
                                 <pc:MyRadioButton
                                     Command="{Binding Navigate}"
