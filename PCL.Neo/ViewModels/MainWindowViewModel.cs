@@ -9,6 +9,8 @@ using PCL.Neo.Helpers;
 using PCL.Neo.Messages;
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels.Home;
+using PCL.Neo.ViewModels.Online;
+using PCL.Neo.Views.Online;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -150,12 +152,12 @@ public partial class MainWindowViewModel : ViewModelBase
         switch (tag)
         {
             case 1:
-                NavigationService.GoToAsync<HomeViewModel>();
+                await NavigationService.GoToAsync<HomeViewModel>();
                 break;
             case 2:
                 break;
             case 3:
-                // NavigationService.Goto<LinkViewModel>();
+                await NavigationService.GoToAsync<OnlineViewModel>();
                 break;
             case 4:
                 break;
@@ -180,8 +182,9 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         CheckedBtn = CurrentViewModel switch
         {
-            // LinkViewModel => 3,
-            //SetupViewModel => 4,
+            HomeViewModel => 1,
+
+            OnlineViewModel => 3,
             // MoreViewModel => 4,
             // _ => throw new ArgumentOutOfRangeException() // 有可能切换到子界面，如下载进度界面
             _ => 1

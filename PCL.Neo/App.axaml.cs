@@ -11,7 +11,9 @@ using PCL.Neo.Core.Service.Game;
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels;
 using PCL.Neo.ViewModels.Home;
+using PCL.Neo.ViewModels.Online;
 using PCL.Neo.Views;
+using PCL.Neo.Views.Online;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,6 +35,7 @@ public class App : Application
         return new ServiceCollection()
             .AddTransient<MainWindowViewModel>()
             .AddTransient<HomeViewModel>().AddTransient<HomeSubViewModel>()
+            .AddTransient<OnlineViewModel>().AddTransient<OnlineSubViewModel>()
 
             .AddSingleton<INavigationService, NavigationService>()
             .AddSingleton<StorageService>()
