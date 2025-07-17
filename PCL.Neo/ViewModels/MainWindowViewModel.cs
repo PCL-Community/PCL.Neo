@@ -8,6 +8,7 @@ using PCL.Neo.Core.Utils;
 using PCL.Neo.Helpers;
 using PCL.Neo.Messages;
 using PCL.Neo.Services;
+using PCL.Neo.ViewModels.Home;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -149,6 +150,7 @@ public partial class MainWindowViewModel : ViewModelBase
         switch (tag)
         {
             case 1:
+                NavigationService.GoToAsync<HomeViewModel>();
                 break;
             case 2:
                 break;

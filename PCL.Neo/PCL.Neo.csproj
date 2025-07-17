@@ -51,6 +51,8 @@
 
   <ItemGroup>
     <AdditionalFiles Include="Assets\Language\zh-CN.axaml" />
+    <AdditionalFiles Include="Views\Home\HomeSubView.axaml" />
+    <AdditionalFiles Include="Views\Home\HomeView.axaml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -121,9 +121,9 @@
                             Name="ShapeTitleLogo"
                             Stretch="Fill"
                             Stroke="White"
-                            StrokeThickness="2.2"
+                            StrokeThickness="1.9"
                             UseLayoutRounding="False"
-                            Width="39" />
+                            Width="52" />
                         <TextBlock
                             FontSize="17"
                             Foreground="White"
