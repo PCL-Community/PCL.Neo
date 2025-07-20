@@ -31,7 +31,20 @@ public record AppSettingsData
     /// </summary>
     public int MinMemoryMb { get; set; } = 512;
 
+    /// <summary>
+    /// 是否启用内存优化
+    /// </summary>
     public bool MemoryOptimize { get; set; } = false;
+
+    /// <summary>
+    /// 当前游戏档案
+    /// </summary>
+    public string CurrentGameProfile { get; set; } = "Default";
+
+    /// <summary>
+    /// 当前游戏的名称
+    /// </summary>
+    public string CurrentGame { get; set; } = string.Empty;
 
     /// <summary>
     /// 版本隔离
@@ -43,13 +56,25 @@ public record AppSettingsData
     /// </summary>
     public string GameTitle { get; set; } = string.Empty;
 
+    /// <summary>
+    /// 游戏自定义信息（暂未知作用）
+    /// </summary>
     public string CustomizedInfo { get; set; } = string.Empty;
 
+    /// <summary>
+    /// 启动器可见性
+    /// </summary>
     public LauncherVisibleType LauncherVisible { get; set; } = LauncherVisibleType.None;
 
+    /// <summary>
+    /// 游戏进程优先级
+    /// </summary>
     public ProcessPriorityClass ProcessPriority { get; set; } = ProcessPriorityClass.Normal;
 
-    public WindowSizeType WindowSize { get; set; } = WindowSizeType.Default;
+    /// <summary>
+    /// 窗口大小
+    /// </summary>
+    public WindowSizeType WindowSize { get; set; } = WindowSizeType.Default; // TODO: 修改游戏启动代码，适配这个
 
     /// <summary>
     /// 记住的Java路径
