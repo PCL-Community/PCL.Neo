@@ -138,12 +138,12 @@ public sealed class ConfigurationManager : IConfigurationManager
         return typeof(T).Name switch
         {
             // 特殊处理已知的配置类型
-            "AppSettings" => GlobalSettings.GetConfigFilePath(GlobalSettings.AppSettingsFile),
-            "OAuth2Configurations" => GlobalSettings.GetConfigFilePath(GlobalSettings.OAuth2ConfigurationFile),
+            "AppSettings" => ConfigurationInfo.GetConfigFilePath(ConfigurationInfo.AppSettingsFile),
+            "OAuth2Configurations" => ConfigurationInfo.GetConfigFilePath(ConfigurationInfo.OAuth2ConfigurationFile),
             _ => attributePath.Contains(Path.DirectorySeparatorChar) ||
                  attributePath.Contains(Path.AltDirectorySeparatorChar)
                 ? attributePath // 已经是完整路径
-                : GlobalSettings.GetConfigFilePath(attributePath)
+                : ConfigurationInfo.GetConfigFilePath(attributePath)
         };
     }
 
@@ -283,7 +283,7 @@ public sealed class ConfigurationManager : IConfigurationManager
             var configPath = GetConfigPath<T>(attribute.FilePath);
             var backupPath = $"{configPath}.{DateTime.Now:yyyyMMdd_HHmmss}.bak";
 
-            var content = File.ReadAllText(configPath);
+            var content = await File.ReadAllTextAsync(configPath);
             await File.WriteAllTextAsync(backupPath, content);
 
             return true;
