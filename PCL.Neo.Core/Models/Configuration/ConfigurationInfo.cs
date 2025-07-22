@@ -3,7 +3,7 @@ namespace PCL.Neo.Core.Models.Configuration;
 /// <summary>
 /// 全局配置设置，集中管理配置文件路径和默认值
 /// </summary>
-public static class GlobalSettings
+public static class ConfigurationInfo
 {
     /// <summary>
     /// 应用程序配置文件路径
