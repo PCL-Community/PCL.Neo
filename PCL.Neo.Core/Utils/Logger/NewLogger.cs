@@ -29,12 +29,28 @@ public sealed class NewLogger : IDisposable
     {
         var logFilePaht = Path.Combine(Const.AppData, "logs");
 
+#if DEBUG
         var confgig = new LoggerConfiguration()
             .SetMinimumLevel(UltimateLogSystem.LogLevel.Trace)
             .SetDefaultCategory("PCL.Neo")
             .AddConsoleWriter(new TextFormatter("[{timestamp}] [{level}] {message}"))
-            .AddFileWriter($"{logFilePaht}/log_.log", maxFileSize: 5 * 1024 * 1024, maxRollingFiles: 10,
-                formatter: new TextFormatter("[{timestamp}] [{level}] {message}"));
+            .AddFileWriterWithDailyRolling($"{logFilePaht}/log.log",
+                maxFileSize: 40 * 1024 * 1024,
+                maxRollingFiles: 50,
+                formatter: new TextFormatter("[{timestamp}] [{level}] {message}"),
+                useDailyRolling: true);
+#else
+        var confgig = new LoggerConfiguration()
+            .SetMinimumLevel(UltimateLogSystem.LogLevel.Warning)
+            .SetDefaultCategory("PCL.Neo")
+            .AddConsoleWriter(new TextFormatter("[{timestamp}] [{level}] {message}"))
+            .AddFileWriterWithDailyRolling($"{logFilePaht}/log.log",
+                maxFileSize: 10 * 1024 * 1024,
+                maxRollingFiles: 5,
+                formatter: new TextFormatter("[{timestamp}] [{level}] {message}"),
+                useDailyRolling: true);
+#endif
+
 
         _logger = LoggerFactory.CreateLogger(confgig);
     }
