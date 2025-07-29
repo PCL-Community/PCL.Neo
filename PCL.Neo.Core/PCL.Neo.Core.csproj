@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
     <PackageReference Include="SevenZip" Version="19.0.0" />
-    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp" Version="3.119.0" />
     <PackageReference Include="System.Reactive" Version="6.0.1" />
     <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
   </ItemGroup>
@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
     <PackageReference Include="Tomlyn" Version="0.19.0" />
-    <PackageReference Include="UltimateLogSystem" Version="1.0.0" />
+    <PackageReference Include="UltimateLogSystem" Version="1.1.0" />
   </ItemGroup>
 
 </Project>
