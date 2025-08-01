@@ -16,19 +16,19 @@ public static class OAuthData
         /// 获取授权码模式下的授权码地址
         /// </summary>
         public static readonly Lazy<Uri> AuthCodeUri = new(() =>
-            new Uri(OAuth2BaseUri.Value, "authorize"));
+            new Uri(OAuth2BaseUri.Value, "/authorize"));
 
         /// <summary>
         /// 获取设备码模式下的授权码地址
         /// </summary>
         public static readonly Lazy<Uri> DeviceCode = new(() =>
-            new Uri(OAuth2BaseUri.Value, "devicecode"));
+            new Uri(OAuth2BaseUri.Value, "/devicecode"));
 
         /// <summary>
         /// 获取令牌
         /// </summary>
         public static readonly Lazy<Uri> TokenUri = new(() =>
-            new Uri(OAuth2BaseUri.Value, "token"));
+            new Uri(OAuth2BaseUri.Value, "/token"));
 
         /// <summary>
         /// XboxLive验证地址
@@ -66,12 +66,12 @@ public static class OAuthData
         private static OAuth2Configurations? _configurations;
 
         private static OAuth2Configurations Configurations =>
-            _configurations ??= ConfigurationManager.Instance.GetConfiguration<OAuth2Configurations>();
+            _configurations ??= ConfigurationManager.Instance.GetConfiguration<OAuth2Configurations>()!;
 
         /// <summary>
         /// 获取授权码的地址
         /// </summary>
-        public static Lazy<string> GetAuthCodeData = new(() =>
+        public static readonly Lazy<string> GetAuthCodeData = new(() =>
             $"{RequestUrls.AuthCodeUri}?client_id={Configurations.ClientId}&response_type=code&redirect_uri=127.0.0.1:{Configurations.RedirectPort}&response_mode=query&scope=XboxLive.signin offline_access");
 
         /// <summary>
@@ -93,8 +93,7 @@ public static class OAuthData
                 new Dictionary<string, string>
                 {
                     { "grant_type", "urn:ietf:params:oauth:grant-type:device_code" },
-                    { "client_id", Configurations.ClientId },
-                    { "device_code", "" }
+                    { "client_id", Configurations.ClientId }
                 }.ToImmutableDictionary());
 
         /// <summary>
@@ -105,7 +104,6 @@ public static class OAuthData
                 new Dictionary<string, string>
                 {
                     { "client_id", Configurations.ClientId },
-                    { "code", "" },
                     { "grant_type", "authorization_code" },
                     { "redirect_uri", $"127.0.0.1:{Configurations.RedirectPort}" },
                     { "scope", "XboxLive.signin offline_access" }
@@ -119,7 +117,6 @@ public static class OAuthData
             {
                 { "client_id", Configurations.ClientId },
                 { "client_secret", Configurations.ClientSecret },
-                { "refresh_token", "" },
                 { "grant_type", "refresh_token" },
                 { "scope", "XboxLive.signin offline_access" }
             }.ToImmutableDictionary());
@@ -185,13 +182,13 @@ public static class OAuthData
         public sealed record UserAuthStateResponse
         {
             [property: JsonPropertyName("expires_in")]
-            public int? ExpiresIn { get; set; }
+            public required int ExpiresIn { get; set; }
 
             [property: JsonPropertyName("access_token")]
-            public string? AccessToken { get; set; }
+            public required string AccessToken { get; set; }
 
             [property: JsonPropertyName("refresh_token")]
-            public string? RefreshToken { get; set; }
+            public required string RefreshToken { get; set; }
 
             [property: JsonPropertyName("error")]
             public string? Error { get; set; }
