@@ -24,5 +24,7 @@
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>
     <true />
+    <key>NSMicrophoneUsageDescription</key>
+  	<string>部分模组需要启动器自身拥有麦克风权限。</string>
   </dict>
 </plist>
