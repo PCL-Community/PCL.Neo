@@ -18,7 +18,7 @@ mkdir -p x64
 
 # 打包 arm64 版本
 APP_NAME_ARM64="arm64/PCL.Neo.app"
-PUBLISH_OUTPUT_DIRECTORY_ARM64="../PCL.Neo/bin/Release/net9.0/osx-arm64/publish/."
+PUBLISH_OUTPUT_DIRECTORY_ARM64="../PCL.Neo/bin/Release/net10.0/osx-arm64/publish/."
 
 if [ -d "$APP_NAME_ARM64" ]; then
     rm -rf "$APP_NAME_ARM64"
@@ -45,7 +45,7 @@ cp -a $PUBLISH_OUTPUT_DIRECTORY_ARM64/* "$APP_NAME_ARM64/Contents/MacOS/"
 
 # 打包 x64 版本
 APP_NAME_X64="x64/PCL.Neo.app"
-PUBLISH_OUTPUT_DIRECTORY_X64="../PCL.Neo/bin/Release/net9.0/osx-x64/publish/."
+PUBLISH_OUTPUT_DIRECTORY_X64="../PCL.Neo/bin/Release/net10.0/osx-x64/publish/."
 
 if [ -d "$APP_NAME_X64" ]; then
     rm -rf "$APP_NAME_X64"
