@@ -16,7 +16,11 @@
     <CFBundleExecutable>PCL.Neo</CFBundleExecutable>
     <CFBundleIconFile>Assets/Icon.ico</CFBundleIconFile>
     <CFBundleShortVersionString>1.0</CFBundleShortVersionString>
-    <PublishTrimmed>false</PublishTrimmed>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
