@@ -103,10 +103,10 @@ jobs:
                   dotnet publish -r win-x86 --self-contained true -p:PublishSingleFile=true -p:TrimMode=copyused
                   dotnet publish -r win-x64 --self-contained true -p:PublishSingleFile=true -p:TrimMode=copyused
                   dotnet publish -r win-arm64 --self-contained true -p:PublishSingleFile=true -p:TrimMode=copyused
-                  mv ./bin/Release/net9.0/win-x86/publish/PCL.Neo.exe ./bin/Release/net9.0/win-x86/publish/PCL.Neo.win.x86.exe
-                  mv ./bin/Release/net9.0/win-x64/publish/PCL.Neo.exe ./bin/Release/net9.0/win-x64/publish/PCL.Neo.win.x64.exe
-                  mv ./bin/Release/net9.0/win-arm64/publish/PCL.Neo.exe ./bin/Release/net9.0/win-arm64/publish/PCL.Neo.win.arm64.exe
-                  cd ./bin/Release/net9.0/
+                  mv ./bin/Release/net10.0/win-x86/publish/PCL.Neo.exe ./bin/Release/net10.0/win-x86/publish/PCL.Neo.win.x86.exe
+                  mv ./bin/Release/net10.0/win-x64/publish/PCL.Neo.exe ./bin/Release/net10.0/win-x64/publish/PCL.Neo.win.x64.exe
+                  mv ./bin/Release/net10.0/win-arm64/publish/PCL.Neo.exe ./bin/Release/net10.0/win-arm64/publish/PCL.Neo.win.arm64.exe
+                  cd ./bin/Release/net10.0/
                   cd ./win-x86/
                   zip -9 -r "../PCL.Neo.win.x86.zip" "./publish"
                   cd ../
@@ -120,16 +120,16 @@ jobs:
               with:
                 name: win.x64
                 path: |
-                    PCL.Neo/bin/Release/net9.0/PCL.Neo.win.x64.zip
+                    PCL.Neo/bin/Release/net10.0/PCL.Neo.win.x64.zip
             - name: UploadArtifacts win.x86
               uses: actions/upload-artifact@v4
               with:
                     name: win.x86
                     path: |
-                        PCL.Neo/bin/Release/net9.0/PCL.Neo.win.x86.zip
+                        PCL.Neo/bin/Release/net10.0/PCL.Neo.win.x86.zip
             - name: UploadArtifacts win.arm64
               uses: actions/upload-artifact@v4
               with:
                     name: win.arm64
                     path: |
-                        PCL.Neo/bin/Release/net9.0/PCL.Neo.win.arm64.zip
+                        PCL.Neo/bin/Release/net10.0/PCL.Neo.win.arm64.zip
