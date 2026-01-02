@@ -1,13 +1,18 @@
 using PCL.Neo.Core.Service.Accounts.Storage;
-using PCL.Neo.Core.Utils;
+using PCL.Neo.Core.Utils.Net;
 
 namespace PCL.Neo.Core.Service.Accounts.OAuthService;
 
-public class MinecraftInfo
+public static class MinecraftInfo
 {
     public static List<Skin> CollectSkins(
-        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Skin> skins)
+        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Skin>? skins)
     {
+        if (skins == null)
+        {
+            return [];
+        }
+
         return skins.Select(skin => new
             {
                 skin,
@@ -26,8 +31,13 @@ public class MinecraftInfo
     }
 
     public static List<Cape> CollectCapes(
-        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Cape> capes)
+        IEnumerable<OAuthData.ResponseData.MinecraftPlayerUuidResponse.Cape>? capes)
     {
+        if (capes == null)
+        {
+            return [];
+        }
+
         return capes.Select(cape => new
             {
                 cape,
@@ -51,20 +61,20 @@ public class MinecraftInfo
             IdentityToken = $"XBL3.0 x={uhs};{xstsToken}"
         };
 
-        var response = await Net.SendHttpRequestAsync<OAuthData.ResponseData.MinecraftAccessTokenResponse>(
-            HttpMethod.Post,
-            OAuthData.RequestUrls.MinecraftAccessTokenUri.Value,
-            jsonContent);
+        var response = await StaticNet
+            .SendJsonAsync<OAuthData.ResponseData.MinecraftAccessTokenResponse,
+                OAuthData.RequireData.MinecraftAccessTokenRequire>(
+                HttpMethod.Post,
+                OAuthData.RequestUrls.MinecraftAccessTokenUri.Value,
+                jsonContent);
 
         return response.AccessToken;
     }
 
     public static async Task<bool> IsHaveGameAsync(string accessToken)
     {
-        var response = await Net.SendHttpRequestAsync<OAuthData.ResponseData.CheckHaveGameResponse>(
-            HttpMethod.Get,
-            OAuthData.RequestUrls.CheckHasMc.Value,
-            bearerToken: accessToken);
+        var response = await StaticNet.SendAsync<OAuthData.ResponseData.CheckHaveGameResponse>(HttpMethod.Get,
+            OAuthData.RequestUrls.CheckHasMc.Value, accessToken);
 
         return response.Items.Any(it => !string.IsNullOrEmpty(it.Signature));
     }
@@ -72,9 +82,9 @@ public class MinecraftInfo
     public static async Task<OAuthData.ResponseData.MinecraftPlayerUuidResponse>
         GetPlayerUuidAsync(string accessToken)
     {
-        return await Net.SendHttpRequestAsync<OAuthData.ResponseData.MinecraftPlayerUuidResponse>(
-            HttpMethod.Get,
-            OAuthData.RequestUrls.PlayerUuidUri.Value,
-            bearerToken: accessToken);
+        var response = await StaticNet.SendAsync<OAuthData.ResponseData.MinecraftPlayerUuidResponse>(HttpMethod.Get,
+            OAuthData.RequestUrls.PlayerUuidUri.Value, accessToken);
+
+        return response;
     }
 }

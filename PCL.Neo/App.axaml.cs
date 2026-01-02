@@ -8,6 +8,7 @@ using PCL.Neo.Core.Models.Minecraft.Java;
 using PCL.Neo.Core.Service.Accounts;
 using PCL.Neo.Core.Service.Accounts.MicrosoftAuth;
 using PCL.Neo.Core.Service.Game;
+using PCL.Neo.Core.Utils.Net;
 using PCL.Neo.Services;
 using PCL.Neo.ViewModels;
 using PCL.Neo.ViewModels.Home;
@@ -46,6 +47,7 @@ public class App : Application
             .AddSingleton<IGameService, GameService>()
             .AddSingleton<IGameLauncherService, GameLauncherService>()
             .AddSingleton<IMicrosoftAuthService, MicrosoftAuthService>()
+            .AddSingleton<INetService, NetService>()
             .BuildServiceProvider();
     }
 
