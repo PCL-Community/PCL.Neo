@@ -3,7 +3,7 @@
     Height="500"
     MinHeight="470"
     MinWidth="810"
-    SystemDecorations="None"
+    WindowDecorations="None"
     Title="PCL.Neo"
     TransparencyLevelHint="Transparent"
     Width="850"

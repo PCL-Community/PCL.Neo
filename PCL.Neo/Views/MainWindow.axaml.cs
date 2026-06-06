@@ -8,12 +8,12 @@ using CommunityToolkit.Mvvm.Messaging;
 using PCL.Neo.Animations.Easings;
 using PCL.Neo.Helpers;
 using PCL.Neo.Messages;
-using PCL.Neo.Services;
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CubicEaseOut = Avalonia.Animation.Easings.CubicEaseOut;
+using NavigationType = PCL.Neo.Services.NavigationType;
 
 namespace PCL.Neo.Views;
 

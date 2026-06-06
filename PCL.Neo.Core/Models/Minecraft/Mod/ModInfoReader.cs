@@ -100,7 +100,7 @@ public class ModInfoReader
                     mods.Add(modInfo);
                     break;
                 case ModInfoType.MetaInf:
-                    var tomlContent = Toml.ToModel<MetaModInfo>(rawContent).Mods.First();
+                    var tomlContent = TomlSerializer.Deserialize<MetaModInfo>(rawContent)!.Mods.First();
 
                     // copy mod icon
                     if (!string.IsNullOrEmpty(tomlContent.LogoFile))
