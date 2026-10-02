@@ -9,6 +9,6 @@ public partial class MainWindowViewModel : ViewModelBase
 
     partial void OnAccentChanged(Color value)
     {
-        NeoTheme.Current?.AccentColor  = value;
+        NeoTheme.Current?.AccentColor = value;
     }
 }

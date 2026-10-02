@@ -65,4 +65,14 @@ public readonly struct OklchColor : IEquatable<OklchColor>
     }
 
     public override int GetHashCode() => HashCode.Combine(L, C, H, A);
+
+    public static bool operator ==(OklchColor left, OklchColor right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(OklchColor left, OklchColor right)
+    {
+        return !(left == right);
+    }
 }
