@@ -18,10 +18,19 @@ public static class ColorHelper
             AccentLight3 = Lighten(color, Lerp(0, 0.95 - oklch.L, 0.6)),
             AccentDark1 = Darken(color, Lerp(0, oklch.L - 0.15, 0.2)),
             AccentDark2 = Darken(color, Lerp(0, oklch.L - 0.15, 0.4)),
-            AccentDark3 = Darken(color, Lerp(0, oklch.L - 0.15, 0.6))
+            AccentDark3 = Darken(color, Lerp(0, oklch.L - 0.15, 0.6)),
+            AccentStroke = GenerateStroke()
         };
         
         double Lerp(double a, double b, double t) => a + (b - a) * t;
+        
+        Color GenerateStroke()
+        {
+            var strokeL = Math.Clamp(oklch.L - 0.12, 0.30, 0.40);
+            var strokeC = Math.Min(oklch.C * 0.10, 0.02);
+
+            return GamutMappingToSrgb(new OklchColor(strokeL, strokeC, oklch.H, oklch.A)).ToRgb();
+        }
     }
     
     /// <summary>
@@ -56,35 +65,34 @@ public static class ColorHelper
     {
         // 转换为 OKLCH 空间
         var oklch = color.ToOklch();
-
         // 线性相加
         var newL = Math.Clamp(oklch.L + amount, 0.0, 1.0);
-
-        return GamutMappingToSrgb(new OklchColor(newL, oklch.C, oklch.H, oklch.A)).ToRgb();
         
-        OklchColor GamutMappingToSrgb(OklchColor oklchColor)
+        return GamutMappingToSrgb(new OklchColor(newL, oklch.C, oklch.H, oklch.A)).ToRgb();
+    }
+    
+    private static OklchColor GamutMappingToSrgb(OklchColor oklchColor)
+    {
+        var lowC = 0.0;
+        var midC = 0.0;
+        var highC = oklchColor.C;
+        for (var i = 0; i < 20; i++)
         {
-            var lowC = 0.0;
-            var midC = 0.0;
-            var highC = oklchColor.C;
-            for (var i = 0; i < 20; i++)
-            {
-                midC = (lowC + highC) / 2.0;
+            midC = (lowC + highC) / 2.0;
                 
-                var (linearR, linearG, linearB) = OklchToLinearRgb(oklchColor.L, midC, oklchColor.H);
-                if (IsInSrgb(linearR, linearG, linearB))
-                {
-                    lowC = midC;
-                }
-                else
-                {
-                    highC = midC;
-                }
+            var (linearR, linearG, linearB) = OklchToLinearRgb(oklchColor.L, midC, oklchColor.H);
+            if (IsInSrgb(linearR, linearG, linearB))
+            {
+                lowC = midC;
             }
-
-            return new OklchColor(oklchColor.L, midC, oklchColor.H, oklchColor.A);
+            else
+            {
+                highC = midC;
+            }
         }
 
+        return new OklchColor(oklchColor.L, midC, oklchColor.H, oklchColor.A);
+        
         (double r, double g, double b) OklchToLinearRgb(double l, double c, double h)
         {
             var (oklabL, oklabA, oklabH) = ColorUtils.OklchToOklab(l, c, h);
