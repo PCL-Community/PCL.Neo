@@ -1,11 +1,15 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="PCL.Neo.UI.NeoTheme"
-        xmlns:ns="clr-namespace:PCL.Neo.UI.Styles">
+        xmlns:n="https://github.com/PCL-Community/PCL.Neo">
     <Styles.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ns:NeoColorPaletteResourceProvider />
+                <ResourceInclude Source="Styles/NeoBaseColors.axaml" />
+                <n:NeoColorPaletteResourceProvider />
+                
+                <ResourceInclude Source="Styles/NeoBaseResources.axaml" />
+                <ResourceInclude Source="Styles/Controls/NeoControlResources.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

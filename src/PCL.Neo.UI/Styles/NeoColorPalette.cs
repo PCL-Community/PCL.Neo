@@ -11,5 +11,8 @@ public record NeoColorPalette
     public Color AccentLight1 { get; set; }
     public Color AccentLight2 { get; set; }
     public Color AccentLight3 { get; set; }
+    public Color AccentLight4 { get; set; }
+    public Color AccentLight5 { get; set; }
+    public Color AccentLight6 { get; set; }
     public Color AccentStroke { get; set; }
 }

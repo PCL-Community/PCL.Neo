@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Button -->
+    <Thickness x:Key="NeoButtonPadding">11,5,11,6</Thickness>
+    <Thickness x:Key="NeoButtonBorderThickness">1</Thickness>
+    <CornerRadius x:Key="NeoButtonCornerRadius">3</CornerRadius>
+    
+    <SolidColorBrush x:Key="NeoButtonBackgroundBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoButtonForegroundBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+    <SolidColorBrush x:Key="NeoButtonBorderBrushBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+    <SolidColorBrush x:Key="NeoButtonBackgroundPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight5}" />
+    <SolidColorBrush x:Key="NeoButtonForegroundPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoButtonBorderBrushPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoButtonBackgroundDisabledBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoButtonForegroundDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoButtonBorderBrushDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoButtonAccentBackgroundBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoButtonAccentForegroundBrush" Color="{DynamicResource NeoSystemAccentColor}" />
+    <SolidColorBrush x:Key="NeoButtonAccentBorderBrushBrush" Color="{DynamicResource NeoSystemAccentColor}" />
+    <SolidColorBrush x:Key="NeoButtonAccentBackgroundPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight5}" />
+    <SolidColorBrush x:Key="NeoButtonAccentForegroundPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoButtonAccentBorderBrushPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoButtonRedBackgroundBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoButtonRedForegroundBrush" Color="{DynamicResource NeoColorRedDark}" />
+    <SolidColorBrush x:Key="NeoButtonRedBorderBrushBrush" Color="{DynamicResource NeoColorRedDark}" />
+    <SolidColorBrush x:Key="NeoButtonRedBackgroundPointerOverBrush" Color="{DynamicResource NeoControlFillColorRed}" />
+    <SolidColorBrush x:Key="NeoButtonRedForegroundPointerOverBrush" Color="{DynamicResource NeoColorRedLight}" />
+    <SolidColorBrush x:Key="NeoButtonRedBorderBrushPointerOverBrush" Color="{DynamicResource NeoColorRedLight}" />
+</ResourceDictionary>

@@ -23,9 +23,14 @@
         <Border Background="{DynamicResource NeoSystemAccentColorLight1}" Height="64"/>
         <Border Background="{DynamicResource NeoSystemAccentColorLight2}" Height="64"/>
         <Border Background="{DynamicResource NeoSystemAccentColorLight3}" Height="64"/>
+        <Border Background="{DynamicResource NeoSystemAccentColorLight4}" Height="64"/>
+        <Border Background="{DynamicResource NeoSystemAccentColorLight5}" Height="64"/>
+        <Border Background="{DynamicResource NeoSystemAccentColorLight6}" Height="64"/>
         <Border Background="{DynamicResource NeoSystemAccentColorStroke}" Height="64"/>
         
         <ColorPicker Color="{Binding Accent}" />
+        
+        <Button Content="Test Button" />
     </StackPanel>
 
 </Window>
