@@ -13,9 +13,12 @@ public static class ColorHelper
         return new NeoColorPalette
         {
             Accent = color,
-            AccentLight1 = Lighten(color, Lerp(0, 0.95 - oklch.L, 0.2)),
-            AccentLight2 = Lighten(color, Lerp(0, 0.95 - oklch.L, 0.4)),
-            AccentLight3 = Lighten(color, Lerp(0, 0.95 - oklch.L, 0.6)),
+            AccentLight1 = Lighten(color, Lerp(0, 0.995 - oklch.L, 0.2)),
+            AccentLight2 = Lighten(color, Lerp(0, 0.995 - oklch.L, 0.4)),
+            AccentLight3 = Lighten(color, Lerp(0, 0.995 - oklch.L, 0.6)),
+            AccentLight4 = Lighten(color, Lerp(0, 0.995 - oklch.L, 0.8)),
+            AccentLight5 = Lighten(color, Lerp(0, 0.995 - oklch.L, 0.9)),
+            AccentLight6 = Lighten(color, Lerp(0, 0.995 - oklch.L, 0.95)),
             AccentDark1 = Darken(color, Lerp(0, oklch.L - 0.15, 0.2)),
             AccentDark2 = Darken(color, Lerp(0, oklch.L - 0.15, 0.4)),
             AccentDark3 = Darken(color, Lerp(0, oklch.L - 0.15, 0.6)),
@@ -27,7 +30,7 @@ public static class ColorHelper
         Color GenerateStroke()
         {
             var strokeL = Math.Clamp(oklch.L - 0.12, 0.30, 0.40);
-            var strokeC = Math.Min(oklch.C * 0.10, 0.02);
+            var strokeC = Math.Min(oklch.C * 0.20, 0.10);
 
             return GamutMappingToSrgb(new OklchColor(strokeL, strokeC, oklch.H, oklch.A)).ToRgb();
         }

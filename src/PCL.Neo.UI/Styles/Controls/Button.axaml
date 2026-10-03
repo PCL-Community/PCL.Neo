@@ -1,10 +1,38 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="24">
+            <StackPanel Spacing="24">
+                <Button Content="Test" />
+                <Button Content="Test Disabled" IsEnabled="False" />
+                <Button Classes="accent" Content="Test Accent" />
+                <Button Classes="red" Content="Test Red" />
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+    
     <ControlTheme x:Key="{x:Type Button}" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource NeoButtonBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeoButtonForegroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeoButtonBorderBrushBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource NeoButtonBorderThickness}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource NeoButtonCornerRadius}" />
+        <Setter Property="Padding" Value="{DynamicResource NeoButtonPadding}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Duration="0:0:0.15" Property="Background" />
+                <BrushTransition Duration="0:0:0.15" Property="Foreground" />
+                <BrushTransition Duration="0:0:0.15" Property="BorderBrush" />
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="QuinticEaseOut" />
+            </Transitions>
+        </Setter>
         <Setter Property="Template">
             <ControlTemplate>
                 <ContentPresenter Name="PART_ContentPresenter"
                                   Background="{TemplateBinding Background}"
+                                  Foreground="{TemplateBinding Foreground}"
                                   BorderBrush="{TemplateBinding BorderBrush}"
                                   BorderThickness="{TemplateBinding BorderThickness}"
                                   CornerRadius="{TemplateBinding CornerRadius}"
@@ -15,5 +43,45 @@
                                   VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
             </ControlTemplate>
         </Setter>
+        
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource NeoButtonBackgroundPointerOverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource NeoButtonForegroundPointerOverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoButtonBorderBrushPointerOverBrush}" />
+        </Style>
+        
+        <Style Selector="^:pressed">
+            <Setter Property="RenderTransform" Value="scale(0.955)" />
+        </Style>
+        
+        <Style Selector="^:disabled">
+            <Setter Property="Background" Value="{DynamicResource NeoButtonBackgroundDisabledBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource NeoButtonForegroundDisabledBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoButtonBorderBrushDisabledBrush}" />
+        </Style>
+        
+        <Style Selector="^.accent">
+            <Setter Property="Background" Value="{DynamicResource NeoButtonAccentBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource NeoButtonAccentForegroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoButtonAccentBorderBrushBrush}" />
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="{DynamicResource NeoButtonAccentBackgroundPointerOverBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource NeoButtonAccentForegroundPointerOverBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource NeoButtonAccentBorderBrushPointerOverBrush}" />
+            </Style>
+        </Style>
+        
+        <Style Selector="^.red">
+            <Setter Property="Background" Value="{DynamicResource NeoButtonRedBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource NeoButtonRedForegroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoButtonRedBorderBrushBrush}" />
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="{DynamicResource NeoButtonRedBackgroundPointerOverBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource NeoButtonRedForegroundPointerOverBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource NeoButtonRedBorderBrushPointerOverBrush}" />
+            </Style>
+        </Style>
     </ControlTheme>
 </ResourceDictionary>

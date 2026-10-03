@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="NeoControlFillColorDefaultBrush" Color="{StaticResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoColorGray1Brush" Color="{StaticResource NeoColorGray1}" />
+    <SolidColorBrush x:Key="NeoColorGray2Brush" Color="{StaticResource NeoColorGray2}" />
+    <SolidColorBrush x:Key="NeoColorGray3Brush" Color="{StaticResource NeoColorGray3}" />
+    <SolidColorBrush x:Key="NeoColorGray4Brush" Color="{StaticResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoColorGray5Brush" Color="{StaticResource NeoColorGray5}" />
+    <SolidColorBrush x:Key="NeoColorGray6Brush" Color="{StaticResource NeoColorGray6}" />
+    <SolidColorBrush x:Key="NeoColorGray7Brush" Color="{StaticResource NeoColorGray7}" />
+    <SolidColorBrush x:Key="NeoColorGray8Brush" Color="{StaticResource NeoColorGray8}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorBrush" Color="{DynamicResource NeoSystemAccentColor}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorDark1Brush" Color="{DynamicResource NeoSystemAccentColorDark1}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorDark2Brush" Color="{DynamicResource NeoSystemAccentColorDark2}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorDark3Brush" Color="{DynamicResource NeoSystemAccentColorDark3}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorLight1Brush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorLight2Brush" Color="{DynamicResource NeoSystemAccentColorLight2}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorLight3Brush" Color="{DynamicResource NeoSystemAccentColorLight3}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorLight4Brush" Color="{DynamicResource NeoSystemAccentColorLight4}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorLight5Brush" Color="{DynamicResource NeoSystemAccentColorLight5}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorLight6Brush" Color="{DynamicResource NeoSystemAccentColorLight6}" />
+    <SolidColorBrush x:Key="NeoSystemAccentColorStrokeBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+</ResourceDictionary>
