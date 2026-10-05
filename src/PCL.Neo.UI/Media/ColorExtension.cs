@@ -11,16 +11,16 @@ public static class ColorExtension
         {
             return ToOklch(color.R, color.G, color.B, color.A);
         }
-        
-        public static OklchColor ToOklch(byte r, byte g, byte b, byte a)
-        {
-            var (linearR, linearG, linearB) = ColorUtils.RgbToLinearRgb(r, g, b);
-            var (oklabL, oklabA, oklabB) = ColorUtils.LinearRgbToOklab(linearR, linearG, linearB);
-            var (oklchL, oklchC, oklchH) = ColorUtils.OklabToOklch(oklabL, oklabA, oklabB);
+    }
+    
+    private static OklchColor ToOklch(byte r, byte g, byte b, byte a)
+    {
+        var (linearR, linearG, linearB) = ColorUtils.RgbToLinearRgb(r, g, b);
+        var (oklabL, oklabA, oklabB) = ColorUtils.LinearRgbToOklab(linearR, linearG, linearB);
+        var (oklchL, oklchC, oklchH) = ColorUtils.OklabToOklch(oklabL, oklabA, oklabB);
             
-            var oklchA = a / 255.0;
+        var oklchA = a / 255.0;
             
-            return new OklchColor(oklchL, oklchC, oklchH, oklchA);
-        }
+        return new OklchColor(oklchL, oklchC, oklchH, oklchA);
     }
 }
