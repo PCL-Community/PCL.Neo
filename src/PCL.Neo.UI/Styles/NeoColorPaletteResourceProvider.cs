@@ -16,6 +16,7 @@ public class NeoColorPaletteResourceProvider : ResourceProvider
     public const string AccentLight5Key = "NeoSystemAccentColorLight5";
     public const string AccentLight6Key = "NeoSystemAccentColorLight6";
     public const string AccentStrokeKey = "NeoSystemAccentColorStroke";
+    public const string AccentPressedKey = "NeoSystemAccentColorPressed";
     
     private NeoColorPalette _palette = null!;
     private NeoTheme? _theme;
@@ -39,6 +40,7 @@ public class NeoColorPaletteResourceProvider : ResourceProvider
                 AccentLight5Key => _palette.AccentLight5,
                 AccentLight6Key => _palette.AccentLight6,
                 AccentStrokeKey => _palette.AccentStroke,
+                AccentPressedKey => _palette.AccentPressed,
                 _ => null
             };
         }

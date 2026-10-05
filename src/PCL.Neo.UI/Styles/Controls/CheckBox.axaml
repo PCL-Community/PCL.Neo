@@ -1,0 +1,396 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <StackPanel Spacing="20">
+                <CheckBox>Test Unchecked</CheckBox>
+                <CheckBox IsChecked="True">Test Checked</CheckBox>
+                <CheckBox IsThreeState="True" IsChecked="{x:Null}">Test Indeterminate</CheckBox>
+                <CheckBox IsEnabled="False">Test Disabled</CheckBox>
+                <CheckBox Width="100">Test CheckBox text wrap</CheckBox>
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type CheckBox}" TargetType="CheckBox">
+        <Setter Property="Padding" Value="{DynamicResource NeoCheckBoxPadding}" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="CornerRadius" Value="{DynamicResource NeoCheckBoxCornerRadius}" />
+        <Setter Property="MinHeight" Value="{DynamicResource NeoCheckBoxMinHeight}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundUncheckedBrush}" />
+        <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundUncheckedBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushUncheckedBrush}" />
+        <Setter Property="ClipToBounds" Value="False" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid x:Name="RootGrid" ColumnDefinitions="20,*">
+                    <Border x:Name="PART_Border"
+                            Grid.ColumnSpan="2"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}" />
+
+                    <Grid Grid.Column="0" VerticalAlignment="Top" Height="20">
+                        <Border x:Name="NormalRectangle"
+                                BorderBrush="{DynamicResource NeoCheckBoxCheckBackgroundStrokeUncheckedBrush}"
+                                Background="{DynamicResource NeoCheckBoxCheckBackgroundFillUncheckedBrush}"
+                                BorderThickness="{DynamicResource NeoCheckBoxBorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                UseLayoutRounding="False"
+                                Height="18"
+                                Width="18">
+                            <Border.Transitions>
+                                <Transitions>
+                                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                                    <BrushTransition Property="Background" Duration="0:0:0.15" />
+                                    <DoubleTransition Property="Width" Duration="0:0:0.5" Easing="BackEaseOut" />
+                                    <DoubleTransition Property="Height" Duration="0:0:0.5" Easing="BackEaseOut" />
+                                    <ThicknessTransition Property="Margin" Duration="0:0:0.5" Easing="BackEaseOut" />
+                                </Transitions>
+                            </Border.Transitions>
+                        </Border>
+
+                        <Viewbox UseLayoutRounding="False">
+                            <Panel>
+                                <Panel Height="12" Width="12" />
+                                <Path x:Name="CheckGlyph"
+                                      Fill="{DynamicResource NeoCheckBoxCheckGlyphForegroundUncheckedBrush}"
+                                      Data="{StaticResource NeoCheckMarkPathData}"
+                                      Stretch="Uniform"
+                                      VerticalAlignment="Center"
+                                      FlowDirection="LeftToRight"
+                                      Width="7.5"
+                                      RenderTransform="scale(0)">
+                                    <Path.Transitions>
+                                        <Transitions>
+                                            <TransformOperationsTransition Property="RenderTransform"
+                                                                           Duration="0:0:0.15"
+                                                                           Easing="QuadraticEaseOut" />
+                                        </Transitions>
+                                    </Path.Transitions>
+                                </Path>
+                            </Panel>
+                        </Viewbox>
+
+                        <Border x:Name="IndeterminateRectangle"
+                                Background="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundUncheckedBrush}"
+                                CornerRadius="{DynamicResource NeoCheckBoxIndeterminateRectangleCornerRadius}"
+                                VerticalAlignment="Center"
+                                UseLayoutRounding="False"
+                                Height="10"
+                                Width="10"
+                                RenderTransform="scale(0)">
+                            <Border.Transitions>
+                                <Transitions>
+                                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"
+                                                                   Easing="QuadraticEaseOut" />
+                                </Transitions>
+                            </Border.Transitions>
+                        </Border>
+                    </Grid>
+                    <ContentPresenter x:Name="PART_ContentPresenter"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Content="{TemplateBinding Content}"
+                                      Margin="{TemplateBinding Padding}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Grid.Column="1" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundUncheckedPointerOverBrush}" />
+
+            <Style Selector="^ /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundUncheckedPointerOverBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource NeoCheckBoxBorderBrushUncheckedPointerOverBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Border#NormalRectangle">
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeUncheckedPointerOverBrush}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckBackgroundFillUncheckedPointerOverBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Path#CheckGlyph">
+                <Setter Property="Fill"
+                        Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundUncheckedPointerOverBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundUncheckedPointerOverBrush}" />
+            </Style>
+        </Style>
+
+        <Style Selector="^:pressed">
+            <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundUncheckedPressedBrush}" />
+
+            <Style Selector="^ /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundUncheckedPressedBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushUncheckedPressedBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Border#NormalRectangle">
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeUncheckedPressedBrush}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckBackgroundFillUncheckedPressedBrush}" />
+                <Setter Property="Margin" Value="2" />
+                <Setter Property="Width" Value="14" />
+                <Setter Property="Height" Value="14" />
+            </Style>
+
+            <Style Selector="^ /template/ Path#CheckGlyph">
+                <Setter Property="Fill" Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundUncheckedPressedBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundUncheckedPressedBrush}" />
+            </Style>
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundUncheckedDisabledBrush}" />
+
+            <Style Selector="^ /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundUncheckedDisabledBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushUncheckedDisabledBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Border#NormalRectangle">
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeUncheckedDisabledBrush}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckBackgroundFillUncheckedDisabledBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Path#CheckGlyph">
+                <Setter Property="Fill" Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundUncheckedDisabledBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundUncheckedDisabledBrush}" />
+            </Style>
+        </Style>
+
+        <Style Selector="^:checked">
+            <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundCheckedBrush}" />
+            <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundCheckedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushCheckedBrush}" />
+
+            <Style Selector="^ /template/ Border#NormalRectangle">
+                <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeCheckedBrush}" />
+                <Setter Property="Background" Value="{DynamicResource NeoCheckBoxCheckBackgroundFillCheckedBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Path#CheckGlyph">
+                <Setter Property="Fill" Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundCheckedBrush}" />
+                <Setter Property="RenderTransform" Value="scale(1)" />
+            </Style>
+
+            <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundCheckedBrush}" />
+            </Style>
+
+            <Style Selector="^:pointerover">
+                <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundCheckedPointerOverBrush}" />
+
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxBackgroundCheckedPointerOverBrush}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxBorderBrushCheckedPointerOverBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#NormalRectangle">
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeCheckedPointerOverBrush}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundFillCheckedPointerOverBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Path#CheckGlyph">
+                    <Setter Property="Fill"
+                            Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundCheckedPointerOverBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundCheckedPointerOverBrush}" />
+                </Style>
+            </Style>
+
+            <Style Selector="^:pressed">
+                <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundCheckedPressedBrush}" />
+
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundCheckedPressedBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushCheckedPressedBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#NormalRectangle">
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeCheckedPressedBrush}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundFillCheckedPressedBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Path#CheckGlyph">
+                    <Setter Property="Fill"
+                            Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundCheckedPressedBrush}" />
+                    <Setter Property="RenderTransform" Value="scale(0.7)" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundCheckedPressedBrush}" />
+                </Style>
+            </Style>
+
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundCheckedDisabledBrush}" />
+
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundCheckedDisabledBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushCheckedDisabledBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#NormalRectangle">
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeCheckedDisabledBrush}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundFillCheckedDisabledBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Path#CheckGlyph">
+                    <Setter Property="Fill"
+                            Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundCheckedDisabledBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundCheckedDisabledBrush}" />
+                </Style>
+            </Style>
+        </Style>
+
+        <Style Selector="^:indeterminate">
+            <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundIndeterminateBrush}" />
+            <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundIndeterminateBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushIndeterminateBrush}" />
+
+            <Style Selector="^ /template/ Border#NormalRectangle">
+                <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeIndeterminateBrush}" />
+                <Setter Property="Background" Value="{DynamicResource NeoCheckBoxCheckBackgroundFillIndeterminateBrush}" />
+            </Style>
+
+            <Style Selector="^ /template/ Path#CheckGlyph">
+                <Setter Property="Fill" Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundIndeterminateBrush}" />
+            </Style>
+            
+            <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                <Setter Property="Background"
+                        Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundIndeterminateBrush}" />
+                <Setter Property="RenderTransform" Value="scale(1)" />
+            </Style>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundIndeterminatePointerOverBrush}" />
+
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundIndeterminatePointerOverBrush}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxBorderBrushIndeterminatePointerOverBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#NormalRectangle">
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeIndeterminatePointerOverBrush}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundFillIndeterminatePointerOverBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Path#CheckGlyph">
+                    <Setter Property="Fill"
+                            Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundIndeterminatePointerOverBrush}" />
+                </Style>
+                
+                <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundIndeterminatePointerOverBrush}" />
+                </Style>
+            </Style>
+            
+            <Style Selector="^:pressed">
+                <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundIndeterminatePressedBrush}" />
+
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundIndeterminatePressedBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushIndeterminatePressedBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#NormalRectangle">
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeIndeterminatePressedBrush}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundFillIndeterminatePressedBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Path#CheckGlyph">
+                    <Setter Property="Fill" Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundIndeterminatePressedBrush}" />
+                </Style>
+                
+                <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundIndeterminatePressedBrush}" />
+                    <Setter Property="RenderTransform" Value="scale(0.7)" />
+                </Style>
+            </Style>
+            
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="{DynamicResource NeoCheckBoxForegroundIndeterminateDisabledBrush}" />
+
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoCheckBoxBackgroundIndeterminateDisabledBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource NeoCheckBoxBorderBrushIndeterminateDisabledBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Border#NormalRectangle">
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundStrokeIndeterminateDisabledBrush}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckBackgroundFillIndeterminateDisabledBrush}" />
+                </Style>
+
+                <Style Selector="^ /template/ Path#CheckGlyph">
+                    <Setter Property="Fill" Value="{DynamicResource NeoCheckBoxCheckGlyphForegroundIndeterminateDisabledBrush}" />
+                </Style>
+                
+                <Style Selector="^ /template/ Border#IndeterminateRectangle">
+                    <Setter Property="Background"
+                            Value="{DynamicResource NeoCheckBoxCheckIndeterminateBackgroundIndeterminateDisabledBrush}" />
+                </Style>
+            </Style>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

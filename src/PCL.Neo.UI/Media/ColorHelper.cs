@@ -22,7 +22,8 @@ public static class ColorHelper
             AccentDark1 = Darken(color, Lerp(0, oklch.L - 0.15, 0.2)),
             AccentDark2 = Darken(color, Lerp(0, oklch.L - 0.15, 0.4)),
             AccentDark3 = Darken(color, Lerp(0, oklch.L - 0.15, 0.6)),
-            AccentStroke = GenerateStroke()
+            AccentStroke = GenerateStroke(),
+            AccentPressed = GeneratePressed()
         };
         
         double Lerp(double a, double b, double t) => a + (b - a) * t;
@@ -33,6 +34,12 @@ public static class ColorHelper
             var strokeC = Math.Min(oklch.C * 0.20, 0.10);
 
             return GamutMappingToSrgb(new OklchColor(strokeL, strokeC, oklch.H, oklch.A)).ToRgb();
+        }
+        
+        Color GeneratePressed()
+        {
+            var c = Lighten(color, Lerp(0, 0.995 - oklch.L, 0.9));
+            return new Color(190, c.R, c.G, c.B);
         }
     }
     

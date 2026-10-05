@@ -15,22 +15,25 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <StackPanel Margin="16" Spacing="16">
-        <Border Background="{DynamicResource NeoSystemAccentColorDark3}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorDark2}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorDark1}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColor}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorLight1}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorLight2}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorLight3}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorLight4}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorLight5}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorLight6}" Height="64"/>
-        <Border Background="{DynamicResource NeoSystemAccentColorStroke}" Height="64"/>
+    <ScrollViewer>
+        <StackPanel Margin="16" Spacing="16">
+            <Border Background="{DynamicResource NeoSystemAccentColorDark3}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorDark2}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorDark1}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColor}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorLight1}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorLight2}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorLight3}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorLight4}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorLight5}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorLight6}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorStroke}" Height="64"/>
+            <Border Background="{DynamicResource NeoSystemAccentColorPressed}" Height="64"/>
+            <ColorPicker Color="{Binding Accent}" />
         
-        <ColorPicker Color="{Binding Accent}" />
-        
-        <Button Content="Test Button" />
-    </StackPanel>
+            <Button Content="Test Button" />
+            <CheckBox Content="Test CheckBox" />
+        </StackPanel>
+    </ScrollViewer>
 
 </Window>
