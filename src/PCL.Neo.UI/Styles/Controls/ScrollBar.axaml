@@ -1,0 +1,136 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="24">
+            <StackPanel Orientation="Horizontal" Spacing="24">
+                <StackPanel.Styles>
+                    <Style Selector="ScrollBar">
+                        <Setter Property="Background" Value="AliceBlue" />
+                    </Style>
+                </StackPanel.Styles>
+                
+                <StackPanel Spacing="24">
+                    <ScrollBar Orientation="Horizontal" VerticalAlignment="Center" Width="100" />
+                    <ScrollBar Orientation="Horizontal" VerticalAlignment="Center" Width="100" IsEnabled="False" />
+                </StackPanel>
+                <ScrollBar Orientation="Vertical" HorizontalAlignment="Center" Height="100" />
+                <ScrollBar Orientation="Vertical" HorizontalAlignment="Center" Height="100" IsEnabled="False" />
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="NeoScrollBarThumb" TargetType="Thumb">
+        <Setter Property="Background" Value="{DynamicResource NeoScrollBarThumbBackgroundBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource NeoScrollBarCornerRadius}" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Duration="0:0:0.15" Property="Background" />
+                <DoubleTransition Duration="0:0:0.15" Property="Opacity" />
+            </Transitions>
+        </Setter>
+        
+        <Style Selector="^:pointerover /template/ Border">
+            <Setter Property="Background" Value="{DynamicResource NeoScrollBarThumbBackgroundPointerOverBrush}" />
+            <Setter Property="Opacity" Value="0.9" />
+        </Style>
+        <Style Selector="^:pressed  /template/ Border">
+            <Setter Property="Background" Value="{DynamicResource NeoScrollBarThumbBackgroundPressedBrush}" />
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+        <Style Selector="^:disabled  /template/ Border">
+            <Setter Property="Background" Value="{DynamicResource NeoScrollBarThumbBackgroundDisabledBrush}" />
+        </Style>
+    </ControlTheme>
+    
+    <ControlTheme x:Key="NeoScrollBarVerticalThumb" BasedOn="{StaticResource NeoScrollBarThumb}" TargetType="Thumb">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}" 
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Transitions="{TemplateBinding Transitions}"
+                        HorizontalAlignment="Right"
+                        Margin="2"
+                        Opacity="0.5"
+                        Width="4"/>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+    
+    <ControlTheme x:Key="NeoScrollBarHorizontalThumb" BasedOn="{StaticResource NeoScrollBarThumb}" TargetType="Thumb">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}" 
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Transitions="{TemplateBinding Transitions}"
+                        VerticalAlignment="Bottom"
+                        Margin="2"
+                        Opacity="0.5"
+                        Height="4"/>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+    
+    <ControlTheme x:Key="{x:Type ScrollBar}" TargetType="ScrollBar">
+        <Setter Property="MinWidth" Value="{DynamicResource NeoScrollBarSize}" />
+        <Setter Property="MinHeight" Value="{DynamicResource NeoScrollBarSize}" />
+        <Setter Property="Background" Value="{DynamicResource NeoScrollBarBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeoScrollBarForegroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeoScrollBarBorderBrushBrush}" />
+
+        <Style Selector="^:vertical">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid x:Name="Root">
+                        <Border x:Name="VerticalRoot"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <Grid RowDefinitions="Auto,*,Auto">
+                                <Track Grid.Row="1"
+                                       Minimum="{TemplateBinding Minimum}"
+                                       Maximum="{TemplateBinding Maximum}"
+                                       Value="{TemplateBinding Value, Mode=TwoWay}"
+                                       DeferThumbDrag="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                       ViewportSize="{TemplateBinding ViewportSize}"
+                                       Orientation="{TemplateBinding Orientation}"
+                                       IsDirectionReversed="True">
+                                    <Thumb Theme="{StaticResource NeoScrollBarVerticalThumb}"
+                                           Width="{DynamicResource NeoScrollBarSize}"
+                                           MinHeight="{DynamicResource NeoScrollBarSize}"
+                                           AutomationProperties.Name="Position" />
+                                </Track>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="^:horizontal">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid x:Name="Root">
+                        <Border x:Name="HorizontalRoot"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Track Grid.Column="1"
+                                       Minimum="{TemplateBinding Minimum}"
+                                       Maximum="{TemplateBinding Maximum}"
+                                       Value="{TemplateBinding Value, Mode=TwoWay}"
+                                       DeferThumbDrag="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                       ViewportSize="{TemplateBinding ViewportSize}"
+                                       Orientation="{TemplateBinding Orientation}"
+                                       IsDirectionReversed="True">
+                                    <Thumb Theme="{StaticResource NeoScrollBarHorizontalThumb}"
+                                           Width="{DynamicResource NeoScrollBarSize}"
+                                           MinHeight="{DynamicResource NeoScrollBarSize}"
+                                           AutomationProperties.Name="Position" />
+                                </Track>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>
