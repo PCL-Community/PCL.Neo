@@ -131,4 +131,16 @@
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillIndeterminateDisabledBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundIndeterminateDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundIndeterminateDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    
+    <!-- ScrollBar -->
+    <x:Double x:Key="NeoScrollBarSize">16</x:Double>
+    <CornerRadius x:Key="NeoScrollBarCornerRadius">8</CornerRadius>
+    
+    <SolidColorBrush x:Key="NeoScrollBarBackgroundBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoScrollBarForegroundBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoScrollBarBorderBrushBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoScrollBarThumbBackgroundBrush" Color="{DynamicResource NeoSystemAccentColorLight2}" />
+    <SolidColorBrush x:Key="NeoScrollBarThumbBackgroundPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoScrollBarThumbBackgroundPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoScrollBarThumbBackgroundDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
 </ResourceDictionary>

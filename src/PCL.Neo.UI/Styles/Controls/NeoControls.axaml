@@ -5,6 +5,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="avares://PCL.Neo.UI/Styles/Controls/Button.axaml" />
                 <MergeResourceInclude Source="avares://PCL.Neo.UI/Styles/Controls/CheckBox.axaml" />
+                <MergeResourceInclude Source="avares://PCL.Neo.UI/Styles/Controls/ScrollBar.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
