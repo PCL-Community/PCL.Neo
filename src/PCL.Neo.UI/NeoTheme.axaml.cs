@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using PCL.Neo.UI.Media;
@@ -46,6 +47,7 @@ public class NeoTheme : Avalonia.Styling.Styles
     {
         AvaloniaXamlLoader.Load(sp, this);
         Refresh(true);
+        Application.Current?.ActualThemeVariantChanged += (_, _) => Refresh(true);
         Current = this;
     }
 

@@ -36,97 +36,97 @@
     <StreamGeometry x:Key="NeoCheckMarkPathData">M0,6L1.5,4.5 4.5,7.5 10.5,1.5 12,3 4.5,10.5 0,6z</StreamGeometry>
     
     <!-- Unchecked -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundUncheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeUncheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillUncheckedBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundUncheckedBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundUncheckedBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <!-- Unchecked PointerOver -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedPointerOverBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundUncheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedPointerOverBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeUncheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillUncheckedPointerOverBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundUncheckedPointerOverBrush" Color="{DynamicResource NeoControlFillColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundUncheckedPointerOverBrush" Color="{DynamicResource NeoControlFillColorLight1}" />
     <!-- Unchecked Pressed -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedPressedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedPressedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorPressed}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <!-- Unchecked Disabled -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedDisabledBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundUncheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedDisabledBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushUncheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillUncheckedDisabledBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <!-- Checked -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundCheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeCheckedBrush" Color="{DynamicResource NeoSystemAccentColor}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillCheckedBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundCheckedBrush" Color="{DynamicResource NeoSystemAccentColor}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundCheckedBrush" Color="{DynamicResource NeoSystemAccentColor}" />
     <!-- Checked PointerOver -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedPointerOverBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedPointerOverBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillCheckedPointerOverBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <!-- Checked Pressed -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedPressedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedPressedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorPressed}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <!-- Checked Disabled -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedDisabledBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundCheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedDisabledBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushCheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillCheckedDisabledBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <!-- Indeterminate -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminateBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminateBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundIndeterminateBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminateBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminateBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeIndeterminateBrush" Color="{DynamicResource NeoSystemAccentColor}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillIndeterminateBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundIndeterminateBrush" Color="{DynamicResource NeoSystemAccentColor}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundIndeterminateBrush" Color="{DynamicResource NeoSystemAccentColor}" />
     <!-- Indeterminate PointerOver -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminatePointerOverBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminatePointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundIndeterminatePointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminatePointerOverBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminatePointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeIndeterminatePointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillIndeterminatePointerOverBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundIndeterminatePointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundIndeterminatePointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <!-- Indeterminate Pressed -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminatePressedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminatePressedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundIndeterminatePressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminatePressedBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminatePressedBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeIndeterminatePressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillIndeterminatePressedBrush" Color="{DynamicResource NeoSystemAccentColorPressed}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundIndeterminatePressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckIndeterminateBackgroundIndeterminatePressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <!-- Indeterminate Disabled -->
-    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminateDisabledBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBackgroundIndeterminateDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxForegroundIndeterminateDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
-    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminateDisabledBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoCheckBoxBorderBrushIndeterminateDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundStrokeIndeterminateDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckBackgroundFillIndeterminateDisabledBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
     <SolidColorBrush x:Key="NeoCheckBoxCheckGlyphForegroundIndeterminateDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
@@ -136,9 +136,9 @@
     <x:Double x:Key="NeoScrollBarSize">16</x:Double>
     <CornerRadius x:Key="NeoScrollBarCornerRadius">8</CornerRadius>
     
-    <SolidColorBrush x:Key="NeoScrollBarBackgroundBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoScrollBarBackgroundBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoScrollBarForegroundBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
-    <SolidColorBrush x:Key="NeoScrollBarBorderBrushBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="NeoScrollBarBorderBrushBrush" Color="{DynamicResource NeoColorTransparent}" />
     <SolidColorBrush x:Key="NeoScrollBarThumbBackgroundBrush" Color="{DynamicResource NeoSystemAccentColorLight2}" />
     <SolidColorBrush x:Key="NeoScrollBarThumbBackgroundPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
     <SolidColorBrush x:Key="NeoScrollBarThumbBackgroundPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
