@@ -29,6 +29,15 @@
             <Border Background="{DynamicResource NeoSystemAccentColorLight6}" Height="64"/>
             <Border Background="{DynamicResource NeoSystemAccentColorStroke}" Height="64"/>
             <Border Background="{DynamicResource NeoSystemAccentColorPressed}" Height="64"/>
+            <Border Background="{DynamicResource NeoColorGray1}" Height="64" />
+            <Border Background="{DynamicResource NeoColorGray2}" Height="64" />
+            <Border Background="{DynamicResource NeoColorGray3}" Height="64" />
+            <Border Background="{DynamicResource NeoColorGray4}" Height="64" />
+            <Border Background="{DynamicResource NeoColorGray5}" Height="64" />
+            <Border Background="{DynamicResource NeoColorGray6}" Height="64" />
+            <Border Background="{DynamicResource NeoColorGray7}" Height="64" />
+            <Border Background="{DynamicResource NeoColorGray8}" Height="64" />
+
             <ColorPicker Color="{Binding Accent}" />
         
             <Button Content="Test Button" />
