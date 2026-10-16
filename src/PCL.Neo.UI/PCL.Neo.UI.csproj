@@ -15,8 +15,4 @@
     <AdditionalFiles Include="Styles\Controls\NeoControls.axaml" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controls\" />
-  </ItemGroup>
-
 </Project>
