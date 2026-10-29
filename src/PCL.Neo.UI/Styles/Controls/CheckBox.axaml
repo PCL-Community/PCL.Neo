@@ -40,7 +40,7 @@
                             CornerRadius="{TemplateBinding CornerRadius}" />
 
                     <Grid Grid.Column="0" VerticalAlignment="Top" Height="20">
-                        <Border x:Name="NormalRectangle"
+                        <Border x:Name="BackgroundRectangle"
                                 BorderBrush="{DynamicResource NeoCheckBoxCheckBackgroundStrokeUncheckedBrush}"
                                 Background="{DynamicResource NeoCheckBoxCheckBackgroundFillUncheckedBrush}"
                                 BorderThickness="{DynamicResource NeoCheckBoxBorderThickness}"
