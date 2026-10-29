@@ -117,8 +117,6 @@ public sealed class NeoLoadingAnimationHandler
         if (context is null || oldState == newState)
             return;
 
-        context.LoadingLoopId++;
-        
         _ = TransitionAsync(control, context, oldState, newState);
     }
 
@@ -133,7 +131,7 @@ public sealed class NeoLoadingAnimationHandler
         return (oldState, newState) switch
         {
             (NeoLoadingState.Idle, NeoLoadingState.Loading)
-                => RunLoadingLoopAsync(control, context, context.LoadingLoopId),
+                => RunLoadingLoopAsync(control, context),
             (NeoLoadingState.Idle, NeoLoadingState.Failed)
                 => StartShowIconAnimationAsync(context),
             (NeoLoadingState.Idle, NeoLoadingState.Success)
@@ -146,14 +144,14 @@ public sealed class NeoLoadingAnimationHandler
                 => StartHideIconAnimationAsync(context),
             (NeoLoadingState.Failed, NeoLoadingState.Loading)
                 => Task.WhenAll(StartHideIconAnimationAsync(context),
-                    RunLoadingLoopAsync(control, context, context.LoadingLoopId)),
+                    RunLoadingLoopAsync(control, context)),
             (NeoLoadingState.Failed, NeoLoadingState.Success)
                 => Task.CompletedTask,
             (NeoLoadingState.Success, NeoLoadingState.Idle)
                 => StartHideIconAnimationAsync(context),
             (NeoLoadingState.Success, NeoLoadingState.Loading)
                 => Task.WhenAll(StartHideIconAnimationAsync(context),
-                    RunLoadingLoopAsync(control, context, context.LoadingLoopId)),
+                    RunLoadingLoopAsync(control, context)),
             _ => Task.CompletedTask
         };
     }
@@ -182,12 +180,21 @@ public sealed class NeoLoadingAnimationHandler
         }
     }
 
-    private static async Task RunLoadingLoopAsync(NeoLoading control, NeoLoadingAnimationContext context, int id)
+    private static async Task RunLoadingLoopAsync(NeoLoading control, NeoLoadingAnimationContext context)
     {
-        while (control.State == NeoLoadingState.Loading && context.LoadingLoopId == id)
+        if (context.LoadingLoopRunning)
+        {
+            return;
+        }
+        
+        context.LoadingLoopRunning = true;
+        
+        while (control.State == NeoLoadingState.Loading)
         {
             await StartLoadingAnimationAsync(context);
         }
+
+        context.LoadingLoopRunning = false;
     }
     
     private static async Task StartLoadingAnimationAsync(NeoLoadingAnimationContext context)
@@ -316,7 +323,7 @@ public sealed class NeoLoadingAnimationHandler
         public required CompositionAnimationTarget RightPiecePathTarget { get; init; }
         public required CompositionAnimationTarget IconPathTarget { get; init; }
         public bool PickaxeFallen { get; set; }
-        public int LoadingLoopId { get; set; }
+        public bool LoadingLoopRunning { get; set; }
         
         public void Initialize()
         {
