@@ -3,6 +3,7 @@
         xmlns:vm="using:PCL.Neo.UI.Gallery.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:n="https://github.com/PCL-Community/PCL.Neo"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PCL.Neo.UI.Gallery.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -42,6 +43,13 @@
         
             <Button Content="Test Button" />
             <CheckBox Content="Test CheckBox" />
+            <StackPanel Spacing="16" Orientation="Horizontal" HorizontalAlignment="Center">
+                <n:NeoLoading Text="Loading..." State="{Binding LoadingState}" />
+                <Button Content="Idle" Command="{Binding ChangeStateCommand}" CommandParameter="Idle" />
+                <Button Content="Loading" Classes="accent" Command="{Binding ChangeStateCommand}" CommandParameter="Loading" />
+                <Button Content="Failed" Classes="red" Command="{Binding ChangeStateCommand}" CommandParameter="Failed" />
+                <Button Content="Success" Command="{Binding ChangeStateCommand}" CommandParameter="Success" />
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 

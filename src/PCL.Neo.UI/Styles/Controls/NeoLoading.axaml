@@ -1,0 +1,91 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:n="https://github.com/PCL-Community/PCL.Neo">
+    <Design.PreviewWith>
+        <Border Padding="24">
+            <StackPanel Spacing="24">
+                <n:NeoLoading Text="Test" />
+                <n:NeoLoading Text="Loading" State="Loading" />
+                <n:NeoLoading Text="Failed" State="Failed" />
+                <n:NeoLoading Text="Success" State="Success" />
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type n:NeoLoading}" TargetType="n:NeoLoading">
+        <Setter Property="ClipToBounds" Value="False" />
+        <Setter Property="Foreground" Value="{DynamicResource NeoLoadingForegroundBrush}" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.3" />
+            </Transitions>
+        </Setter>
+        <Setter Property="n:NeoLoadingAnimationHandler.Animation" Value="True" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="False">
+                    <Canvas Width="60" Height="47" HorizontalAlignment="Center" IsHitTestVisible="False" ClipToBounds="False">
+                        <Path x:Name="PickaxePath"
+                              Canvas.Left="10" Canvas.Top="6"
+                              Stretch="Uniform" Height="35" StrokeThickness="2"
+                              Data="{StaticResource NeoLoadingPickaxePathData}"
+                              Stroke="{TemplateBinding Foreground}">
+                        </Path>
+                        
+                        <Path x:Name="LeftPiecePath"
+                              Canvas.Left="7" Canvas.Top="41"
+                              Opacity="0" Stretch="Uniform" Width="3" Height="5"
+                              Fill="{TemplateBinding Foreground}"
+                              Data="{StaticResource NeoLoadingPiecePathData}"
+                              RenderTransformOrigin="0.5,0.5">
+                            <Path.RenderTransform>
+                                <RotateTransform Angle="-45" />
+                            </Path.RenderTransform>
+                        </Path>
+
+                        <Path x:Name="RightPiecePath"
+                              Canvas.Left="14" Canvas.Top="41"
+                              Opacity="0" Stretch="Uniform" Width="3" Height="5"
+                              Fill="{TemplateBinding Foreground}"
+                              Data="{StaticResource NeoLoadingPiecePathData}"
+                              RenderTransformOrigin="0.5,0.5">
+                            <Path.RenderTransform>
+                                <RotateTransform Angle="45" />
+                            </Path.RenderTransform>
+                        </Path>
+
+                        <Path x:Name="IconPath"
+                              Canvas.Left="4" Canvas.Top="23"
+                              Stretch="Uniform" Width="17" Height="17"
+                              Fill="{TemplateBinding Foreground}"
+                              RenderTransformOrigin="0.5,0.5">
+                        </Path>
+
+                        <Rectangle Canvas.Left="0" Canvas.Top="45"
+                                   Width="25" Height="2"
+                                   Fill="{TemplateBinding Foreground}" />
+                    </Canvas>
+                    
+                    <TextBlock x:Name="PART_TextBlock"
+                               HorizontalAlignment="Center"
+                               Text="{TemplateBinding Text}"
+                               TextWrapping="Wrap"
+                               Foreground="{TemplateBinding Foreground}"
+                               FontSize="16" Margin="0,10,0,0" />
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+        
+        <Style Selector="^:loading">
+            <Setter Property="Foreground" Value="{DynamicResource NeoLoadingForegroundLoadingBrush}" />
+        </Style>
+        
+        <Style Selector="^:failed">
+            <Setter Property="Foreground" Value="{DynamicResource NeoLoadingForegroundFailedBrush}" />
+        </Style>
+        
+        <Style Selector="^:success">
+            <Setter Property="Foreground" Value="{DynamicResource NeoLoadingForegroundSuccessBrush}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>
