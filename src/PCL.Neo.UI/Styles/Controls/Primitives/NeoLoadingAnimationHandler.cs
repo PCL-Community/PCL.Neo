@@ -236,11 +236,13 @@ public sealed class NeoLoadingAnimationHandler
         ani5.InsertKeyFrame(1, 0);
         ani5.Duration = TimeSpan.FromMilliseconds(100);
         ani5.DelayTime = TimeSpan.FromMilliseconds(50);
+        ani5.DelayBehavior = AnimationDelayBehavior.SetInitialValueBeforeDelay;
         ani5.Target = "Opacity";
         ani6.InsertKeyFrame(0, 1);
         ani6.InsertKeyFrame(1, 0);
         ani6.Duration = TimeSpan.FromMilliseconds(100);
         ani6.DelayTime = TimeSpan.FromMilliseconds(50);
+        ani6.DelayBehavior = AnimationDelayBehavior.SetInitialValueBeforeDelay;
         ani6.Target = "Opacity";
 
         await Task.WhenAll(

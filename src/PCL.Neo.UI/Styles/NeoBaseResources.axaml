@@ -12,6 +12,8 @@
     <SolidColorBrush x:Key="NeoColorGray8Brush" Color="{StaticResource NeoColorGray8}" />
     <SolidColorBrush x:Key="NeoColorRedLightBrush" Color="{StaticResource NeoColorRedLight}" />
     <SolidColorBrush x:Key="NeoColorRedDarkBrush" Color="{StaticResource NeoColorRedDark}" />
+    <SolidColorBrush x:Key="NeoColorGreenLightBrush" Color="{StaticResource NeoColorGreenLight}" />
+    <SolidColorBrush x:Key="NeoColorGreenDarkBrush" Color="{StaticResource NeoColorGreenDark}" />
     <SolidColorBrush x:Key="NeoSystemAccentColorBrush" Color="{DynamicResource NeoSystemAccentColor}" />
     <SolidColorBrush x:Key="NeoSystemAccentColorDark1Brush" Color="{DynamicResource NeoSystemAccentColorDark1}" />
     <SolidColorBrush x:Key="NeoSystemAccentColorDark2Brush" Color="{DynamicResource NeoSystemAccentColorDark2}" />

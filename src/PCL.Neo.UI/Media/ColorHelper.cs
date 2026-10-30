@@ -58,7 +58,7 @@ public static class ColorHelper
 
         Color GenerateStroke(bool isDark)
         {
-            var strokeL = Math.Clamp(oklch.L - 0.12, 0.30, 0.40);
+            var strokeL = Math.Clamp(oklch.L - (isDark ? -0.2 : 0.12), isDark ? 0.60 : 0.30, isDark ? 0.80 : 0.40);
             var strokeC = Math.Min(oklch.C * (isDark ? 0.10 : 0.20), isDark ? 0.08 : 0.10);
 
             return GamutMappingToSrgb(new OklchColor(strokeL, strokeC, oklch.H, oklch.A)).ToRgb();
