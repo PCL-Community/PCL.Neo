@@ -143,6 +143,85 @@
     <SolidColorBrush x:Key="NeoLoadingForegroundFailedBrush" Color="{DynamicResource NeoColorRedLight}" />
     <SolidColorBrush x:Key="NeoLoadingForegroundSuccessBrush" Color="{DynamicResource NeoColorGreenLight}" />
   
+    <!-- [RadioButton] -->
+    <Thickness x:Key="NeoRadioButtonPadding">6,0,0,0</Thickness>
+    <Thickness x:Key="NeoRadioButtonButtonPadding">12,0,12,0</Thickness>
+    <CornerRadius x:Key="NeoRadioButtonCornerRadius">3</CornerRadius>
+    <CornerRadius x:Key="NeoRadioButtonButtonCornerRadius">13.5</CornerRadius>
+    <x:Double x:Key="NeoRadioButtonStrokeThickness">1</x:Double>
+    <x:Double x:Key="NeoRadioButtonMinHeight">20</x:Double>
+    <x:Double x:Key="NeoRadioButtonButtonHeight">27</x:Double>
+  
+    <!-- Unchecked -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundUncheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundUncheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushUncheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeUncheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillUncheckedBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeUncheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillUncheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+    <!-- Unchecked PointerOver -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundUncheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundUncheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushUncheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeUncheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillUncheckedPointerOverBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeUncheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillUncheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <!-- Unchecked Pressed -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundUncheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushUncheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorPressed}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillUncheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <!-- Unchecked Disabled -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundUncheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushUncheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillUncheckedDisabledBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillUncheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <!-- Checked -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundCheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundCheckedBrush" Color="{DynamicResource NeoSystemAccentColorStroke}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushCheckedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeCheckedBrush" Color="{DynamicResource NeoSystemAccentColor}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillCheckedBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeCheckedBrush" Color="{DynamicResource NeoSystemAccentColor}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillCheckedBrush" Color="{DynamicResource NeoSystemAccentColor}" />
+    <!-- Checked PointerOver -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundCheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushCheckedPointerOverBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillCheckedPointerOverBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillCheckedPointerOverBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <!-- Checked Pressed -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundCheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushCheckedPressedBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorPressed}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillCheckedPressedBrush" Color="{DynamicResource NeoSystemAccentColorLight1}" />
+    <!-- Checked Disabled -->
+    <SolidColorBrush x:Key="NeoRadioButtonBackgroundCheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonForegroundCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoRadioButtonBorderBrushCheckedDisabledBrush" Color="{DynamicResource NeoColorTransparent}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseStrokeCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoRadioButtonOuterEllipseFillCheckedDisabledBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseStrokeCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    <SolidColorBrush x:Key="NeoRadioButtonInnerEllipseFillCheckedDisabledBrush" Color="{DynamicResource NeoColorGray4}" />
+    
+    <!-- Button Unchecked -->
+    <SolidColorBrush x:Key="NeoRadioButtonButtonBackgroundUncheckedBrush" Color="{DynamicResource NeoControlFillColorDefault}" />
+    <SolidColorBrush x:Key="NeoRadioButtonButtonForegroundUncheckedBrush" Color="{DynamicResource NeoColorGray8}" />
+    <SolidColorBrush x:Key="NeoRadioButtonButtonBorderBrushUncheckedBrush" Color="{DynamicResource NeoColorGray8}" />
+    
     <!-- [ScrollBar] -->
     <x:Double x:Key="NeoScrollBarSize">16</x:Double>
     <CornerRadius x:Key="NeoScrollBarCornerRadius">8</CornerRadius>

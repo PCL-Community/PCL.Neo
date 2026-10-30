@@ -50,6 +50,7 @@
                 <Button Content="Failed" Classes="red" Command="{Binding ChangeStateCommand}" CommandParameter="Failed" />
                 <Button Content="Success" Command="{Binding ChangeStateCommand}" CommandParameter="Success" />
             </StackPanel>
+            <RadioButton Content="Test RadioButton" />
         </StackPanel>
     </ScrollViewer>
 

@@ -1,0 +1,265 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <StackPanel Spacing="20">
+                <RadioButton Content="Test Unchecked" />
+                <RadioButton Content="Test Checked" IsChecked="True" />
+                <RadioButton Content="Test Disabled" IsEnabled="False" />
+                <RadioButton Content="Test RadioButton text wrap" Width="120" />
+                <RadioButton Content="Test Button RadioButton" Classes="button" />
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+    
+    <ControlTheme x:Key="{x:Type RadioButton}" TargetType="RadioButton">
+        <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundUncheckedBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundUncheckedBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NeoRadioButtonBorderBrushUncheckedBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource NeoRadioButtonCornerRadius}" />
+        <Setter Property="Padding" Value="{DynamicResource NeoRadioButtonPadding}" />
+        <Setter Property="MinHeight" Value="{DynamicResource NeoRadioButtonMinHeight}" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="RadioButton">
+                <Grid x:Name="RootGrid" ColumnDefinitions="20,*">
+                    <Border x:Name="PART_Border"
+                            Grid.ColumnSpan="2"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}" />
+                    
+                    <Grid Grid.Column="0" VerticalAlignment="Top" Height="20" UseLayoutRounding="False">
+                        <Ellipse x:Name="OuterEllipse"
+                                 Stroke="{DynamicResource NeoRadioButtonOuterEllipseStrokeUncheckedBrush}"
+                                 StrokeThickness="{DynamicResource NeoRadioButtonStrokeThickness}"
+                                 Fill="{DynamicResource NeoRadioButtonOuterEllipseFillUncheckedBrush}"
+                                 Width="18"
+                                 Height="18">
+                            <Ellipse.Transitions>
+                                <Transitions>
+                                    <BrushTransition Property="Stroke" Duration="0:0:0.15" />
+                                    <BrushTransition Property="Fill" Duration="0:0:0.15" />
+                                    <DoubleTransition Property="Width" Duration="0:0:0.5" Easing="BackEaseOut" />
+                                    <DoubleTransition Property="Height" Duration="0:0:0.5" Easing="BackEaseOut" />
+                                    <ThicknessTransition Property="Margin" Duration="0:0:0.5" Easing="BackEaseOut" />
+                                </Transitions>
+                            </Ellipse.Transitions>
+                        </Ellipse>
+                        
+                        <Ellipse x:Name="InnerEllipse"
+                                 Stroke="{DynamicResource NeoRadioButtonInnerEllipseStrokeUncheckedBrush}"
+                                 StrokeThickness="0"
+                                 Fill="{DynamicResource NeoRadioButtonInnerEllipseFillUncheckedBrush}"
+                                 Width="9"
+                                 Height="9"
+                                 RenderTransform="scale(0)">
+                            <Ellipse.Transitions>
+                                <Transitions>
+                                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"
+                                                                   Easing="QuadraticEaseOut" />
+                                </Transitions>
+                            </Ellipse.Transitions>
+                        </Ellipse>
+                    </Grid>
+                    
+                    <ContentPresenter x:Name="PART_ContentPresenter"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Content="{TemplateBinding Content}"
+                                      Margin="{TemplateBinding Padding}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"
+                                      TextWrapping="Wrap"
+                                      FontSize="13"
+                                      Grid.Column="1" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        
+        <Style Selector="^:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundUncheckedPointerOverBrush}" />
+            
+            <Style Selector="^ /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundUncheckedPointerOverBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource NeoRadioButtonBorderBrushUncheckedPointerOverBrush}" />
+            </Style>
+            
+            <Style Selector="^ /template/ Ellipse#OuterEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonOuterEllipseStrokeUncheckedPointerOverBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonOuterEllipseFillUncheckedPointerOverBrush}" />
+            </Style>
+            
+            <Style Selector="^ /template/ Ellipse#InnerEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonInnerEllipseStrokeUncheckedPointerOverBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonInnerEllipseFillUncheckedPointerOverBrush}" />
+            </Style>
+        </Style>
+        
+        <Style Selector="^:pressed">
+            <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundUncheckedPressedBrush}" />
+            
+            <Style Selector="^ /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundUncheckedPressedBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource NeoRadioButtonBorderBrushUncheckedPressedBrush}" />
+            </Style>
+            
+            <Style Selector="^ /template/ Ellipse#OuterEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonOuterEllipseStrokeUncheckedPressedBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonOuterEllipseFillUncheckedPressedBrush}" />
+                <Setter Property="Margin" Value="2" />
+                <Setter Property="Width" Value="14" />
+                <Setter Property="Height" Value="14" />
+            </Style>
+            
+            <Style Selector="^ /template/ Ellipse#InnerEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonInnerEllipseStrokeUncheckedPressedBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonInnerEllipseFillUncheckedPressedBrush}" />
+            </Style>
+        </Style>
+        
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundUncheckedDisabledBrush}" />
+            
+            <Style Selector="^ /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundUncheckedDisabledBrush}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource NeoRadioButtonBorderBrushUncheckedDisabledBrush}" />
+            </Style>
+            
+            <Style Selector="^ /template/ Ellipse#OuterEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonOuterEllipseStrokeUncheckedDisabledBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonOuterEllipseFillUncheckedDisabledBrush}" />
+            </Style>
+            
+            <Style Selector="^ /template/ Ellipse#InnerEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonInnerEllipseStrokeUncheckedDisabledBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonInnerEllipseFillUncheckedDisabledBrush}" />
+            </Style>
+        </Style>
+        
+        <Style Selector="^:checked">
+            <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundCheckedBrush}" />
+            <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundCheckedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoRadioButtonBorderBrushCheckedBrush}" />
+            
+            <Style Selector="^ /template/ Ellipse#OuterEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonOuterEllipseStrokeCheckedBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonOuterEllipseFillCheckedBrush}" />
+            </Style>
+            
+            <Style Selector="^ /template/ Ellipse#InnerEllipse">
+                <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonInnerEllipseStrokeCheckedBrush}" />
+                <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonInnerEllipseFillCheckedBrush}" />
+                <Setter Property="RenderTransform" Value="scale(1)" />
+            </Style>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundCheckedPointerOverBrush}" />
+            
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundCheckedPointerOverBrush}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoRadioButtonBorderBrushCheckedPointerOverBrush}" />
+                </Style>
+            
+                <Style Selector="^ /template/ Ellipse#OuterEllipse">
+                    <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonOuterEllipseStrokeCheckedPointerOverBrush}" />
+                    <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonOuterEllipseFillCheckedPointerOverBrush}" />
+                </Style>
+            
+                <Style Selector="^ /template/ Ellipse#InnerEllipse">
+                    <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonInnerEllipseStrokeCheckedPointerOverBrush}" />
+                    <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonInnerEllipseFillCheckedPointerOverBrush}" />
+                </Style>
+            </Style>
+            
+            <Style Selector="^:pressed">
+                <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundCheckedPressedBrush}" />
+            
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundCheckedPressedBrush}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoRadioButtonBorderBrushCheckedPressedBrush}" />
+                </Style>
+            
+                <Style Selector="^ /template/ Ellipse#OuterEllipse">
+                    <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonOuterEllipseStrokeCheckedPressedBrush}" />
+                    <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonOuterEllipseFillCheckedPressedBrush}" />
+                </Style>
+            
+                <Style Selector="^ /template/ Ellipse#InnerEllipse">
+                    <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonInnerEllipseStrokeCheckedPressedBrush}" />
+                    <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonInnerEllipseFillCheckedPressedBrush}" />
+                    <Setter Property="RenderTransform" Value="scale(0.7)" />
+                </Style>
+            </Style>
+            
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonForegroundCheckedDisabledBrush}" />
+            
+                <Style Selector="^ /template/ Border#PART_Border">
+                    <Setter Property="Background" Value="{DynamicResource NeoRadioButtonBackgroundCheckedDisabledBrush}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource NeoRadioButtonBorderBrushCheckedDisabledBrush}" />
+                </Style>
+            
+                <Style Selector="^ /template/ Ellipse#OuterEllipse">
+                    <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonOuterEllipseStrokeCheckedDisabledBrush}" />
+                    <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonOuterEllipseFillCheckedDisabledBrush}" />
+                </Style>
+            
+                <Style Selector="^ /template/ Ellipse#InnerEllipse">
+                    <Setter Property="Stroke" Value="{DynamicResource NeoRadioButtonInnerEllipseStrokeCheckedDisabledBrush}" />
+                    <Setter Property="Fill" Value="{DynamicResource NeoRadioButtonInnerEllipseFillCheckedDisabledBrush}" />
+                </Style>
+            </Style>
+        </Style>
+        
+        <Style Selector="^.button">
+            <Setter Property="Background" Value="{DynamicResource NeoRadioButtonButtonBackgroundUncheckedBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonButtonForegroundUncheckedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource NeoRadioButtonButtonBorderBrushUncheckedBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="{DynamicResource NeoRadioButtonButtonCornerRadius}" />
+            <Setter Property="Padding" Value="{DynamicResource NeoRadioButtonButtonPadding}" />
+            <Setter Property="MinHeight" Value="{DynamicResource NeoRadioButtonButtonHeight}" />
+            <Setter Property="MaxHeight" Value="{DynamicResource NeoRadioButtonButtonHeight}" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Template">
+                <ControlTemplate TargetType="RadioButton">
+                    <ContentPresenter Name="PART_ContentPresenter"
+                                      Background="{TemplateBinding Background}"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}"
+                                      CornerRadius="{TemplateBinding CornerRadius}"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Padding="{TemplateBinding Padding}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </ControlTemplate>
+            </Setter>
+            
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="{DynamicResource NeoRadioButtonButtonBackgroundUncheckedPointerOverBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource NeoRadioButtonButtonForegroundUncheckedPointerOverBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource NeoRadioButtonButtonBorderBrushUncheckedPointerOverBrush}" />
+            </Style>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>
